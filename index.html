@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     aiBubble.className = "chat-bubble chat-ai chat-animate";
 
     // format biar rapi
-    aiBubble.innerHTML = marked.parse(data.reply);
+    typeText(aiBubble, data.reply);
 
     chatBox.appendChild(aiBubble);
     chatBox.scrollTop = chatBox.scrollHeight;
