@@ -182,7 +182,7 @@
 </head>
 <body class="dark:bg-slate-950 transition-colors duration-500">
 
-    <!-- Animasi Background (Blobs) -->
+    <!-- Animasi Background -->
     <div class="fixed inset-0 z-[-1] overflow-hidden bg-slate-100 dark:bg-[#020617] transition-colors duration-500">
         <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary opacity-20 dark:opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
         <div class="absolute top-[20%] right-[-10%] w-80 h-80 bg-secondary opacity-20 dark:opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-blob" style="animation-delay: 2s;"></div>
@@ -235,7 +235,6 @@
             
             <!-- ================= PAGE: BERANDA ================= -->
             <section id="page-home" class="page-view active px-5 pt-6">
-                
                 <!-- APP INFO BANNER -->
                 <div class="relative glass-card border-none bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-800 dark:to-slate-950 text-white overflow-hidden shadow-lg mb-4">
                     <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
@@ -436,7 +435,7 @@
                         <h2 class="text-xl font-extrabold text-slate-800 dark:text-white mb-6">Portal Pengurus RT</h2>
                         <input type="password" id="admin-pin" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-4 text-center tracking-[0.75em] text-xl font-black focus:ring-2 focus:ring-primary outline-none dark:text-white transition-all mb-4" placeholder="PIN">
                         <button onclick="loginAdmin()" class="w-full bg-slate-800 dark:bg-white dark:text-slate-900 hover:bg-slate-900 text-white font-extrabold py-4 rounded-xl shadow-lg transition-transform active:scale-95 mb-3">Otentikasi Masuk</button>
-                        <p class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-circle-info text-primary"></i> Pastikan Pin Tidak Lupa</p>
+                        <p class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-circle-info text-primary"></i> Gunakan PIN simulasi: 1234</p>
                     </div>
                 </div>
 
@@ -622,13 +621,21 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // =========================================================================
+        // PENGATURAN API KEY GEMINI (UBAH BARIS INI UNTUK GITHUB PAGES)
+        // =========================================================================
+        // Jangan hapus tanda kutip ("")-nya. Masukkan kode API Anda di dalamnya.
+        const apiKey = "AIzaSyCTcJ7MbPzp-kNahPoiAbwwV1iqkHTjdY0"; 
+        
+        // =========================================================================
+
         const fallbackConfig = {
-  apiKey: "AIzaSyAVGWcJigurlbbyKuz-WjAYJ2GnY9HyXc8",
-  authDomain: "smart-rt-004.firebaseapp.com",
-  projectId: "smart-rt-004",
-  storageBucket: "smart-rt-004.firebasestorage.app",
-  messagingSenderId: "193772322945",
-  appId: "1:193772322945:web:23583a0a9b4c8e458c8d80"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
         
         const isCanvasEnv = typeof __firebase_config !== 'undefined';
@@ -641,7 +648,7 @@
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'smart-rt-004-bekasi';
 
-        // 1. DATA DEFAULT RT (Pengurus Sesuai Hierarki, Agenda/Info Kosong)
+        // 1. DATA DEFAULT RT
         const DEFAULT_DATA = {
             stats: { rumah: 45, kk: 52, warga: 184, laki: 90, perempuan: 94 },
             news: [],
@@ -684,7 +691,6 @@
         
         let db, auth;
 
-        // Inisialisasi Database (Hanya jalan jika Firebase Config valid)
         try {
             if(isCanvasEnv && firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 const app = initializeApp(firebaseConfig);
@@ -695,9 +701,6 @@
             console.error("Firebase init failed:", e);
         }
 
-        // =========================================================================
-        // SISTEM TOAST NOTIFICATION (Keterangan Berhasil)
-        // =========================================================================
         window.showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -719,14 +722,10 @@
             }, 3000);
         };
 
-        // =========================================================================
-        // DATA ACCESS LAYER (Bisa Handle Firestore Cloud maupun LocalStorage)
-        // =========================================================================
         async function fetchCollection(colName) {
             if(isCanvasEnv && db && auth.currentUser) {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', colName);
                 onSnapshot(colRef, (snapshot) => {
-                    // Jika data kosong di cloud tapi ada DEFAULT_DATA, kita inject otomatis (Kecuali news, agenda, panduan yang memang di-setting kosong dari awal)
                     if(snapshot.empty && DEFAULT_DATA[colName].length > 0 && colName === 'board') {
                         DEFAULT_DATA[colName].forEach(async (item) => {
                             await addDoc(colRef, { ...item, createdAt: Date.now() });
@@ -801,13 +800,9 @@
             }
         }
 
-        // =========================================================================
-        // ENGINE RENDERING
-        // =========================================================================
         function renderAll() {
             const { stats, news, agenda, board, panduan } = window.rtData;
 
-            // Stats
             if(stats) {
                 document.getElementById('stat-rumah').innerText = stats.rumah || '--';
                 document.getElementById('stat-kk').innerText = stats.kk || '--';
@@ -821,7 +816,6 @@
                 document.getElementById('edit-perempuan').value = stats.perempuan || '';
             }
 
-            // Agenda (Tampilan Kosong yang Elegan)
             const emptyAgenda = `<div class="w-full text-center py-5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl mb-4"><p class="text-xs font-semibold text-slate-400">Belum ada agenda terdekat</p></div>`;
             document.getElementById('home-agenda-container').innerHTML = agenda.length > 0 ? agenda.map(a => `
                 <div class="min-w-[150px] glass-card snap-start !p-4 border-l-4 border-l-amber-500 hover:-translate-y-1 transition-transform">
@@ -848,7 +842,6 @@
                 </div>
             `).join('');
 
-            // Kabar (Tampilan Kosong yang Elegan)
             const emptyNews = `<div class="w-full text-center py-5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl mb-4"><p class="text-xs font-semibold text-slate-400">Belum ada informasi terbaru</p></div>`;
             const renderNews = news.map(n => `
                 <div class="glass-card flex gap-4 items-center !p-4 group mb-3">
@@ -875,7 +868,6 @@
                 </div>
             `).join('');
 
-            // Pengurus (Hierarki KSB & Bidang)
             const ksbRoles = ['Ketua', 'Sekretaris', 'Bendahara'];
             const ksb = board.filter(b => ksbRoles.includes(b.role));
             const bidang = board.filter(b => !ksbRoles.includes(b.role));
@@ -910,7 +902,6 @@
                 </div>
             `).join('');
 
-            // Panduan
             const emptyPanduan = `<div class="w-full text-center py-5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl mb-4"><p class="text-xs font-semibold text-slate-400">Belum ada panduan layanan</p></div>`;
             document.getElementById('panduan-container').innerHTML = panduan.length > 0 ? panduan.map(p => `
                 <details class="glass-card group cursor-pointer p-0 overflow-hidden mb-3">
@@ -934,9 +925,6 @@
             `).join('');
         }
 
-        // =========================================================================
-        // UI & NAVIGATION LOGIC
-        // =========================================================================
         let isLoaded = false;
         function hideLoader() {
             if(!isLoaded) {
@@ -948,7 +936,7 @@
                 isLoaded = true;
             }
         }
-        setTimeout(hideLoader, 3000); // Failsafe loader 3 detik
+        setTimeout(hideLoader, 3000); 
 
         window.toggleThemeMenu = () => document.getElementById('theme-menu').classList.toggle('active');
         window.setTheme = (themeName) => {
@@ -1001,11 +989,8 @@
             }
         }
 
-        // =========================================================================
-        // ADMIN PANEL CRUD (Terkoneksi Toast & Database)
-        // =========================================================================
         window.loginAdmin = () => {
-            if(document.getElementById('admin-pin').value === '2504') {
+            if(document.getElementById('admin-pin').value === '1234') {
                 document.getElementById('admin-login-view').classList.add('hidden');
                 document.getElementById('admin-dashboard-view').classList.remove('hidden');
                 document.getElementById('admin-pin').value = '';
@@ -1079,10 +1064,6 @@
             e.target.reset();
         }
 
-        // =========================================================================
-        // GOOGLE GEMINI AI CHAT LOGIC (WA Style)
-        // =========================================================================
-        const apiKey = "AIzaSyBOd0kHirf9bJcNrMBlBBWwQqEWWHviJSk"; // API Key Gemini (Otomatis disediakan environment Canvas)
         const chatInput = document.getElementById('chat-input');
         const chatMessages = document.getElementById('chat-messages');
         const quickPrompts = document.getElementById('quick-prompts');
@@ -1108,17 +1089,36 @@
 
         async function callGeminiAPI(prompt, retryCount = 0) {
             const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik!";
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            
+            // Logika Deteksi Cerdas:
+            // 1. Menggunakan model bawaan (2.5-preview) JIKA sedang berjalan di preview environment.
+            // 2. Menggunakan model Publik terbaru (1.5-flash) JIKA diunggah ke GitHub Pages (menggunakan key manual).
+            const modelName = isCanvasEnv ? "gemini-2.5-flash-preview-09-2025" : "gemini-1.5-flash";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+            
             try {
+                if(!apiKey) throw new Error("API Key belum diisi");
+
                 const response = await fetch(url, { 
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ 
+                        contents: [{ parts: [{ text: prompt }] }], 
+                        systemInstruction: { parts: [{ text: systemPrompt }] } 
+                    }) 
                 });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                if (!response.ok) {
+                    const errData = await response.text();
+                    throw new Error(`HTTP ${response.status} - ${errData}`);
+                }
+                
                 const data = await response.json();
                 return data.candidates?.[0]?.content?.parts?.[0]?.text || "Hmm, saya agak bingung memproses itu.";
             } catch (error) {
-                if (retryCount < 3) {
+                console.error("Info Error Gemini:", error.message);
+                
+                if (retryCount < 3 && apiKey && !error.message.includes("HTTP 400") && !error.message.includes("HTTP 404")) {
                     await new Promise(r => setTimeout(r, [1000, 2000, 4000][retryCount]));
                     return callGeminiAPI(prompt, retryCount + 1);
                 }
@@ -1136,7 +1136,7 @@
                 return "Waduh! Lapor aja langsung lewat menu <b>Lapor</b> di bagian bawah. Pesanmu bakal masuk ke WhatsApp pengurus, jadi cepat ditangani! 🚨";
             if(lower.includes('halo') || lower.includes('hai'))
                 return "Halo warga RT 004! 👋 Kumaha damang? Ada yang bisa dibantu hari ini? 😊";
-            return "Hai warga! Maaf nih, Pemuda Pintar lagi mode standar (koneksi API belum aktif). Tapi tenang aja, kamu tetep bisa tanya seputar Surat, Lapor, atau Pengurus! 🤖";
+            return "Hai warga! Maaf nih, Pemuda Pintar lagi mode standar (koneksi API belum aktif/bermasalah). Tapi tenang aja, kamu tetep bisa tanya seputar Surat, Lapor, atau Pengurus! 🤖";
         }
 
         window.sendChat = async (e) => {
@@ -1164,9 +1164,6 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // =========================================================================
-        // INISIALISASI SAAT HALAMAN DIMUAT (Otentikasi & Database)
-        // =========================================================================
         window.addEventListener('load', async () => {
             const savedTheme = localStorage.getItem('theme_color') || 'default';
             setTheme(savedTheme);
