@@ -1112,8 +1112,16 @@ async function callGeminiAPI(prompt, retryCount = 0) {
 
         const data = await response.json();
 
-        return data.candidates?.[0]?.content?.parts?.[0]?.text 
-            || "AI lagi mikir 🤔";
+        console.log("AI RESPONSE:", data);
+
+        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!text || text.trim() === "") {
+            console.warn("AI kosong, pakai dummy");
+            return dummyAIResponse(prompt);
+        }
+
+        return text;
 
     } catch (error) {
         console.error("AI ERROR:", error);
@@ -1125,7 +1133,7 @@ async function callGeminiAPI(prompt, retryCount = 0) {
 
         return "AI lagi sibuk, coba lagi ya 🙏";
     }
-        }
+}
 
         function dummyAIResponse(msg) {
             const lower = msg.toLowerCase();
