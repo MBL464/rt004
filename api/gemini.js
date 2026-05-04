@@ -1,72 +1,90 @@
-export default async function handler(req, res) {
-  // 🔥 CORS WAJIB
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+<!-- ... existing code ... -->
+    <script>
+let chatInput, chatMessages, quickPrompts;
 
-  // 🔥 HANDLE PREFLIGHT (INI YANG KAMU KURANG)
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
+document.addEventListener("DOMContentLoaded", function () {
+    chatInput = document.getElementById('chat-input');
+    chatMessages = document.getElementById('chat-messages');
+    quickPrompts = document.getElementById('quick-prompts');
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+    // 🔥 GANTI ATAU TAMBAHKAN EVENT LISTENER SUBMIT FORM INI 🔥
+    const chatForm = document.getElementById('chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Mencegah halaman reload
+            
+            const message = chatInput.value.trim();
+            if (!message) return;
 
-  try {
-    const { message } = req.body;
+            // 1. Tampilkan Chat User di Layar
+            const userMsgHTML = `
+                <div class="flex justify-end mb-4">
+                    <div class="bg-primary text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-[80%] shadow-sm">
+                        <p class="text-sm">${message}</p>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', userMsgHTML);
+            chatInput.value = ''; // Kosongkan input
+            
+            // Sembunyikan quick prompts jika ada
+            if (quickPrompts) quickPrompts.classList.add('hidden');
 
-    if (!message) {
-      return res.status(400).json({ error: "Message kosong" });
-    }
+            // 2. Tampilkan Animasi "Berpikir..." di Layar
+            // Buat ID unik agar nanti teks ini bisa diganti dengan jawaban AI
+            const aiMsgId = 'ai-msg-' + Date.now(); 
+            const aiMsgHTML = `
+                <div class="flex justify-start mb-4">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-2 flex-shrink-0">
+                        🤖
+                    </div>
+                    <div class="bg-white dark:bg-darkCard text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-sm px-4 py-2 max-w-[80%] shadow-sm border border-gray-100 dark:border-gray-800">
+                        <div class="text-sm prose dark:prose-invert" id="${aiMsgId}">
+                            <span class="animate-pulse">Berpikir...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', aiMsgHTML);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll ke bawah
 
-    const apiKey = process.env.GEMINI_API_KEY;
+            try {
+                // 3. Tembak API ke Vercel
+                const response = await fetch('/api/gemini', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-  {
-    text: `
-Kamu adalah asisten RT bernama "Pemuda Pintar".
+                const data = await response.json();
+                console.log("Respon API:", data); // Cek di F12
 
-Gaya bicara:
-- Santai
-- Ramah
-- Singkat
-- Gunakan bullet point jika perlu
-
-Jawab pertanyaan ini:
-${message}
-`
-  }
-]
+                const aiTextElement = document.getElementById(aiMsgId);
+                
+                // 4. SINKRONISASI DATA 
+                // Pastikan mengecek data.reply (karena di Vercel kita set { reply })
+                if (response.ok && data.reply) {
+                    aiTextElement.innerHTML = ''; // Hapus teks berpikir
+                    
+                    // Render menggunakan marked.js agar enter/bold/bullet rapi
+                    if (typeof marked !== 'undefined') {
+                        aiTextElement.innerHTML = marked.parse(data.reply);
+                    } else {
+                        // Fallback jika tidak ada marked.js, panggil fungsi ketikmu
+                        typeText(aiTextElement, data.reply, 15);
+                    }
+                } else {
+                    aiTextElement.innerHTML = `<span class="text-red-500">Maaf, terjadi kesalahan atau balasan kosong.</span>`;
+                }
+            } catch (error) {
+                console.error("Error Fetch API:", error);
+                document.getElementById(aiMsgId).innerHTML = `<span class="text-red-500">Koneksi API terputus. Pastikan link API benar.</span>`;
             }
-          ]
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(500).json(data);
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll lagi
+        });
     }
+});
 
-    const reply =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Tidak ada respon";
-
-    return res.status(200).json({ reply });
-
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-}
+window.openChat = function () {
+<!-- ... existing code ... -->
