@@ -1,15 +1,17 @@
 export async function handler(event) {
 
-  // ✅ HANDLE CORS PREFLIGHT
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS"
+  };
+
+  // ✅ HANDLE PREFLIGHT (WAJIB)
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Allow-Methods": "POST, OPTIONS"
-      },
-      body: "OK"
+      headers,
+      body: ""
     };
   }
 
@@ -31,20 +33,14 @@ export async function handler(event) {
 
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Allow-Methods": "POST, OPTIONS"
-      },
+      headers,
       body: JSON.stringify(data)
     };
 
   } catch (error) {
     return {
       statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      },
+      headers,
       body: JSON.stringify({ error: error.message })
     };
   }
