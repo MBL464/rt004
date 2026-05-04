@@ -1,6 +1,5 @@
 export async function handler(event) {
 
-  // HANDLE CORS PREFLIGHT
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -13,9 +12,31 @@ export async function handler(event) {
     };
   }
 
-  try {
-    const body = JSON.parse(event.body);
+  let body;
 
+  try {
+    body = JSON.parse(event.body || "{}");
+  } catch (e) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ error: "Invalid JSON body" }),
+    };
+  }
+
+  if (!body.contents) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ error: "No request body" }),
+    };
+  }
+
+  try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
