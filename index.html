@@ -1117,7 +1117,12 @@ async function callGeminiAPI(prompt, retryCount = 0) {
             throw new Error(err);
         }
 
-        const data = await response.json();
+        console.log("AI RESPONSE FULL:", JSON.stringify(data, null, 2));
+
+if (data.error) {
+    console.error("GEMINI ERROR:", data.error);
+    return "Error AI: " + data.error.message;
+}
 
         console.log("AI RESPONSE:", data);
 
