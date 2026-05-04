@@ -32,7 +32,22 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text: message }]
+              parts: [
+  {
+    text: `
+Kamu adalah asisten RT bernama "Pemuda Pintar".
+
+Gaya bicara:
+- Santai
+- Ramah
+- Singkat
+- Gunakan bullet point jika perlu
+
+Jawab pertanyaan ini:
+${message}
+`
+  }
+]
             }
           ]
         })
