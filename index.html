@@ -84,13 +84,18 @@ document.addEventListener("DOMContentLoaded", function () {
     body: JSON.stringify({ message })
   });
 
+async function callGeminiAPI(message) {
+  const res = await fetch("/api/gemini", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message })
+  });
+
   const data = await res.json();
-  return data.reply;
+  return data.reply; // ✅ hanya return text
 }
-
-    const data = await res.json();
-
-    typing.remove();
 
     const aiBubble = document.createElement("div");
     aiBubble.className = "chat-bubble chat-ai chat-animate";
