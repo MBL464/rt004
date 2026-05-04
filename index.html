@@ -1089,43 +1089,27 @@ document.addEventListener("DOMContentLoaded", function () {
         // =========================================================================
         // GOOGLE GEMINI AI CHAT LOGIC (WA Style)
         // =========================================================================
-async function callGeminiAPI(prompt, retryCount = 0) {
-    const systemPrompt = "Kamu adalah 'Pemuda Pintar'...";
+async function callGeminiAPI(userMessage) {
+  try {
+    const response = await fetch("https://project-xrd8q-alpha.vercel.app/api/gemini", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: userMessage
+      })
+    });
 
-    try {
+    const data = await response.json();
 
-        console.log("PROMPT DIKIRIM:", prompt);
+    console.log(data); // debug dulu
 
-        fetch("https://project-xrd8q-alpha.vercel.app/api/gemini", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    message: userMessage
-  })
-})
-                        role: "user",
-                        parts: [
-                            {
-                                text: systemPrompt + "\n\nUser: " + prompt
-                            }
-                        ]
-                    }
-                ]
-            })
-        });
-
-        // 🔥 WAJIB DI SINI
-        const data = await response.json();
-
-        console.log("AI RESPONSE:", data);
-
-        // 🔥 HANDLE ERROR GEMINI
-        if (data.error) {
-            console.error("GEMINI ERROR:", data.error);
-            return "Error AI: " + data.error.message;
-        }
+    return data;
+  } catch (error) {
+    console.error("ERROR:", error);
+  }
+}
 
         return data.candidates?.[0]?.content?.parts?.[0]?.text 
             || "AI lagi mikir 🤔";
