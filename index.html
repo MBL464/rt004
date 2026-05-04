@@ -1125,7 +1125,7 @@ if (data.error) {
     console.error("GEMINI ERROR:", data.error);
     return "Error AI: " + data.error.message;
 }
-
+const data = await response.json(); // ✅ WAJIB ADA
         console.log("AI RESPONSE:", data);
 
        // ambil semua kemungkinan text
