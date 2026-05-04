@@ -692,7 +692,7 @@
         let db, auth;
 
         try {
-            if(isCanvasEnv && firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -723,7 +723,7 @@
         };
 
         async function fetchCollection(colName) {
-            if(isCanvasEnv && db && auth.currentUser) {
+            if(db && auth.currentUser) {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', colName);
                 onSnapshot(colRef, (snapshot) => {
                     if(snapshot.empty && DEFAULT_DATA[colName].length > 0 && colName === 'board') {
@@ -749,7 +749,7 @@
         }
 
         async function fetchStats() {
-            if(isCanvasEnv && db && auth.currentUser) {
+            if(db && auth.currentUser) {
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'current');
                 onSnapshot(statsRef, (docSnap) => {
                     if (docSnap.exists()) {
@@ -770,7 +770,7 @@
 
         window.dbAdd = async (colName, data) => {
             data.createdAt = Date.now();
-            if(isCanvasEnv && db && auth.currentUser) {
+            if(db && auth.currentUser) {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', colName), data);
             } else {
                 data.id = Date.now().toString();
@@ -781,7 +781,7 @@
         }
 
         window.dbDelete = async (colName, id) => {
-            if(isCanvasEnv && db && auth.currentUser) {
+            if(db && auth.currentUser) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', colName, id));
             } else {
                 window.rtData[colName] = window.rtData[colName].filter(item => item.id !== id);
@@ -793,7 +793,7 @@
         window.dbSetStats = async (data) => {
             window.rtData.stats = data;
             renderAll(); 
-            if(isCanvasEnv && db && auth.currentUser) {
+            if(db && auth.currentUser) {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'current'), data);
             } else {
                 localStorage.setItem('rt_stats', JSON.stringify(data));
@@ -1173,7 +1173,7 @@
                 document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
             }
             
-            if(isCanvasEnv && db) {
+            if(db) {
                 try {
                     const initAuth = async () => {
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
