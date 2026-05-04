@@ -1289,6 +1289,19 @@ window.forceChat = function (text) {
     document.getElementById('chat-form')
         .dispatchEvent(new Event('submit'));
 };
+function typeText(el, text, speed = 20) {
+  let i = 0;
+
+  function typing() {
+    if (i < text.length) {
+      el.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typing, speed);
+    }
+  }
+
+  typing();
+}
     </script>
 </body>
 </html>
