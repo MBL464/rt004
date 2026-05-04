@@ -1311,6 +1311,53 @@ function typeText(el, text, speed = 20) {
 
   typing();
 }
+        async function callGeminiAPI(message) {
+  const res = await fetch("/api/gemini", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ message })
+  });
+
+  const data = await res.json();
+  return data.reply;
+}
+        window.sendChat = async (e) => {
+  e.preventDefault();
+
+  const chatInput = document.getElementById("chatInput");
+  const chatMessages = document.getElementById("chatMessages");
+
+  const msg = chatInput.value.trim();
+  if (!msg) return;
+
+  // tampilkan user
+  chatMessages.innerHTML += `
+    <div class="chat-bubble chat-user">${msg}</div>
+  `;
+
+  chatInput.value = "";
+
+  // loading
+  const typingId = "typing-" + Date.now();
+  chatMessages.innerHTML += `
+    <div id="${typingId}" class="chat-bubble chat-ai">...</div>
+  `;
+
+  // ambil dari Gemini
+  const aiText = await callGeminiAPI(msg);
+
+  // hapus loading
+  document.getElementById(typingId).remove();
+
+  // tampilkan AI
+  chatMessages.innerHTML += `
+    <div class="chat-bubble chat-ai">
+      ${aiText.replace(/\n/g, "<br>")}
+    </div>
+  `;
+};
     </script>
 </body>
 </html>
