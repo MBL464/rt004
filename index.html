@@ -45,6 +45,67 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         }
+        async function sendChat(e) {
+  e.preventDefault();
+
+  const input = document.getElementById("chat-input");
+  const message = input.value.trim();
+  if (!message) return;
+
+  const chatBox = document.getElementById("chat-messages");
+
+  // tampilkan pesan user
+  const userBubble = document.createElement("div");
+  userBubble.className = "chat-bubble chat-user chat-animate";
+  userBubble.innerText = message;
+  chatBox.appendChild(userBubble);
+
+  input.value = "";
+
+  // loading typing
+  const typing = document.createElement("div");
+  typing.className = "chat-bubble chat-ai";
+  typing.innerHTML = `<div class="typing-dots">
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+  </div>`;
+  chatBox.appendChild(typing);
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+
+    typing.remove();
+
+    const aiBubble = document.createElement("div");
+    aiBubble.className = "chat-bubble chat-ai chat-animate";
+
+    // format biar rapi
+    aiBubble.innerHTML = (data.reply || "Tidak ada respon")
+      .replace(/\n/g, "<br>");
+
+    chatBox.appendChild(aiBubble);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+  } catch (err) {
+    typing.remove();
+
+    const errorBubble = document.createElement("div");
+    errorBubble.className = "chat-bubble chat-ai";
+    errorBubble.innerText = "⚠️ Server error";
+    chatBox.appendChild(errorBubble);
+  }
+}
     </script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
