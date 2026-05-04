@@ -1,12 +1,19 @@
 export async function handler(event) {
-  try {
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "No request body" }),
-      };
-    }
 
+  // HANDLE CORS PREFLIGHT
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
+      },
+      body: "OK",
+    };
+  }
+
+  try {
     const body = JSON.parse(event.body);
 
     const response = await fetch(
@@ -24,12 +31,20 @@ export async function handler(event) {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "POST, OPTIONS"
+      },
       body: JSON.stringify(data),
     };
 
   } catch (error) {
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
       body: JSON.stringify({ error: error.message }),
     };
   }
