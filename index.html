@@ -91,8 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
     aiBubble.className = "chat-bubble chat-ai chat-animate";
 
     // format biar rapi
-    aiBubble.innerHTML = (data.reply || "Tidak ada respon")
-      .replace(/\n/g, "<br>");
+    aiBubble.innerHTML = data.reply.replace(/\n/g, "<br>");
 
     chatBox.appendChild(aiBubble);
     chatBox.scrollTop = chatBox.scrollHeight;
