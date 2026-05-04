@@ -1121,14 +1121,24 @@ async function callGeminiAPI(prompt, retryCount = 0) {
 
         console.log("AI RESPONSE:", data);
 
-        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+       // ambil semua kemungkinan text
+let text = "";
 
-        if (!text || text.trim() === "") {
-            console.warn("AI kosong, pakai dummy");
-            return dummyAIResponse(prompt);
-        }
+if (data.candidates && data.candidates.length > 0) {
+    const parts = data.candidates[0].content?.parts;
 
-        return text;
+    if (parts && parts.length > 0) {
+        text = parts.map(p => p.text).join("");
+    }
+}
+
+// fallback kalau kosong
+if (!text || text.trim() === "") {
+    console.warn("AI kosong, pakai dummy");
+    return dummyAIResponse(prompt);
+}
+
+return text;
 
     } catch (error) {
         console.error("AI ERROR:", error);
