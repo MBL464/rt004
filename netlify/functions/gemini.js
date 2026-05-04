@@ -1,5 +1,6 @@
 export async function handler(event) {
 
+  // ✅ HANDLE CORS PREFLIGHT
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -8,43 +9,21 @@ export async function handler(event) {
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Allow-Methods": "POST, OPTIONS"
       },
-      body: "OK",
-    };
-  }
-
-  let body;
-
-  try {
-    body = JSON.parse(event.body || "{}");
-  } catch (e) {
-    return {
-      statusCode: 400,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify({ error: "Invalid JSON body" }),
-    };
-  }
-
-  if (!body.contents) {
-    return {
-      statusCode: 400,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify({ error: "No request body" }),
+      body: "OK"
     };
   }
 
   try {
+    const body = JSON.parse(event.body || "{}");
+
     const response = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body)
       }
     );
 
@@ -57,16 +36,16 @@ export async function handler(event) {
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Allow-Methods": "POST, OPTIONS"
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     };
 
   } catch (error) {
     return {
       statusCode: 500,
       headers: {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "*"
       },
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: error.message })
     };
   }
 }
