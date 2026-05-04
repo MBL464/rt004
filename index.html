@@ -905,22 +905,12 @@
         // =========================================================================
         // PERBAIKAN: Fungsi Pemanggilan API Gemini yang Kompatibel (Canvas & GitHub)
         // =========================================================================
-        async function callGeminiAPI(prompt, retryCount = 0) {
-            const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! JAWAB pertanyaan dengan bersemangat. PENTING: Susun jawabanmu dengan sangat rapi menggunakan Markdown.";
-            
-            let activeApiKey = ""; 
-            let modelName = "gemini-1.5-flash-latest"; 
+async function callGeminiAPI(prompt, retryCount = 0) {
+  const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! JAWAB pertanyaan dengan bersemangat. PENTING: Susun jawabanmu dengan sangat rapi menggunakan Markdown.";
 
-            // Cek apakah web berjalan di GitHub Pages (di luar lingkungan Canvas)
-            if (typeof __firebase_config === 'undefined') {
-                // Gunakan "-latest" untuk menghindari error 404 pada v1beta
-                modelName = "gemini-1.5-flash-latest"; 
-                // PERHATIAN: Masukkan API Key Anda di bawah ini, 
-                // TAPI pastikan Anda membatasi penggunaannya di Google Cloud Console!
-                activeApiKey = "AIzaSyCiXv_z1bplLDde7xYUfBro0dbYwV1CTAU"; 
-            }
-            
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const apiKey = "AIzaSyCiXv_z1bplLDde7xYUfBro0dbYwV1CTAU"; // GANTI
+  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
             
             try {
                 const response = await fetch(url, { 
