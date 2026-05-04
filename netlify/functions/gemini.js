@@ -1,5 +1,7 @@
 export async function handler(event) {
   try {
+    const body = JSON.parse(event.body);
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -7,7 +9,7 @@ export async function handler(event) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: event.body,
+        body: JSON.stringify(body),
       }
     );
 
