@@ -1082,48 +1082,49 @@
         // =========================================================================
         // GOOGLE GEMINI AI CHAT LOGIC (WA Style)
         // =========================================================================
-        const apiKey = "AIzaSyAmmJsWSEr6uVlxJlR3ppEVCvg0nzWs3-c"; // API Key Gemini (Otomatis disediakan environment Canvas)
-        const chatInput = document.getElementById('chat-input');
-        const chatMessages = document.getElementById('chat-messages');
-        const quickPrompts = document.getElementById('quick-prompts');
+async function callGeminiAPI(prompt, retryCount = 0) {
+    const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik!";
 
-        window.openChat = () => {
-            document.getElementById('chat-modal').classList.remove('hidden');
-            setTimeout(() => {
-                document.getElementById('chat-modal').classList.remove('opacity-0');
-                document.getElementById('chat-container').classList.remove('translate-y-full');
-            }, 10);
-            setTimeout(()=> chatInput.focus(), 400);
-        }
-        window.closeChat = () => {
-            document.getElementById('chat-container').classList.add('translate-y-full');
-            document.getElementById('chat-modal').classList.add('opacity-0');
-            setTimeout(() => document.getElementById('chat-modal').classList.add('hidden'), 400);
-        }
-        window.forceChat = (text) => {
-            chatInput.value = text;
-            if(quickPrompts) quickPrompts.style.display = 'none';
-            document.querySelector('#chat-form').dispatchEvent(new Event('submit'));
+    try {
+        const response = await fetch("https://animated-pasca-cf35c2.netlify.app/.netlify/functions/gemini", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            {
+                                text: systemPrompt + "\n\nUser: " + prompt
+                            }
+                        ]
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(err);
         }
 
-        async function callGeminiAPI(prompt, retryCount = 0) {
-            const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik!";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-            try {
-                const response = await fetch(url, { 
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) 
-                });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Hmm, saya agak bingung memproses itu.";
-            } catch (error) {
-                if (retryCount < 3) {
-                    await new Promise(r => setTimeout(r, [1000, 2000, 4000][retryCount]));
-                    return callGeminiAPI(prompt, retryCount + 1);
-                }
-                return dummyAIResponse(prompt);
-            }
+        const data = await response.json();
+
+        return data.candidates?.[0]?.content?.parts?.[0]?.text 
+            || "AI lagi mikir 🤔";
+
+    } catch (error) {
+        console.error("AI ERROR:", error);
+
+        if (retryCount < 3) {
+            await new Promise(r => setTimeout(r, [1000, 2000, 4000][retryCount]));
+            return callGeminiAPI(prompt, retryCount + 1);
+        }
+
+        return "AI lagi sibuk, coba lagi ya 🙏";
+    }
         }
 
         function dummyAIResponse(msg) {
