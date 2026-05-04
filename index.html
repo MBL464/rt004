@@ -436,7 +436,7 @@
                         <h2 class="text-xl font-extrabold text-slate-800 dark:text-white mb-6">Portal Pengurus RT</h2>
                         <input type="password" id="admin-pin" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-4 text-center tracking-[0.75em] text-xl font-black focus:ring-2 focus:ring-primary outline-none dark:text-white transition-all mb-4" placeholder="PIN">
                         <button onclick="loginAdmin()" class="w-full bg-slate-800 dark:bg-white dark:text-slate-900 hover:bg-slate-900 text-white font-extrabold py-4 rounded-xl shadow-lg transition-transform active:scale-95 mb-3">Otentikasi Masuk</button>
-                        <p class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-circle-info text-primary"></i> Gunakan PIN simulasi: 1234</p>
+                        <p class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-circle-info text-primary"></i> Pastikan Pin Tidak Lupa</p>
                     </div>
                 </div>
 
@@ -1005,7 +1005,7 @@
         // ADMIN PANEL CRUD (Terkoneksi Toast & Database)
         // =========================================================================
         window.loginAdmin = () => {
-            if(document.getElementById('admin-pin').value === '1234') {
+            if(document.getElementById('admin-pin').value === '2504') {
                 document.getElementById('admin-login-view').classList.add('hidden');
                 document.getElementById('admin-dashboard-view').classList.remove('hidden');
                 document.getElementById('admin-pin').value = '';
