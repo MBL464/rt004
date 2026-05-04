@@ -43,6 +43,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Library Marked.js untuk Merender Balasan Markdown AI -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
         /* CSS Variables untuk Tema Warna */
@@ -170,6 +172,24 @@
         .theme-btn { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .theme-btn:hover { transform: scale(1.1); }
         .theme-btn.selected { border-color: #fff; box-shadow: 0 0 0 2px rgb(var(--color-primary)); }
+
+        /* Tata Letak & Desain Rapih untuk Markdown Chat AI */
+        .chat-md { font-size: 0.9rem; line-height: 1.6; word-wrap: break-word; }
+        .chat-md p { margin-bottom: 0.6rem; }
+        .chat-md p:last-child { margin-bottom: 0; }
+        .chat-md ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.6rem; }
+        .chat-md ol { list-style-type: decimal; padding-left: 1.2rem; margin-bottom: 0.6rem; }
+        .chat-md li { margin-bottom: 0.25rem; }
+        .chat-md h1, .chat-md h2, .chat-md h3 { font-weight: 800; margin-top: 0.8rem; margin-bottom: 0.4rem; color: #008069; line-height: 1.3; }
+        .dark .chat-md h1, .dark .chat-md h2, .dark .chat-md h3 { color: #34d399; }
+        .chat-md h1 { font-size: 1.15rem; }
+        .chat-md h2 { font-size: 1.05rem; }
+        .chat-md h3 { font-size: 0.95rem; }
+        .chat-md strong { font-weight: 800; color: #008069; }
+        .dark .chat-md strong { color: #34d399; }
+        .chat-md a { color: rgb(var(--color-primary)); text-decoration: underline; }
+        .chat-md blockquote { border-left: 3px solid #cbd5e1; padding-left: 0.75rem; color: #64748b; font-style: italic; margin-bottom: 0.6rem; }
+        .dark .chat-md blockquote { border-color: #475569; color: #94a3b8; }
 
         #loading-screen {
             position: absolute; inset: 0; z-index: 100;
@@ -624,8 +644,7 @@
         // =========================================================================
         // PENGATURAN API KEY GEMINI (UBAH BARIS INI UNTUK GITHUB PAGES)
         // =========================================================================
-        // Jangan hapus tanda kutip ("")-nya. Masukkan kode API Anda di dalamnya.
-        const apiKey = "AIzaSyCTcJ7MbPzp-kNahPoiAbwwV1iqkHTjdY0"; 
+        const myGithubApiKey = "AIzaSyCTcJ7MbPzp-kNahPoiAbwwV1iqkHTjdY0"; 
         
         // =========================================================================
 
@@ -692,7 +711,7 @@
         let db, auth;
 
         try {
-            if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            if(isCanvasEnv && firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -1088,16 +1107,19 @@
         }
 
         async function callGeminiAPI(prompt, retryCount = 0) {
-            const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik!";
+            const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik! PENTING: Susun jawabanmu dengan sangat rapi. Gunakan list/poin-poin jika memberikan daftar, beri jarak antar paragraf (line breaks) agar mudah dibaca di HP, dan gunakan huruf tebal untuk penekanan.";
             
-            // Logika Deteksi Cerdas:
-            // 1. Menggunakan model bawaan (2.5-preview) JIKA sedang berjalan di preview environment.
-            // 2. Menggunakan model Publik terbaru (1.5-flash) JIKA diunggah ke GitHub Pages (menggunakan key manual).
+            // Logika Deteksi Cerdas (Anti-Error 404):
+            // 1. Di platform ini (Canvas): Gunakan model bawaan (2.5-preview) dan kosongkan API Key ("").
+            // 2. Di GitHub Pages: Gunakan model Publik (1.5-flash) dan API Key Anda (myGithubApiKey).
+            const activeApiKey = isCanvasEnv ? "" : myGithubApiKey;
             const modelName = isCanvasEnv ? "gemini-2.5-flash-preview-09-2025" : "gemini-1.5-flash";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${activeApiKey}`;
             
             try {
-                if(!apiKey) throw new Error("API Key belum diisi");
+                if(!isCanvasEnv && (!activeApiKey || activeApiKey === "MASUKKAN_API_KEY_GEMINI_ANDA_DISINI")) {
+                     throw new Error("API Key belum diisi");
+                }
 
                 const response = await fetch(url, { 
                     method: 'POST', 
@@ -1129,14 +1151,14 @@
         function dummyAIResponse(msg) {
             const lower = msg.toLowerCase();
             if(lower.includes('ktp') || lower.includes('surat') || lower.includes('kk')) 
-                return "Wah gampang banget Akang/Teteh! Silakan kembali ke Beranda, lalu klik ikon <b>Surat</b>. Pengurus kita siap bantu. 🚀";
+                return "Wah gampang banget Akang/Teteh!\n\nSilakan kembali ke Beranda, lalu klik ikon **Surat**. Pengurus kita siap bantu. 🚀";
             if(lower.includes('pengurus') || lower.includes('rt') || lower.includes('ketua'))
-                return "Bapak Ketua RT kita Pak Romadhon. Cek susunan super lengkapnya di menu <b>Pengurus</b> ya! 👨‍💼";
+                return "Bapak Ketua RT kita **Pak Romadhon**.\n\nCek susunan super lengkapnya di menu **Pengurus** ya! 👨‍💼";
             if(lower.includes('rusak') || lower.includes('sampah') || lower.includes('lapor'))
-                return "Waduh! Lapor aja langsung lewat menu <b>Lapor</b> di bagian bawah. Pesanmu bakal masuk ke WhatsApp pengurus, jadi cepat ditangani! 🚨";
+                return "Waduh! Lapor aja langsung lewat menu **Lapor** di bagian bawah.\n\nPesanmu bakal masuk ke WhatsApp pengurus, jadi cepat ditangani! 🚨";
             if(lower.includes('halo') || lower.includes('hai'))
-                return "Halo warga RT 004! 👋 Kumaha damang? Ada yang bisa dibantu hari ini? 😊";
-            return "Hai warga! Maaf nih, Pemuda Pintar lagi mode standar (koneksi API belum aktif/bermasalah). Tapi tenang aja, kamu tetep bisa tanya seputar Surat, Lapor, atau Pengurus! 🤖";
+                return "Halo warga RT 004! 👋 Kumaha damang? \n\nAda yang bisa dibantu hari ini? 😊";
+            return "Hai warga!\n\nMaaf nih, *Pemuda Pintar* lagi mode standar (koneksi API belum aktif/bermasalah). Tapi tenang aja, kamu tetep bisa tanya seputar **Surat**, **Lapor**, atau **Pengurus**! 🤖";
         }
 
         window.sendChat = async (e) => {
@@ -1159,8 +1181,10 @@
             const aiText = await callGeminiAPI(msg);
             document.getElementById(typingId).remove();
             
-            let formattedText = aiText.replace(/\*\*(.*?)\*\*/g, '<b class="text-[#008069] dark:text-emerald-400">$1</b>').replace(/\n/g, '<br>');
-            chatMessages.innerHTML += `<div class="chat-bubble chat-ai chat-animate shadow-md relative z-10 font-medium">${formattedText}</div>`;
+            // Konversi teks Markdown (**, ##, *) menjadi elemen HTML yang sangat rapi
+            let formattedText = marked.parse(aiText);
+            
+            chatMessages.innerHTML += `<div class="chat-bubble chat-ai chat-animate shadow-md relative z-10 font-medium"><div class="chat-md">${formattedText}</div></div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
