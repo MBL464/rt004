@@ -642,12 +642,8 @@
         import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
-        // PENGATURAN API KEY GEMINI (UBAH BARIS INI UNTUK GITHUB PAGES)
+        // Konfigurasi Database Firebase 
         // =========================================================================
-        const myGithubApiKey = "AIzaSyAyS-juKYTzWTzUpwxxzfgqOenxTBj3JYw"; 
-        
-        // =========================================================================
-
         const fallbackConfig = {
             apiKey: "AIzaSyBZM1mzN_JbYIZOu4UlV09MXfrvk01Ykz4",
             authDomain: "smartrt004.firebaseapp.com",
@@ -1109,18 +1105,14 @@
         async function callGeminiAPI(prompt, retryCount = 0) {
             const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik! PENTING: Susun jawabanmu dengan sangat rapi. Gunakan list/poin-poin jika memberikan daftar, beri jarak antar paragraf (line breaks) agar mudah dibaca di HP, dan gunakan huruf tebal untuk penekanan.";
             
-            // Logika Deteksi Cerdas (Anti-Error 404):
-            // 1. Di platform ini (Canvas): Gunakan model bawaan (2.5-preview) dan kosongkan API Key ("").
-            // 2. Di GitHub Pages: Gunakan model Publik (1.5-flash) dan API Key Anda (myGithubApiKey).
-            const activeApiKey = isCanvasEnv ? "" : myGithubApiKey;
-            const modelName = isCanvasEnv ? "gemini-2.5-flash-preview-09-2025" : "gemini-1.5-flash";
+            // =========================================================================
+            // PERBAIKAN: Gunakan API Key Anda secara langsung agar berfungsi dimana saja
+            // =========================================================================
+            const activeApiKey = "AIzaSyCiXv_z1bplLDde7xYUfBro0dbYwV1CTAU";
+            const modelName = "gemini-1.5-flash"; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${activeApiKey}`;
             
             try {
-                if(!isCanvasEnv && (!activeApiKey || activeApiKey === "MASUKKAN_API_KEY_GEMINI_ANDA_DISINI")) {
-                     throw new Error("API Key belum diisi");
-                }
-
                 const response = await fetch(url, { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
@@ -1140,7 +1132,8 @@
             } catch (error) {
                 console.error("Info Error Gemini:", error.message);
                 
-                if (retryCount < 3 && apiKey && !error.message.includes("HTTP 400") && !error.message.includes("HTTP 404")) {
+                // PERBAIKAN: Gunakan activeApiKey pada pengecekan retry di bawah (sebelumnya salah ketik 'apiKey')
+                if (retryCount < 3 && activeApiKey && !error.message.includes("HTTP 400") && !error.message.includes("HTTP 404")) {
                     await new Promise(r => setTimeout(r, [1000, 2000, 4000][retryCount]));
                     return callGeminiAPI(prompt, retryCount + 1);
                 }
