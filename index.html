@@ -1096,14 +1096,15 @@ async function callGeminiAPI(prompt, retryCount = 0) {
 
         console.log("PROMPT DIKIRIM:", prompt);
 
-        const response = await fetch("https://animated-pasca-cf35c2.netlify.app/.netlify/functions/gemini", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                contents: [
-                    {
+        fetch("https://project-xrd8q-alpha.vercel.app/api/gemini", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    message: userMessage
+  })
+})
                         role: "user",
                         parts: [
                             {
