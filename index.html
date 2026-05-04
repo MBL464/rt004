@@ -1221,37 +1221,35 @@ async function callGeminiAPI(prompt, retryCount = 0) {
                 if (!menu.contains(event.target) && !btn) menu.classList.remove('active');
             });
         });
-            // ===== TAMBAHKAN DI SINI =====
-    function openChat() {
-        document.getElementById('chat-modal').classList.remove('hidden');
+window.openChat = function () {
+    document.getElementById('chat-modal').classList.remove('hidden');
 
-        setTimeout(() => {
-            document.getElementById('chat-modal').classList.remove('opacity-0');
-            document.getElementById('chat-container').classList.remove('translate-y-full');
-        }, 10);
+    setTimeout(() => {
+        document.getElementById('chat-modal').classList.remove('opacity-0');
+        document.getElementById('chat-container').classList.remove('translate-y-full');
+    }, 10);
 
-        setTimeout(() => {
-            document.getElementById('chat-input').focus();
-        }, 300);
-    }
+    setTimeout(() => {
+        document.getElementById('chat-input').focus();
+    }, 300);
+};
 
-    function closeChat() {
-        document.getElementById('chat-container').classList.add('translate-y-full');
-        document.getElementById('chat-modal').classList.add('opacity-0');
+window.closeChat = function () {
+    document.getElementById('chat-container').classList.add('translate-y-full');
+    document.getElementById('chat-modal').classList.add('opacity-0');
 
-        setTimeout(() => {
-            document.getElementById('chat-modal').classList.add('hidden');
-        }, 300);
-    }
+    setTimeout(() => {
+        document.getElementById('chat-modal').classList.add('hidden');
+    }, 300);
+};
 
-    function forceChat(text) {
-        const input = document.getElementById('chat-input');
-        input.value = text;
+window.forceChat = function (text) {
+    const input = document.getElementById('chat-input');
+    input.value = text;
 
-        document.getElementById('chat-form')
-            .dispatchEvent(new Event('submit'));
-    }
-    // ===== SAMPAI SINI =====
+    document.getElementById('chat-form')
+        .dispatchEvent(new Event('submit'));
+};
     </script>
 </body>
 </html>
