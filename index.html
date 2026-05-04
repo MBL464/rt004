@@ -43,8 +43,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Library Marked.js untuk Merender Balasan Markdown AI -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
         /* CSS Variables untuk Tema Warna */
@@ -149,7 +147,7 @@
         .chat-user { background: #d9fdd3; border-top-right-radius: 0; align-self: flex-end; color: #111b21; }
         .dark .chat-user { background: #005c4b; color: #e9edef; }
         .wa-bg { background-color: #efeae2; background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E"); }
-        .dark .wa-bg { background-color: #0b141a; background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5z' fill='%23ffffff' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E"); }
+        .dark .wa-bg { background-color: #0b141a; background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5z' fill='%23ffffff' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E"); }
         
         @keyframes chatPop {
             0% { opacity: 0; transform: translateY(20px) scale(0.9); }
@@ -173,24 +171,6 @@
         .theme-btn:hover { transform: scale(1.1); }
         .theme-btn.selected { border-color: #fff; box-shadow: 0 0 0 2px rgb(var(--color-primary)); }
 
-        /* Tata Letak & Desain Rapih untuk Markdown Chat AI */
-        .chat-md { font-size: 0.9rem; line-height: 1.6; word-wrap: break-word; }
-        .chat-md p { margin-bottom: 0.6rem; }
-        .chat-md p:last-child { margin-bottom: 0; }
-        .chat-md ul { list-style-type: disc; padding-left: 1.2rem; margin-bottom: 0.6rem; }
-        .chat-md ol { list-style-type: decimal; padding-left: 1.2rem; margin-bottom: 0.6rem; }
-        .chat-md li { margin-bottom: 0.25rem; }
-        .chat-md h1, .chat-md h2, .chat-md h3 { font-weight: 800; margin-top: 0.8rem; margin-bottom: 0.4rem; color: #008069; line-height: 1.3; }
-        .dark .chat-md h1, .dark .chat-md h2, .dark .chat-md h3 { color: #34d399; }
-        .chat-md h1 { font-size: 1.15rem; }
-        .chat-md h2 { font-size: 1.05rem; }
-        .chat-md h3 { font-size: 0.95rem; }
-        .chat-md strong { font-weight: 800; color: #008069; }
-        .dark .chat-md strong { color: #34d399; }
-        .chat-md a { color: rgb(var(--color-primary)); text-decoration: underline; }
-        .chat-md blockquote { border-left: 3px solid #cbd5e1; padding-left: 0.75rem; color: #64748b; font-style: italic; margin-bottom: 0.6rem; }
-        .dark .chat-md blockquote { border-color: #475569; color: #94a3b8; }
-
         #loading-screen {
             position: absolute; inset: 0; z-index: 100;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -202,7 +182,7 @@
 </head>
 <body class="dark:bg-slate-950 transition-colors duration-500">
 
-    <!-- Animasi Background -->
+    <!-- Animasi Background (Blobs) -->
     <div class="fixed inset-0 z-[-1] overflow-hidden bg-slate-100 dark:bg-[#020617] transition-colors duration-500">
         <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary opacity-20 dark:opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
         <div class="absolute top-[20%] right-[-10%] w-80 h-80 bg-secondary opacity-20 dark:opacity-10 rounded-full mix-blend-multiply filter blur-3xl animate-blob" style="animation-delay: 2s;"></div>
@@ -255,6 +235,7 @@
             
             <!-- ================= PAGE: BERANDA ================= -->
             <section id="page-home" class="page-view active px-5 pt-6">
+                
                 <!-- APP INFO BANNER -->
                 <div class="relative glass-card border-none bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-800 dark:to-slate-950 text-white overflow-hidden shadow-lg mb-4">
                     <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
@@ -455,7 +436,7 @@
                         <h2 class="text-xl font-extrabold text-slate-800 dark:text-white mb-6">Portal Pengurus RT</h2>
                         <input type="password" id="admin-pin" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-4 text-center tracking-[0.75em] text-xl font-black focus:ring-2 focus:ring-primary outline-none dark:text-white transition-all mb-4" placeholder="PIN">
                         <button onclick="loginAdmin()" class="w-full bg-slate-800 dark:bg-white dark:text-slate-900 hover:bg-slate-900 text-white font-extrabold py-4 rounded-xl shadow-lg transition-transform active:scale-95 mb-3">Otentikasi Masuk</button>
-                        <p class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-circle-info text-primary"></i> Gunakan PIN simulasi: 1234</p>
+                        <p class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-circle-info text-primary"></i> Pastikan Pin Tidak Lupa</p>
                     </div>
                 </div>
 
@@ -641,16 +622,13 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // =========================================================================
-        // Konfigurasi Database Firebase 
-        // =========================================================================
         const fallbackConfig = {
-            apiKey: "AIzaSyBZM1mzN_JbYIZOu4UlV09MXfrvk01Ykz4",
-            authDomain: "smartrt004.firebaseapp.com",
-            projectId: "smartrt004",
-            storageBucket: "smartrt004.firebasestorage.app",
-            messagingSenderId: "297807383008",
-            appId: "1:297807383008:web:09700e268f160fa1118385"
+  apiKey: "AIzaSyAVGWcJigurlbbyKuz-WjAYJ2GnY9HyXc8",
+  authDomain: "smart-rt-004.firebaseapp.com",
+  projectId: "smart-rt-004",
+  storageBucket: "smart-rt-004.firebasestorage.app",
+  messagingSenderId: "193772322945",
+  appId: "1:193772322945:web:23583a0a9b4c8e458c8d80"
         };
         
         const isCanvasEnv = typeof __firebase_config !== 'undefined';
@@ -663,7 +641,7 @@
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'smart-rt-004-bekasi';
 
-        // 1. DATA DEFAULT RT
+        // 1. DATA DEFAULT RT (Pengurus Sesuai Hierarki, Agenda/Info Kosong)
         const DEFAULT_DATA = {
             stats: { rumah: 45, kk: 52, warga: 184, laki: 90, perempuan: 94 },
             news: [],
@@ -671,7 +649,33 @@
             board: [
                 { name: "ROMADHON", role: "Ketua", img: "https://ui-avatars.com/api/?name=Romadhon&background=2563eb&color=fff&bold=true" },
                 { name: "FAJAR HAKIM", role: "Sekretaris", img: "https://ui-avatars.com/api/?name=Fajar+Hakim&background=10b981&color=fff&bold=true" },
-                { name: "PRASOJO SUDARMO", role: "Bendahara", img: "https://ui-avatars.com/api/?name=Prasojo+Sudarmo&background=f59e0b&color=fff&bold=true" }
+                { name: "PRASOJO SUDARMO", role: "Bendahara", img: "https://ui-avatars.com/api/?name=Prasojo+Sudarmo&background=f59e0b&color=fff&bold=true" },
+                { name: "IYAN SOPYAN", role: "Bid. Keamanan", img: "https://ui-avatars.com/api/?name=Iyan+Sopyan&background=475569&color=fff&bold=true" },
+                { name: "AGUS", role: "Bid. Keamanan", img: "https://ui-avatars.com/api/?name=Agus&background=475569&color=fff&bold=true" },
+                { name: "H. SUGIONO", role: "Bid. Kerohanian", img: "https://ui-avatars.com/api/?name=Sugiono&background=8b5cf6&color=fff&bold=true" },
+                { name: "ENJANG SUHERMAN", role: "Bid. Kerohanian", img: "https://ui-avatars.com/api/?name=Enjang+Suherman&background=8b5cf6&color=fff&bold=true" },
+                { name: "MASTUR", role: "Bid. Kebersihan", img: "https://ui-avatars.com/api/?name=Mastur&background=22c55e&color=fff&bold=true" },
+                { name: "BUDIARTI", role: "Bid. Sosbud", img: "https://ui-avatars.com/api/?name=Budiarti&background=ec4899&color=fff&bold=true" },
+                { name: "NUNI", role: "Bid. Sosbud", img: "https://ui-avatars.com/api/?name=Nuni&background=ec4899&color=fff&bold=true" },
+                { name: "IIS", role: "Bid. Sosbud", img: "https://ui-avatars.com/api/?name=Iis&background=ec4899&color=fff&bold=true" },
+                { name: "HAFIDZ ROCHIMI", role: "Bid. Pemuda & OR", img: "https://ui-avatars.com/api/?name=Hafidz+Rochimi&background=f97316&color=fff&bold=true" },
+                { name: "MUHDI DAROJAT", role: "Bid. Pemuda & OR", img: "https://ui-avatars.com/api/?name=Muhdi+Darojat&background=f97316&color=fff&bold=true" },
+                { name: "GILANG MUHAMMAD F", role: "Bid. Humas", img: "https://ui-avatars.com/api/?name=Gilang&background=3b82f6&color=fff&bold=true" },
+                { name: "THOMAS NAZARETH", role: "Bid. Humas", img: "https://ui-avatars.com/api/?name=Thomas&background=3b82f6&color=fff&bold=true" },
+                { name: "ZEFAN", role: "Bid. Humas", img: "https://ui-avatars.com/api/?name=Zefan&background=3b82f6&color=fff&bold=true" },
+                { name: "NADHA ISWARANIE", role: "Bid. Humas", img: "https://ui-avatars.com/api/?name=Nadha&background=3b82f6&color=fff&bold=true" },
+                { name: "HILDA CHANDRANINGRUM", role: "Bid. Humas", img: "https://ui-avatars.com/api/?name=Hilda&background=3b82f6&color=fff&bold=true" },
+                { name: "BAYU EKA PUTRA", role: "Bid. UMKM", img: "https://ui-avatars.com/api/?name=Bayu+Eka&background=14b8a6&color=fff&bold=true" },
+                { name: "MUHAMMAD FAIZAL", role: "Bid. UMKM", img: "https://ui-avatars.com/api/?name=M+Faizal&background=14b8a6&color=fff&bold=true" },
+                { name: "MARIA", role: "Bid. UMKM", img: "https://ui-avatars.com/api/?name=Maria&background=14b8a6&color=fff&bold=true" },
+                { name: "LUSI", role: "Bid. UMKM", img: "https://ui-avatars.com/api/?name=Lusi&background=14b8a6&color=fff&bold=true" },
+                { name: "MARTIN", role: "Bid. Arisan", img: "https://ui-avatars.com/api/?name=Martin&background=eab308&color=fff&bold=true" },
+                { name: "ELVIN", role: "Bid. Koperasi", img: "https://ui-avatars.com/api/?name=Elvin&background=06b6d4&color=fff&bold=true" },
+                { name: "URI SAMSURI", role: "Bid. Koperasi", img: "https://ui-avatars.com/api/?name=Uri+Samsuri&background=06b6d4&color=fff&bold=true" },
+                { name: "JOKO BUDIONO", role: "Bid. Kesenian", img: "https://ui-avatars.com/api/?name=Joko+B&background=d946ef&color=fff&bold=true" },
+                { name: "SOPIAH", role: "Bid. Kesenian", img: "https://ui-avatars.com/api/?name=Sopiah&background=d946ef&color=fff&bold=true" },
+                { name: "WAHYUNINGSIH", role: "Bid. Kesenian", img: "https://ui-avatars.com/api/?name=Wahyuningsih&background=d946ef&color=fff&bold=true" },
+                { name: "ENUNG ROSMAYANTI", role: "Bid. Konsumsi", img: "https://ui-avatars.com/api/?name=Enung+R&background=ef4444&color=fff&bold=true" }
             ],
             panduan: []
         };
@@ -680,6 +684,7 @@
         
         let db, auth;
 
+        // Inisialisasi Database (Hanya jalan jika Firebase Config valid)
         try {
             if(isCanvasEnv && firebaseConfig.apiKey !== "YOUR_API_KEY") {
                 const app = initializeApp(firebaseConfig);
@@ -690,6 +695,9 @@
             console.error("Firebase init failed:", e);
         }
 
+        // =========================================================================
+        // SISTEM TOAST NOTIFICATION (Keterangan Berhasil)
+        // =========================================================================
         window.showToast = (msg, type = 'success') => {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -711,10 +719,14 @@
             }, 3000);
         };
 
+        // =========================================================================
+        // DATA ACCESS LAYER (Bisa Handle Firestore Cloud maupun LocalStorage)
+        // =========================================================================
         async function fetchCollection(colName) {
-            if(db && auth?.currentUser) {
+            if(isCanvasEnv && db && auth.currentUser) {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', colName);
                 onSnapshot(colRef, (snapshot) => {
+                    // Jika data kosong di cloud tapi ada DEFAULT_DATA, kita inject otomatis (Kecuali news, agenda, panduan yang memang di-setting kosong dari awal)
                     if(snapshot.empty && DEFAULT_DATA[colName].length > 0 && colName === 'board') {
                         DEFAULT_DATA[colName].forEach(async (item) => {
                             await addDoc(colRef, { ...item, createdAt: Date.now() });
@@ -738,7 +750,7 @@
         }
 
         async function fetchStats() {
-            if(db && auth?.currentUser) {
+            if(isCanvasEnv && db && auth.currentUser) {
                 const statsRef = doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'current');
                 onSnapshot(statsRef, (docSnap) => {
                     if (docSnap.exists()) {
@@ -759,7 +771,7 @@
 
         window.dbAdd = async (colName, data) => {
             data.createdAt = Date.now();
-            if(db && auth?.currentUser) {
+            if(isCanvasEnv && db && auth.currentUser) {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', colName), data);
             } else {
                 data.id = Date.now().toString();
@@ -770,7 +782,7 @@
         }
 
         window.dbDelete = async (colName, id) => {
-            if(db && auth?.currentUser) {
+            if(isCanvasEnv && db && auth.currentUser) {
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', colName, id));
             } else {
                 window.rtData[colName] = window.rtData[colName].filter(item => item.id !== id);
@@ -782,24 +794,34 @@
         window.dbSetStats = async (data) => {
             window.rtData.stats = data;
             renderAll(); 
-            if(db && auth?.currentUser) {
+            if(isCanvasEnv && db && auth.currentUser) {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'stats', 'current'), data);
             } else {
                 localStorage.setItem('rt_stats', JSON.stringify(data));
             }
         }
 
+        // =========================================================================
+        // ENGINE RENDERING
+        // =========================================================================
         function renderAll() {
             const { stats, news, agenda, board, panduan } = window.rtData;
 
+            // Stats
             if(stats) {
                 document.getElementById('stat-rumah').innerText = stats.rumah || '--';
                 document.getElementById('stat-kk').innerText = stats.kk || '--';
                 document.getElementById('stat-warga').innerText = stats.warga || '--';
                 document.getElementById('stat-laki').innerText = stats.laki || '--';
                 document.getElementById('stat-perempuan').innerText = stats.perempuan || '--';
+                document.getElementById('edit-rumah').value = stats.rumah || '';
+                document.getElementById('edit-kk').value = stats.kk || '';
+                document.getElementById('edit-warga').value = stats.warga || '';
+                document.getElementById('edit-laki').value = stats.laki || '';
+                document.getElementById('edit-perempuan').value = stats.perempuan || '';
             }
 
+            // Agenda (Tampilan Kosong yang Elegan)
             const emptyAgenda = `<div class="w-full text-center py-5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl mb-4"><p class="text-xs font-semibold text-slate-400">Belum ada agenda terdekat</p></div>`;
             document.getElementById('home-agenda-container').innerHTML = agenda.length > 0 ? agenda.map(a => `
                 <div class="min-w-[150px] glass-card snap-start !p-4 border-l-4 border-l-amber-500 hover:-translate-y-1 transition-transform">
@@ -808,13 +830,59 @@
                     <div class="text-[10px] text-slate-500 font-semibold truncate flex items-center gap-1"><i class="fa-solid fa-location-dot text-rose-500"></i> ${a.location}</div>
                 </div>
             `).join('') : emptyAgenda;
+            
+            document.getElementById('tab-content-agenda').innerHTML = agenda.length > 0 ? agenda.map(a => `
+                <div class="glass-card flex justify-between items-center !p-4 border-l-4 border-l-amber-500">
+                    <div>
+                        <h4 class="text-sm font-extrabold text-slate-800 dark:text-white mb-1">${a.title}</h4>
+                        <div class="text-[10px] text-slate-500 font-bold"><i class="fa-regular fa-clock text-primary"></i> ${a.date} | ${a.time}</div>
+                    </div>
+                    <div class="text-[10px] bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1 border border-slate-200 dark:border-slate-700"><i class="fa-solid fa-location-dot text-rose-500"></i> ${a.location}</div>
+                </div>
+            `).join('') : emptyAgenda;
 
+            document.getElementById('admin-list-agenda').innerHTML = agenda.map(a => `
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div class="truncate pr-2"><div class="text-[11px] font-bold dark:text-white truncate">${a.title}</div><div class="text-[9px] text-slate-500">${a.date}</div></div>
+                    <button onclick="delItem('agenda', '${a.id}')" class="text-rose-500 hover:text-rose-700 bg-rose-50 dark:bg-rose-900/30 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>
+                </div>
+            `).join('');
+
+            // Kabar (Tampilan Kosong yang Elegan)
+            const emptyNews = `<div class="w-full text-center py-5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl mb-4"><p class="text-xs font-semibold text-slate-400">Belum ada informasi terbaru</p></div>`;
+            const renderNews = news.map(n => `
+                <div class="glass-card flex gap-4 items-center !p-4 group mb-3">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-slate-800 flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform shadow-inner">
+                        <i class="fa-solid fa-newspaper text-xl"></i>
+                    </div>
+                    <div class="overflow-hidden w-full">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[9px] font-extrabold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase tracking-wider">${n.type}</span>
+                            <span class="text-[9px] text-slate-400 font-semibold">${n.date}</span>
+                        </div>
+                        <h4 class="text-sm font-extrabold text-slate-800 dark:text-white leading-tight truncate">${n.title}</h4>
+                        <p class="text-[11px] text-slate-500 mt-1 truncate font-medium">${n.content}</p>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('home-news-container').innerHTML = news.length > 0 ? renderNews : emptyNews;
+            document.getElementById('tab-content-berita').innerHTML = news.length > 0 ? renderNews : emptyNews;
+
+            document.getElementById('admin-list-news').innerHTML = news.map(n => `
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div class="truncate pr-2"><div class="text-[11px] font-bold dark:text-white truncate">${n.title}</div></div>
+                    <button onclick="delItem('news', '${n.id}')" class="text-rose-500 hover:text-rose-700 bg-rose-50 dark:bg-rose-900/30 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>
+                </div>
+            `).join('');
+
+            // Pengurus (Hierarki KSB & Bidang)
             const ksbRoles = ['Ketua', 'Sekretaris', 'Bendahara'];
             const ksb = board.filter(b => ksbRoles.includes(b.role));
             const bidang = board.filter(b => !ksbRoles.includes(b.role));
 
             let boardHtml = '';
             if (ksb.length > 0) {
+                boardHtml += `<div class="col-span-2"><h3 class="text-xs font-extrabold text-slate-800 dark:text-white uppercase tracking-wider mb-2 mt-2 border-b border-slate-200 dark:border-slate-700 pb-2">Pengurus Inti (KSB)</h3></div>`;
                 boardHtml += ksb.map(b => `
                     <div class="glass-card text-center flex flex-col items-center !p-4 group border-b-4 border-b-primary shadow-md">
                         <img src="${b.img}" alt="${b.name}" class="w-16 h-16 rounded-full mb-3 shadow-md border-2 border-white dark:border-slate-700 group-hover:scale-110 transition-transform">
@@ -823,9 +891,52 @@
                     </div>
                 `).join('');
             }
+            if (bidang.length > 0) {
+                boardHtml += `<div class="col-span-2"><h3 class="text-xs font-extrabold text-slate-800 dark:text-white uppercase tracking-wider mb-2 mt-4 border-b border-slate-200 dark:border-slate-700 pb-2">Koordinator Bidang</h3></div>`;
+                boardHtml += bidang.map(b => `
+                    <div class="glass-card text-center flex flex-col items-center !p-3 group">
+                        <img src="${b.img}" alt="${b.name}" class="w-12 h-12 rounded-full mb-2 shadow-sm border-2 border-white dark:border-slate-700 group-hover:scale-110 transition-transform">
+                        <h4 class="text-[10px] font-extrabold text-slate-800 dark:text-white truncate w-full mb-1">${b.name}</h4>
+                        <span class="text-[8px] font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded-full uppercase tracking-wider truncate max-w-full">${b.role}</span>
+                    </div>
+                `).join('');
+            }
             document.getElementById('board-container').innerHTML = boardHtml || '<div class="col-span-2 text-center py-5"><p class="text-xs text-slate-400">Belum ada data pengurus</p></div>';
+
+            document.getElementById('admin-list-board').innerHTML = board.map(b => `
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div class="truncate pr-2"><div class="text-[11px] font-bold dark:text-white truncate">${b.name}</div><div class="text-[9px] text-slate-500">${b.role}</div></div>
+                    <button onclick="delItem('board', '${b.id}')" class="text-rose-500 hover:text-rose-700 bg-rose-50 dark:bg-rose-900/30 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>
+                </div>
+            `).join('');
+
+            // Panduan
+            const emptyPanduan = `<div class="w-full text-center py-5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl mb-4"><p class="text-xs font-semibold text-slate-400">Belum ada panduan layanan</p></div>`;
+            document.getElementById('panduan-container').innerHTML = panduan.length > 0 ? panduan.map(p => `
+                <details class="glass-card group cursor-pointer p-0 overflow-hidden mb-3">
+                    <summary class="font-extrabold text-sm list-none flex justify-between items-center text-slate-700 dark:text-slate-200 outline-none p-5 bg-white/50 dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle text-secondary"></i> ${p.title}</span>
+                        <div class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center group-open:rotate-180 transition-transform"><i class="fa-solid fa-chevron-down text-slate-400 text-[10px]"></i></div>
+                    </summary>
+                    <div class="p-5 border-t border-slate-100 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-white/30 dark:bg-darkCard/30 font-medium">
+                        <ul class="list-decimal pl-5 space-y-2">
+                            ${p.content.map(li => `<li>${li}</li>`).join('')}
+                        </ul>
+                    </div>
+                </details>
+            `).join('') : emptyPanduan;
+
+            document.getElementById('admin-list-panduan').innerHTML = panduan.map(p => `
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div class="truncate pr-2"><div class="text-[11px] font-bold dark:text-white truncate">${p.title}</div></div>
+                    <button onclick="delItem('panduan', '${p.id}')" class="text-rose-500 hover:text-rose-700 bg-rose-50 dark:bg-rose-900/30 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>
+                </div>
+            `).join('');
         }
 
+        // =========================================================================
+        // UI & NAVIGATION LOGIC
+        // =========================================================================
         let isLoaded = false;
         function hideLoader() {
             if(!isLoaded) {
@@ -837,7 +948,7 @@
                 isLoaded = true;
             }
         }
-        setTimeout(hideLoader, 3000); 
+        setTimeout(hideLoader, 3000); // Failsafe loader 3 detik
 
         window.toggleThemeMenu = () => document.getElementById('theme-menu').classList.toggle('active');
         window.setTheme = (themeName) => {
@@ -878,7 +989,100 @@
             }
             contentArea.scrollTo({ top: 0, behavior: 'smooth' });
         }
+        window.switchInfoTab = (tab) => {
+            const activeClass = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 text-primary shadow-sm transition-all";
+            const inactiveClass = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-700/50";
+            if(tab === 'berita') {
+                document.getElementById('tab-content-berita').classList.remove('hidden'); document.getElementById('tab-content-agenda').classList.add('hidden');
+                document.getElementById('tab-btn-berita').className = activeClass; document.getElementById('tab-btn-agenda').className = inactiveClass;
+            } else {
+                document.getElementById('tab-content-berita').classList.add('hidden'); document.getElementById('tab-content-agenda').classList.remove('hidden');
+                document.getElementById('tab-btn-agenda').className = activeClass; document.getElementById('tab-btn-berita').className = inactiveClass;
+            }
+        }
 
+        // =========================================================================
+        // ADMIN PANEL CRUD (Terkoneksi Toast & Database)
+        // =========================================================================
+        window.loginAdmin = () => {
+            if(document.getElementById('admin-pin').value === '2504') {
+                document.getElementById('admin-login-view').classList.add('hidden');
+                document.getElementById('admin-dashboard-view').classList.remove('hidden');
+                document.getElementById('admin-pin').value = '';
+                showToast("Berhasil masuk Panel Admin");
+            } else showToast('PIN Salah! (Coba: 1234)', 'error');
+        }
+        window.logoutAdmin = () => {
+            document.getElementById('admin-dashboard-view').classList.add('hidden');
+            document.getElementById('admin-login-view').classList.remove('hidden');
+            showToast("Berhasil Logout");
+        }
+        window.saveStats = () => {
+            const r = document.getElementById('edit-rumah').value;
+            const k = document.getElementById('edit-kk').value;
+            const w = document.getElementById('edit-warga').value;
+            const l = document.getElementById('edit-laki').value;
+            const p = document.getElementById('edit-perempuan').value;
+            window.dbSetStats({ rumah: r, kk: k, warga: w, laki: l, perempuan: p });
+            showToast('Data Statistik berhasil diperbarui!');
+        }
+        window.delItem = (type, id) => {
+            if(!confirm('Hapus data ini secara permanen?')) return;
+            window.dbDelete(type, id);
+            showToast('Data berhasil dihapus dari sistem');
+        }
+        window.addNews = () => {
+            const title = document.getElementById('add-news-title').value;
+            const content = document.getElementById('add-news-content').value;
+            if(!title || !content) return showToast('Isi judul & konten!', 'error');
+            window.dbAdd('news', { title, content, date: "Hari Ini", type: "Info" });
+            document.getElementById('add-news-title').value = ''; document.getElementById('add-news-content').value = '';
+            showToast('Kabar berhasil dipublikasikan!');
+        }
+        window.addAgenda = () => {
+            const title = document.getElementById('add-agenda-title').value;
+            const date = document.getElementById('add-agenda-date').value;
+            const loc = document.getElementById('add-agenda-loc').value;
+            if(!title || !date) return showToast('Isi minimal judul & tanggal!', 'error');
+            window.dbAdd('agenda', { title, date, time: "-", location: loc || "-" });
+            document.getElementById('add-agenda-title').value = ''; document.getElementById('add-agenda-date').value = ''; document.getElementById('add-agenda-loc').value = '';
+            showToast('Agenda berhasil ditambahkan!');
+        }
+        window.addBoard = () => {
+            const name = document.getElementById('add-board-name').value;
+            const role = document.getElementById('add-board-role').value;
+            if(!name || !role) return showToast('Isi nama & jabatan!', 'error');
+            const img = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=475569&color=fff&bold=true`;
+            window.dbAdd('board', { name, role, img });
+            document.getElementById('add-board-name').value = ''; document.getElementById('add-board-role').value = '';
+            showToast('Data Pengurus berhasil ditambah!');
+        }
+        window.addPanduan = () => {
+            const title = document.getElementById('add-panduan-title').value;
+            const rawContent = document.getElementById('add-panduan-content').value;
+            if(!title || !rawContent) return showToast('Isi Judul dan langkah!', 'error');
+            const contentArray = rawContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            window.dbAdd('panduan', { title, content: contentArray });
+            document.getElementById('add-panduan-title').value = ''; document.getElementById('add-panduan-content').value = '';
+            showToast('Panduan layanan ditambahkan!');
+        }
+        window.resetData = () => {
+            if(confirm('Peringatan: Semua data yang Anda buat akan terhapus. Lanjutkan?')) {
+                if(!isCanvasEnv) localStorage.clear();
+                window.location.reload();
+            }
+        }
+        window.submitPengaduan = (e) => {
+            e.preventDefault();
+            const text = `*🚨 LAPORAN SMART RT*%0A%0A*Nama:* ${document.getElementById('adu-nama').value}%0A*Blok/No:* ${document.getElementById('adu-rumah').value}%0A*Kategori:* ${document.getElementById('adu-kategori').value}%0A*Isi:* ${document.getElementById('adu-isi').value}`;
+            window.open(`https://wa.me/6281234567890?text=${text}`, '_blank');
+            e.target.reset();
+        }
+
+        // =========================================================================
+        // GOOGLE GEMINI AI CHAT LOGIC (WA Style)
+        // =========================================================================
+        const apiKey = "AIzaSyAmmJsWSEr6uVlxJlR3ppEVCvg0nzWs3-c"; // API Key Gemini (Otomatis disediakan environment Canvas)
         const chatInput = document.getElementById('chat-input');
         const chatMessages = document.getElementById('chat-messages');
         const quickPrompts = document.getElementById('quick-prompts');
@@ -902,61 +1106,37 @@
             document.querySelector('#chat-form').dispatchEvent(new Event('submit'));
         }
 
-        // =========================================================================
-        // PERBAIKAN: Fungsi Pemanggilan API Gemini yang Kompatibel (Canvas & GitHub)
-        // =========================================================================
-async function callGeminiAPI(prompt, retryCount = 0) {
-  const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren untuk warga RT 004/025 Teluk Pucung Bekasi.";
-
-  const apiKey = "AIzaSyAmmJsWSEr6uVlxJlR3ppEVCvg0nzWs3-c";
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-  const fullPrompt = `${systemPrompt}\n\nUser: ${prompt}`;
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: fullPrompt }]
-          }
-        ]
-      })
-    });
-
-    const resultText = await response.text();
-    console.log("RAW RESPONSE:", resultText);
-
-    const data = JSON.parse(resultText);
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "AI lagi mikir 🤔";
-
-  } catch (error) {
-    console.error("ERROR:", error);
-
-    if (retryCount < 2) {
-      await new Promise(r => setTimeout(r, 1500));
-      return callGeminiAPI(prompt, retryCount + 1);
-    }
-
-    return "Maaf, sistem lagi gangguan 😅";
-  }
-}
-
-    return dummyAIResponse(prompt);
-  }
-}
+        async function callGeminiAPI(prompt, retryCount = 0) {
+            const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik!";
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, { 
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) 
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Hmm, saya agak bingung memproses itu.";
+            } catch (error) {
+                if (retryCount < 3) {
+                    await new Promise(r => setTimeout(r, [1000, 2000, 4000][retryCount]));
+                    return callGeminiAPI(prompt, retryCount + 1);
+                }
+                return dummyAIResponse(prompt);
+            }
+        }
 
         function dummyAIResponse(msg) {
-            return "Waduh, sepertinya jaringan saya sedang gangguan nih. Coba lagi nanti ya! 🤖";
+            const lower = msg.toLowerCase();
+            if(lower.includes('ktp') || lower.includes('surat') || lower.includes('kk')) 
+                return "Wah gampang banget Akang/Teteh! Silakan kembali ke Beranda, lalu klik ikon <b>Surat</b>. Pengurus kita siap bantu. 🚀";
+            if(lower.includes('pengurus') || lower.includes('rt') || lower.includes('ketua'))
+                return "Bapak Ketua RT kita Pak Romadhon. Cek susunan super lengkapnya di menu <b>Pengurus</b> ya! 👨‍💼";
+            if(lower.includes('rusak') || lower.includes('sampah') || lower.includes('lapor'))
+                return "Waduh! Lapor aja langsung lewat menu <b>Lapor</b> di bagian bawah. Pesanmu bakal masuk ke WhatsApp pengurus, jadi cepat ditangani! 🚨";
+            if(lower.includes('halo') || lower.includes('hai'))
+                return "Halo warga RT 004! 👋 Kumaha damang? Ada yang bisa dibantu hari ini? 😊";
+            return "Hai warga! Maaf nih, Pemuda Pintar lagi mode standar (koneksi API belum aktif). Tapi tenang aja, kamu tetep bisa tanya seputar Surat, Lapor, atau Pengurus! 🤖";
         }
 
         window.sendChat = async (e) => {
@@ -979,12 +1159,14 @@ async function callGeminiAPI(prompt, retryCount = 0) {
             const aiText = await callGeminiAPI(msg);
             document.getElementById(typingId).remove();
             
-            let formattedText = marked.parse(aiText);
-            
-            chatMessages.innerHTML += `<div class="chat-bubble chat-ai chat-animate shadow-md relative z-10 font-medium"><div class="chat-md">${formattedText}</div></div>`;
+            let formattedText = aiText.replace(/\*\*(.*?)\*\*/g, '<b class="text-[#008069] dark:text-emerald-400">$1</b>').replace(/\n/g, '<br>');
+            chatMessages.innerHTML += `<div class="chat-bubble chat-ai chat-animate shadow-md relative z-10 font-medium">${formattedText}</div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // =========================================================================
+        // INISIALISASI SAAT HALAMAN DIMUAT (Otentikasi & Database)
+        // =========================================================================
         window.addEventListener('load', async () => {
             const savedTheme = localStorage.getItem('theme_color') || 'default';
             setTheme(savedTheme);
@@ -994,7 +1176,7 @@ async function callGeminiAPI(prompt, retryCount = 0) {
                 document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
             }
             
-            if(db) {
+            if(isCanvasEnv && db) {
                 try {
                     const initAuth = async () => {
                         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -1023,6 +1205,12 @@ async function callGeminiAPI(prompt, retryCount = 0) {
                 fetchCollection('board');
                 fetchCollection('panduan');
             }
+            
+            document.addEventListener('click', function(event) {
+                const menu = document.getElementById('theme-menu');
+                const btn = event.target.closest('button[onclick="toggleThemeMenu()"]');
+                if (!menu.contains(event.target) && !btn) menu.classList.remove('active');
+            });
         });
     </script>
 </body>
