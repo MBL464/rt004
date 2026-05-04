@@ -1,5 +1,12 @@
 export async function handler(event) {
   try {
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "No request body" }),
+      };
+    }
+
     const body = JSON.parse(event.body);
 
     const response = await fetch(
