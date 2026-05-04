@@ -1115,9 +1115,16 @@ async function callGeminiAPI(prompt, retryCount = 0) {
             })
         });
 
-        const data = await response.json(); // 🔥 INI PENTING
+        // 🔥 WAJIB DI SINI
+        const data = await response.json();
 
         console.log("AI RESPONSE:", data);
+
+        // 🔥 HANDLE ERROR GEMINI
+        if (data.error) {
+            console.error("GEMINI ERROR:", data.error);
+            return "Error AI: " + data.error.message;
+        }
 
         return data.candidates?.[0]?.content?.parts?.[0]?.text 
             || "AI lagi mikir 🤔";
