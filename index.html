@@ -1093,6 +1093,8 @@ async function callGeminiAPI(prompt, retryCount = 0) {
     const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! Kamu BISA ngobrol topik umum seperti ChatGPT (kasih resep masakan, tips kesehatan, bantuin tugas sekolah, nulis puisi, curhat, dll). JAWAB pertanyaan umum tersebut dengan bersemangat. NAMUN, KHUSUS jika ada yang nanya cara urus KTP/KK/Surat arahkan ke menu 'Surat', info kepengurusan ke menu 'Pengurus', dan masalah keamanan/kerusakan ke menu 'Lapor'. Gunakan emoji dengan natural dan asik!";
 
     try {
+
+        console.log("PROMPT DIKIRIM:", prompt); // ✅ TARUH DI SINI
         const response = await fetch("https://animated-pasca-cf35c2.netlify.app/.netlify/functions/gemini", {
             method: "POST",
             headers: {
