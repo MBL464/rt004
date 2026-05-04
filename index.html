@@ -7,6 +7,13 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+let chatInput, chatMessages, quickPrompts;
+
+document.addEventListener("DOMContentLoaded", function () {
+    chatInput = document.getElementById('chat-input');
+    chatMessages = document.getElementById('chat-messages');
+    quickPrompts = document.getElementById('quick-prompts');
+});
         tailwind.config = {
             darkMode: 'class',
             theme: {
