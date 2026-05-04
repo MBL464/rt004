@@ -6,6 +6,7 @@
     <title>Smart RT 004 / 025 Teluk Pucung</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
 let chatInput, chatMessages, quickPrompts;
 
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     aiBubble.className = "chat-bubble chat-ai chat-animate";
 
     // format biar rapi
-    aiBubble.innerHTML = data.reply.replace(/\n/g, "<br>");
+    aiBubble.innerHTML = marked.parse(data.reply);
 
     chatBox.appendChild(aiBubble);
     chatBox.scrollTop = chatBox.scrollHeight;
