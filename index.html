@@ -906,44 +906,51 @@
         // PERBAIKAN: Fungsi Pemanggilan API Gemini yang Kompatibel (Canvas & GitHub)
         // =========================================================================
 async function callGeminiAPI(prompt, retryCount = 0) {
-  const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren, ramah, dan sangat akrab untuk warga RT 004/025 Teluk Pucung Bekasi. Gunakan sapaan akrab (Akang/Teteh/Bapak/Ibu/Warga). Kamu adalah asisten serba bisa! JAWAB pertanyaan dengan bersemangat. PENTING: Susun jawabanmu dengan sangat rapi menggunakan Markdown.";
+  const systemPrompt = "Kamu adalah 'Pemuda Pintar', asisten AI keren untuk warga RT 004/025 Teluk Pucung Bekasi.";
 
-  const apiKey = "AIzaSyAmmJsWSEr6uVlxJlR3ppEVCvg0nzWs3-c"; // GANTI
+  const apiKey = "API_KEY_BARU_KAMU";
   const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
   const fullPrompt = `${systemPrompt}\n\nUser: ${prompt}`;
 
   try {
-    const response = await fetch(url, { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ 
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
         contents: [
           {
             role: "user",
             parts: [{ text: fullPrompt }]
           }
         ]
-      }) 
+      })
     });
-    
-    const text = await response.text();
-    const data = JSON.parse(text);
+
+    const resultText = await response.text();
+    console.log("RAW RESPONSE:", resultText);
+
+    const data = JSON.parse(resultText);
 
     if (!response.ok) {
-      console.error("Gemini Error:", data);
       throw new Error(`HTTP ${response.status}`);
     }
-    
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Hmm, saya agak bingung 🤔";
+
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "AI lagi mikir 🤔";
 
   } catch (error) {
-    console.error("Info Error Gemini:", error.message);
-    
-    if (retryCount < 3) {
-      await new Promise(r => setTimeout(r, [1000, 2000, 4000][retryCount]));
+    console.error("ERROR:", error);
+
+    if (retryCount < 2) {
+      await new Promise(r => setTimeout(r, 1500));
       return callGeminiAPI(prompt, retryCount + 1);
     }
+
+    return "Maaf, sistem lagi gangguan 😅";
+  }
+}
 
     return dummyAIResponse(prompt);
   }
