@@ -1103,23 +1103,16 @@ async function callGeminiAPI(userMessage) {
 
     const data = await response.json();
 
-    console.log(data); // debug dulu
+    console.log(data);
 
-    return data;
+    return data.candidates?.[0]?.content?.parts?.[0]?.text 
+      || "AI lagi mikir 🤔";
+
   } catch (error) {
-    console.error("ERROR:", error);
+    console.error("AI ERROR:", error);
+    return "AI error";
   }
 }
-
-        return data.candidates?.[0]?.content?.parts?.[0]?.text 
-            || "AI lagi mikir 🤔";
-
-    } catch (error) {
-        console.error("AI ERROR:", error);
-        return "AI error";
-    }
-}
-
         function dummyAIResponse(msg) {
             const lower = msg.toLowerCase();
             if(lower.includes('ktp') || lower.includes('surat') || lower.includes('kk')) 
