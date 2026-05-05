@@ -688,22 +688,84 @@
         });
 
 
-        // --- GEMINI AI ---
-        const apiKey = "";
-        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. 
-        Tugasmu membantu warga dengan ramah, santun, dan komunikatif. 
-        Gunakan sapaan "Bapak/Ibu" atau "Warga". 
-        Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatSubmitBtn = document.getElementById('chat-submit-btn');
 
-        async function getGeminiResponse(userText) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            try {
-                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) });
-                const result = await response.json();
-                let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, sistem sedang sibuk.";
-                return text.replace(/\*/g, '').replace(/#/g, '').replace(/\n/g, '<br>');
-            } catch (e) { return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏"; }
+        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten AI resmi warga RT 004. Jawab singkat dan ramah.`;
+
+        function addMessageToUI(text, isUser) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex gap-2 ${isUser ? 'justify-end' : ''}`;
+            if (isUser) {
+                msgDiv.innerHTML = `<div class="bg-blue-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-xs">${text}</div>`;
+            } else {
+                msgDiv.innerHTML = `
+                    <div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1">
+                        <i class="fa-solid fa-robot text-blue-500 text-[10px]"></i>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs text-slate-700 leading-relaxed max-w-[85%]">${text}</div>
+                `;
+            }
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+
+        function showTypingIndicator() {
+            const id = 'typing-' + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.id = id;
+            msgDiv.className = `flex gap-2`;
+            msgDiv.innerHTML = `
+                <div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1">
+                    <i class="fa-solid fa-robot text-blue-500 text-[10px]"></i>
+                </div>
+                <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs typing-indicator flex items-center h-[34px]">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        }
+
+async function getGeminiResponse(userText) {
+    try {
+        const response = await fetch("/api/ai", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: `${systemPrompt}\n\nPertanyaan: ${userText}`
+            })
+        });
+
+        const result = await response.json();
+
+        console.log("AI RESULT:", result); // debug
+
+        let text = result?.reply;
+
+        // 🔥 fallback kalau kosong
+        if (!text || text.trim() === "") {
+            return "Maaf, AI sedang sibuk. Coba ulangi ya 🙏";
+        }
+
+        // ✨ cleaning
+        text = text.replace(/\*/g, '');
+        text = text.replace(/#/g, '');
+        text = text.replace(/-/g, '•');
+        text = text.replace(/\n/g, '<br>');
+
+        return text;
+
+    } catch (e) {
+        console.error("ERROR:", e);
+        return "Koneksi ke AI terganggu. Coba lagi 🙏";
+    }
+}
 
         document.getElementById('chat-form').addEventListener('submit', async (e) => {
             e.preventDefault();
