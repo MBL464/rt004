@@ -21,10 +21,16 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    console.log("GEMINI RAW:", JSON.stringify(data, null, 2)); // 🔥 PENTING
+
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
     res.status(200).json({
-      reply: data?.candidates?.[0]?.content?.parts?.[0]?.text || "AI tidak merespon",
+      reply: reply || "AI tidak merespon",
     });
+
   } catch (err) {
+    console.error("ERROR:", err);
     res.status(500).json({ reply: "Server error" });
   }
 }
