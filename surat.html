@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Surat Pengantar RT</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        /* Mengatur tampilan khusus untuk preview kertas */
+        .paper-preview {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: black;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Mengatur agar saat di-print / disave PDF, layout website hilang dan sisa kertasnya saja */
+        @media print {
+            body {
+                background: white;
+            }
+            @page {
+                size: A4;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .paper-preview {
+                width: 100%;
+                min-height: 100vh;
+                margin: 0;
+                padding: 20mm;
+                box-shadow: none;
+                border: none;
+            }
+            .print-bg {
+                background: white !important;
+                padding: 0 !important;
+            }
+        }
+        
+        /* Custom scrollbar untuk kemudahan di HP & Desktop */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 h-screen overflow-hidden">
+    <div id="root" class="h-full"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function App() {
+            // State untuk Form Data
+            const [formData, setFormData] = useState({
+                nomorSurat: "....... / ....... / ....... / RT 004 / RW 025 / ....... / 2026",
+                nama: "",
+                tempatLahir: "",
+                tglLahir: "",
+                jenisKelamin: "",
+                agama: "",
+                pekerjaan: "",
+                nik: "",
+                alamat: "",
+                keperluan: "",
+                tanggal: "Bekasi, " + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                rwName: "",
+                rtName: "ROMADHON",
+            });
+
+            // Default Logo menggunakan URL Publik Logo Bekasi
+            const [logo, setLogo] = useState("https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png");
+
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({ ...prev, [name]: value }));
+            };
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            return (
+                <div class="flex flex-col lg:flex-row h-full">
+                    
+                    {/* Sidebar / Form Area (Hidden on Print) */}
+                    <div class="w-full lg:w-[450px] shrink-0 bg-white flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.04)] z-20 no-print h-full transition-all">
+                        
+                        {/* Header Sticky */}
+                        <div class="p-6 bg-gradient-to-br from-indigo-600 to-blue-700 text-white shrink-0 relative overflow-hidden">
+                            <div class="absolute top-[-20px] right-[-20px] w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                            <h1 class="text-2xl font-extrabold flex items-center gap-3 tracking-tight relative z-10">
+                                <i data-lucide="file-signature" class="w-7 h-7"></i>
+                                E-Surat RT
+                            </h1>
+                            <p class="text-blue-100 text-sm mt-2 font-medium relative z-10 opacity-90">
+                                Lengkapi identitas warga untuk mencetak dokumen.
+                            </p>
+                        </div>
+                        
+                        {/* Scrollable Form Content */}
+                        <div class="flex-1 overflow-y-auto custom-scroll p-6 space-y-6 bg-slate-50/50">
+                            
+                            <div class="space-y-5">
+                                {/* Input: Nama Lengkap */}
+                                <div>
+                                    <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                        <i data-lucide="user" class="w-3.5 h-3.5"></i> Nama Lengkap
+                                    </label>
+                                    <input type="text" name="nama" value={formData.nama} onChange={handleChange} placeholder="Masukkan nama lengkap..." class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
+                                </div>
+
+                                {/* Grid: Tempat & Tanggal Lahir */}
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Tempat Lahir
+                                        </label>
+                                        <input type="text" name="tempatLahir" value={formData.tempatLahir} onChange={handleChange} placeholder="Kota lahir" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Tgl Lahir
+                                        </label>
+                                        <input type="date" name="tglLahir" value={formData.tglLahir} onChange={handleChange} class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm cursor-pointer" />
+                                    </div>
+                                </div>
+
+                                {/* Grid: Kelamin & Agama */}
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                            <i data-lucide="users" class="w-3.5 h-3.5"></i> Gender
+                                        </label>
+                                        <select name="jenisKelamin" value={formData.jenisKelamin} onChange={handleChange} class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm cursor-pointer">
+                                            <option value="">Pilih...</option>
+                                            <option value="Laki-laki">Laki-laki</option>
+                                            <option value="Perempuan">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                            <i data-lucide="heart" class="w-3.5 h-3.5"></i> Agama
+                                        </label>
+                                        <input type="text" name="agama" value={formData.agama} onChange={handleChange} placeholder="Agama" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
+                                    </div>
+                                </div>
+
+                                {/* Grid: Pekerjaan & NIK */}
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="col-span-2 sm:col-span-1">
+                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Pekerjaan
+                                        </label>
+                                        <input type="text" name="pekerjaan" value={formData.pekerjaan} onChange={handleChange} placeholder="Pekerjaan saat ini" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
+                                    </div>
+                                    <div class="col-span-2 sm:col-span-1">
+                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> NIK
+                                        </label>
+                                        <input type="number" name="nik" value={formData.nik} onChange={handleChange} placeholder="16 digit NIK" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
+                                    </div>
+                                </div>
+
+                                {/* Input: Alamat */}
+                                <div>
+                                    <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                        <i data-lucide="home" class="w-3.5 h-3.5"></i> Alamat
+                                    </label>
+                                    <textarea name="alamat" rows="2" value={formData.alamat} onChange={handleChange} placeholder="Detail alamat tempat tinggal..." class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm resize-y"></textarea>
+                                </div>
+
+                                {/* Input: Keperluan */}
+                                <div>
+                                    <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Keperluan
+                                    </label>
+                                    <textarea name="keperluan" rows="2" value={formData.keperluan} onChange={handleChange} placeholder="Tujuan pembuatan surat..." class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm resize-y"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Sticky / Action Print */}
+                        <div class="p-5 bg-white border-t border-slate-100 shrink-0">
+                            <button onClick={handlePrint} class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 px-4 rounded-xl flex justify-center items-center gap-2 transition-all shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-6px_rgba(79,70,229,0.6)] active:translate-y-0">
+                                <i data-lucide="printer" class="w-5 h-5"></i> 
+                                Cetak / Simpan PDF
+                            </button>
+                            <p class="text-[11px] font-medium text-center text-slate-400 mt-3">
+                                Gunakan tujuan <span class="font-bold text-slate-500">"Save as PDF"</span> saat mencetak.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    {/* Right Panel / Preview Area */}
+                    {/* Memberikan background pattern titik halus agar preview lebih stand out */}
+                    <div class="print-bg flex-1 bg-slate-200/60 overflow-y-auto overflow-x-auto custom-scroll w-full flex flex-col items-center py-10 relative" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+                        
+                        {/* Petunjuk khusus HP */}
+                        <div class="lg:hidden sticky left-0 right-0 top-0 w-full text-center mb-6 text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-md py-2 px-4 shadow-sm z-10 no-print rounded-full max-w-[80%] mx-auto flex items-center justify-center gap-2">
+                            <i data-lucide="move-horizontal" class="w-4 h-4 text-indigo-600"></i>
+                            Geser untuk melihat area surat
+                        </div>
+
+                        {/* A4 Paper Container */}
+                        <div class="paper-preview relative shrink-0 transition-all duration-300">
+                            
+                            {/* KOP SURAT */}
+                            <div class="flex items-center justify-center border-b-[3px] border-black pb-3 mb-6 relative">
+                                <div class="absolute left-0 top-0 h-full flex items-center justify-center">
+                                    <img src={logo} alt="Logo" class="w-[150px] object-contain" />
+                                </div>
+                                <div class="text-center w-full px-24">
+                                    <div class="text-xl font-bold uppercase tracking-wide">RUKUN TETANGGA 004</div>
+                                    <div class="text-xl font-bold uppercase tracking-wide">RUKUN WARGA 025</div>
+                                    <div class="text-sm font-bold uppercase mt-1">KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA, KOTA BEKASI</div>
+                                    <div class="text-xs italic mt-1">Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121</div>
+                                </div>
+                            </div>
+
+                            {/* JUDUL SURAT */}
+                            <div class="text-center mb-8">
+                                <h3 class="text-lg font-bold underline underline-offset-2">SURAT PENGANTAR</h3>
+                                <p class="mt-1">NOMOR : {formData.nomorSurat}</p>
+                            </div>
+
+                            {/* ISI SURAT */}
+                            <div class="text-justify space-y-4">
+                                <p>Yang bertanda tangan di bawah ini, menerangkan bahwa :</p>
+                                
+                                <table class="w-full ml-6">
+                                    <tbody>
+                                        <tr>
+                                            <td class="w-[160px] align-top py-1.5">Nama Lengkap</td>
+                                            <td class="w-[15px] align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 font-bold uppercase">{formData.nama}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top py-1.5">Tempat/Tgl Lahir</td>
+                                            <td class="align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 capitalize">
+                                                {formData.tempatLahir} {formData.tempatLahir && formData.tglLahir ? ', ' : ''} 
+                                                {formData.tglLahir ? new Date(formData.tglLahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top py-1.5">Jenis Kelamin</td>
+                                            <td class="align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 capitalize">{formData.jenisKelamin}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top py-1.5">Agama</td>
+                                            <td class="align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 capitalize">{formData.agama}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top py-1.5">Pekerjaan</td>
+                                            <td class="align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 capitalize">{formData.pekerjaan}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top py-1.5">NIK</td>
+                                            <td class="align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 tracking-wider">{formData.nik}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top py-1.5">Alamat</td>
+                                            <td class="align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 break-words">{formData.alamat}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-top py-1.5">Keperluan</td>
+                                            <td class="align-top py-1.5">:</td>
+                                            <td class="align-top py-1.5 break-words font-semibold">{formData.keperluan}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <p class="mt-4 indent-8">
+                                    Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan yang berkepentingan untuk menjadi maklum.
+                                </p>
+                            </div>
+
+                            {/* TANDA TANGAN */}
+                            <div class="flex justify-between mt-16 pt-4">
+                                <div class="text-center w-[250px]">
+                                    <p class="opacity-0 mb-1">.</p> {/* Spacer agar sejajar dgn tanggal di kanan */}
+                                    <p>KETUA RW 025</p>
+                                    <div class="h-[90px]"></div> {/* Space untuk tanda tangan */}
+                                    <p class="font-bold underline">({formData.rwName ? " " + formData.rwName.toUpperCase() + " " : "..................................."})</p>
+                                </div>
+                                <div class="text-center w-[250px]">
+                                    <p class="mb-1">{formData.tanggal}</p>
+                                    <p>KETUA RT 004 / RW 025</p>
+                                    <div class="h-[90px]"></div> {/* Space untuk tanda tangan */}
+                                    <p class="font-bold underline">({formData.rtName ? " " + formData.rtName.toUpperCase() + " " : "..................................."})</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Initialize icons after React mounts
+        setTimeout(() => lucide.createIcons(), 100);
+    </script>
+</body>
+</html>
