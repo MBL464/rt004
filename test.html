@@ -577,8 +577,8 @@
                     
                     const ratio = imgProps.w / imgProps.h;
                     // Ukuran maksimal diperbesar dari 25mm menjadi 30mm agar setara dengan teks kop surat
-                    let targetW = 30; 
-                    let targetH = 30; 
+                    let targetW = 40; 
+                    let targetH = 40; 
                     
                     // Hitung rasio agar proporsional (TIDAK GEPENG)
                     if (ratio > 1) {
@@ -588,8 +588,8 @@
                     }
                     
                     // Posisikan secara otomatis: rata kiri dengan garis pembatas (x=15) dan rata atas dengan teks judul
-                    const xPos = 15 + (30 - targetW) / 2;
-                    const yPos = 12 + (30 - targetH) / 2;
+                    const xPos = 15 + (40 - targetW) / 2;
+                    const yPos = 12 + (40 - targetH) / 2;
 
                     doc.addImage(logoBase64, 'PNG', xPos, yPos, targetW, targetH);
                 } catch(err) {
