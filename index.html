@@ -910,7 +910,6 @@
 
 
         // --- GEMINI AI IMPLEMENTATION ---
-        const apiKey = "AIzaSyAyS-juKYTzWTzUpwxxzfgqOenxTBj3JYw"; 
         const chatMessages = document.getElementById('chat-messages');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
@@ -953,29 +952,37 @@
             return id;
         }
 
-        async function getGeminiResponse(userText) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            try {
-                const response = await fetch(url, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } })
-                });
-                const result = await response.json();
-                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (text) {
-                    // Membersihkan format markdown (bintang, tagar, dll) agar rapi
-                    text = text.replace(/\*/g, '');
-                    text = text.replace(/#/g, '');
-                    text = text.replace(/-/g, '•'); // ganti strip dengan bullet point agar elegan
-                    text = text.replace(/\n/g, '<br>');
-                    return text;
-                }
-                return "Maaf, sistem sedang sibuk.";
-            } catch (e) {
-                return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏";
-            }
+async function getGeminiResponse(userText) {
+    try {
+        const response = await fetch("/api/ai", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: `${systemPrompt}\n\nPertanyaan: ${userText}`
+            })
+        });
+
+        const result = await response.json();
+
+        let text = result.reply;
+
+        if (text) {
+            text = text.replace(/\*/g, '');
+            text = text.replace(/#/g, '');
+            text = text.replace(/-/g, '•');
+            text = text.replace(/\n/g, '<br>');
+            return text;
         }
+
+        return "Maaf, sistem sedang sibuk.";
+
+    } catch (e) {
+        console.error(e);
+        return "Mohon maaf, AI sedang luring 🙏";
+    }
+}
 
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
