@@ -12,7 +12,12 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [
             {
-              parts: [{ text: message }],
+              parts: [{
+  text: `Kamu adalah asisten RT 004 Digital.
+Jawab dengan ramah, singkat, dan jelas.
+
+Pertanyaan: ${message}`
+}],
             },
           ],
         }),
