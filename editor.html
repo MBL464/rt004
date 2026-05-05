@@ -953,32 +953,22 @@
         }
 
 async function getGeminiResponse(userText) {
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/ai", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: `${systemPrompt}\n\nPertanyaan: ${userText}`
-                            }
-                        ]
-                    }
-                ]
+                message: `${systemPrompt}\n\nPertanyaan: ${userText}`
             })
         });
 
         const result = await response.json();
-        console.log("AI RESPONSE:", result); // debug
 
-        let text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        let text = result.reply;
 
         if (text) {
-            // ✨ cleaning tetap dipakai (bagus ini)
             text = text.replace(/\*/g, '');
             text = text.replace(/#/g, '');
             text = text.replace(/-/g, '•');
@@ -989,8 +979,8 @@ async function getGeminiResponse(userText) {
         return "Maaf, sistem sedang sibuk.";
 
     } catch (e) {
-        console.error("ERROR:", e);
-        return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏";
+        console.error(e);
+        return "Mohon maaf, AI sedang luring 🙏";
     }
 }
 
