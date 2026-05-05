@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RT 004 Digital</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#059669', // Emerald 600
+                        primaryLight: '#d1fae5', // Emerald 100
+                        bgSoft: '#f8fafc', // Slate 50
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Mobile App Container */
+        #app-container {
+            width: 100%;
+            max-width: 414px; 
+            height: 100vh;
+            max-height: 896px;
+            background-color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+        }
+        @media (min-width: 415px) {
+            #app-container {
+                height: 90vh;
+                border-radius: 2rem;
+                border: 6px solid #0f172a;
+            }
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .view-section {
+            display: none;
+            animation: fadeSlideUp 0.3s ease-out forwards;
+        }
+        .view-section.active {
+            display: block;
+        }
+        #view-ai.active {
+            display: flex;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Staggered Animations */
+        .animate-item {
+            opacity: 0;
+            animation: fadeSlideUp 0.4s ease-out forwards;
+        }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+
+        /* Interactive Hover/Active Animations */
+        .hover-scale {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+        }
+        .hover-scale:active {
+            transform: scale(0.95);
+        }
+        @media (hover: hover) {
+            .hover-scale:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        /* Typing Indicator */
+        .typing-indicator span {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Custom Toast */
+        #toast-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            pointer-events: none;
+        }
+        .toast {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(-20px);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom File Input Label */
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+        }
+        .file-upload-label:hover {
+            border-color: #059669;
+            background-color: #f0fdf4;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
+
+        <!-- Clean Compact Header -->
+        <header class="bg-white px-5 pt-8 pb-3 shadow-[0_2px_10px_rgba(0,0,0,0.03)] z-10 shrink-0 border-b border-slate-100 flex justify-between items-center relative">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-leaf text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-[15px] font-bold text-slate-800 leading-none">RT 004 / RW 025 Digital App</h1>
+                    <p class="text-[10px] font-medium text-slate-500 mt-0.5">Perum. Taman Wismaasri 2</p>
+                </div>
+            </div>
+            <div class="w-9 h-9 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 border border-slate-100 relative">
+                <i class="fa-regular fa-bell text-[15px]"></i>
+                <span class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 border border-white rounded-full"></span>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto hide-scrollbar pb-24 bg-bgSoft relative">
+            
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="view-section active px-5 pt-5">
+                
+                <!-- AI Banner (Clean) -->
+                <div onclick="switchView('view-ai')" class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 mb-6 shadow-md shadow-blue-500/20 cursor-pointer flex items-center gap-3 active:scale-[0.98] transition-transform">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-robot text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-white font-bold text-sm">Pemuda Pintar AI</h3>
+                        <p class="text-blue-100 text-[10px] mt-0.5">Asisten virtual warga. Tanya Apapun di sini!</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-white/50 text-sm"></i>
+                </div>
+
+                <!-- Statistics (Clean) -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm mb-6">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Data Penduduk</h2>
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="text-center">
+                            <h3 class="text-xl font-bold text-slate-800">131</h3>
+                            <p class="text-[10px] text-slate-500 font-medium">Total Warga</p>
+                        </div>
+                        <div class="text-center border-x border-slate-100">
+                            <h3 class="text-xl font-bold text-slate-800">34</h3>
+                            <p class="text-[10px] text-slate-500 font-medium">Rumah</p>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-xl font-bold text-slate-800">45</h3>
+                            <p class="text-[10px] text-slate-500 font-medium">Kartu Kel.</p>
+                        </div>
+                    </div>
+                    <div class="flex bg-slate-50 rounded-lg p-2 gap-2 text-center text-xs">
+                        <div class="flex-1 flex items-center justify-center gap-1.5 text-blue-600 font-semibold border-r border-slate-200">
+                            <i class="fa-solid fa-mars"></i> 53 Laki-laki
+                        </div>
+                        <div class="flex-1 flex items-center justify-center gap-1.5 text-pink-600 font-semibold">
+                            <i class="fa-solid fa-venus"></i> 72 Perempuan
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Services Grid (Clean) -->
+                <h2 class="text-sm font-bold text-slate-800 mb-3 animate-item">Layanan Digital</h2>
+                <div class="grid grid-cols-3 gap-3 mb-8 animate-item delay-100">
+                    <button onclick="switchView('view-surat')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-primary">
+                            <i class="fa-solid fa-file-lines text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Buat<br>Surat</span>
+                    </button>
+                    <button onclick="switchView('view-alur')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
+                            <i class="fa-solid fa-circle-info text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Info<br>Layanan</span>
+                    </button>
+                    <button onclick="switchView('view-pengaduan')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-500">
+                            <i class="fa-solid fa-bullhorn text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Lapor<br>Warga</span>
+                    </button>
+                    <button onclick="switchView('view-agenda')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600">
+                            <i class="fa-regular fa-calendar-check text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Agenda<br>Kegiatan</span>
+                    </button>
+                    <button onclick="switchView('view-pengurus')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500">
+                            <i class="fa-solid fa-sitemap text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Pengurus<br>RT</span>
+                    </button>
+                    <button onclick="switchView('view-galeri')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center text-rose-500">
+                            <i class="fa-solid fa-images text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Galeri<br>Foto</span>
+                    </button>
+                </div>
+
+                <!-- Info Lingkungan -->
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold text-slate-800">Info Lingkungan</h2>
+                    <button onclick="switchView('view-info')" class="text-[10px] font-semibold text-primary">Lihat Semua</button>
+                </div>
+                
+                <div class="space-y-3" id="dashboard-info-list">
+                    <!-- Info items will be injected here via JS -->
+                </div>
+            </div>
+
+            <!-- VIEW: SURAT PENGANTAR (Google Form Link) -->
+            <div id="view-surat" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-6 flex items-center gap-2 text-xs font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                
+                <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center">
+                    <div class="w-16 h-16 bg-primaryLight text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-envelope-open-text text-2xl"></i>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-800 mb-2">Pembuatan Surat Pengantar</h2>
+                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Untuk mempermudah pendataan, pembuatan surat pengantar KTP, SKCK, Domisili, dll kini dilakukan melalui Google Form resmi RT 004.</p>
+                    
+                    <div class="bg-slate-50 p-4 rounded-xl text-left mb-6">
+                        <h4 class="text-[11px] font-bold text-slate-700 mb-2 uppercase tracking-wide">Yang perlu disiapkan:</h4>
+                        <ul class="text-xs text-slate-600 list-disc list-inside space-y-1">
+                            <li>Foto / Scan KTP</li>
+                            <li>Foto / Scan Kartu Keluarga</li>
+                            <li>Keterangan Keperluan</li>
+                        </ul>
+                    </div>
+
+                    <a href="https://forms.google.com/" target="_blank" class="w-full bg-primary hover:bg-emerald-700 text-white font-bold rounded-xl py-3.5 flex justify-center items-center gap-2 transition-colors text-sm">
+                        Menuju Google Form <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- VIEW: INFO PENGURUSAN (Formerly Alur Layanan) -->
+            <div id="view-alur" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-1 animate-item">Informasi Layanan</h2>
+                <p class="text-slate-500 text-xs mb-4 animate-item delay-100">Cari syarat dokumen administrasi umum.</p>
+
+                <!-- Search Box -->
+                <div class="relative mb-6 animate-item delay-200">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-layanan" oninput="filterLayanan(this.value)" placeholder="Cari (misal: KTP, SKCK, Pindah)..." class="w-full bg-white border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl pl-10 pr-4 py-3 text-sm outline-none transition-all shadow-sm">
+                </div>
+
+                <div class="space-y-4 pb-10" id="layanan-list">
+                    <!-- Layanan di-render dinamis via JS -->
+                </div>
+            </div>
+
+            <!-- VIEW: PENGADUAN -->
+            <div id="view-pengaduan" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-1">Lapor Warga</h2>
+                <p class="text-slate-500 text-xs mb-6">Sampaikan laporan lingkungan Anda.</p>
+
+                <form id="form-pengaduan" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Kategori</label>
+                        <select required class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors">
+                            <option value="">Pilih Kategori...</option>
+                            <option value="Keamanan">Keamanan & Ketertiban</option>
+                            <option value="Fasilitas">Kerusakan Fasilitas</option>
+                            <option value="Kebersihan">Kebersihan Lingkungan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Detail Laporan</label>
+                        <textarea required rows="4" placeholder="Tulis deskripsi dan lokasi..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl py-3.5 transition-colors text-sm mt-2">
+                        Kirim Laporan
+                    </button>
+                </form>
+            </div>
+
+            <!-- VIEW: AGENDA -->
+            <div id="view-agenda" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-5">Agenda Lingkungan</h2>
+                <div class="space-y-3" id="agenda-list"></div>
+            </div>
+
+            <!-- VIEW: INFORMASI -->
+            <div id="view-info" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-5">Info Lingkungan</h2>
+                <div class="space-y-4" id="full-info-list"></div>
+            </div>
+
+            <!-- VIEW: PENGURUS -->
+            <div id="view-pengurus" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-1">Pengurus RT 004</h2>
+                <p class="text-slate-500 text-xs mb-6">Masa Bakti 2024 - 2027</p>
+                <div class="grid grid-cols-2 gap-3" id="pengurus-list"></div>
+            </div>
+
+            <!-- VIEW: GALERI -->
+            <div id="view-galeri" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-1">Galeri Foto</h2>
+                <p class="text-slate-500 text-xs mb-6">Dokumentasi kegiatan warga RT 004.</p>
+                <div class="grid grid-cols-2 gap-3" id="galeri-list"></div>
+            </div>
+
+            <!-- VIEW: PROFIL & ADMIN ACCESS -->
+            <div id="view-profil" class="view-section pt-0 relative z-30">
+                <div class="h-24 bg-slate-800 w-full relative"></div>
+                <div class="px-5 pb-16">
+                    <div class="w-20 h-20 bg-white rounded-full p-1 shadow-sm -mt-10 relative z-10 mb-3 animate-item">
+                        <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200">
+                            <i class="fa-solid fa-user text-3xl"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 animate-item delay-100">Warga RT 004</h2>
+                    <p class="text-slate-500 text-xs font-medium mt-0.5 animate-item delay-100">Aplikasi Warga Digital</p>
+
+                    <div class="mt-6 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm animate-item delay-200">
+                        <h3 class="font-bold text-slate-800 text-[11px] uppercase tracking-wide mb-3 border-b border-slate-50 pb-2">Informasi Wilayah</h3>
+                        <ul class="text-xs text-slate-600 space-y-3">
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-map-location-dot text-slate-400 w-4 text-center"></i> RT 004 / RW 025</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-building text-slate-400 w-4 text-center"></i> Kel. Teluk Pucung</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-city text-slate-400 w-4 text-center"></i> Kec. Bekasi Utara</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-map-pin text-slate-400 w-4 text-center"></i> Kota Bekasi, Jawa Barat</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 animate-item delay-300 relative">
+                        <h3 class="font-bold text-slate-800 text-[11px] uppercase tracking-wide mb-2">Akses Pengurus</h3>
+                        <p class="text-xs text-slate-500 mb-4">Masuk sebagai admin untuk menambah berita, agenda, dan foto pengurus.</p>
+                        <button type="button" onclick="showPinModal()" class="w-full bg-white border border-slate-200 text-slate-800 font-bold text-sm py-2.5 rounded-xl hover:bg-slate-100 hover-scale transition flex justify-center items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-lock text-xs"></i> Buka Panel Admin
+                        </button>
+                    </div>
+                    <!-- Spacer to ensure button is not hidden by bottom nav -->
+                    <div class="h-10"></div>
+                </div>
+            </div>
+
+            <!-- VIEW: ADMIN PANEL -->
+            <div id="view-admin" class="view-section px-5 pt-6">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="switchView('view-profil', document.getElementById('nav-profil'))" class="text-slate-500 flex items-center gap-2 text-xs font-medium">
+                        <i class="fa-solid fa-arrow-left"></i> Tutup Admin
+                    </button>
+                    <span class="bg-red-100 text-red-600 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">Admin Mode</span>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800 mb-5">Panel Pengelola</h2>
+
+                <div class="space-y-4">
+                    <!-- Form Info Lingkungan -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-3 text-sm">Buat Info Lingkungan</h3>
+                        <form id="form-admin-info" class="space-y-3">
+                            <input type="text" id="admin-info-title" required placeholder="Judul Info..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                            <textarea id="admin-info-desc" required placeholder="Isi info..." rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary"></textarea>
+                            
+                            <!-- File Upload Foto Info -->
+                            <label class="file-upload-label">
+                                <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-xl mb-1"></i>
+                                <span class="text-[10px] text-slate-500" id="info-file-name">Pilih Foto Opsional</span>
+                                <input type="file" id="admin-info-file" accept="image/*" class="hidden" onchange="document.getElementById('info-file-name').innerText = this.files[0].name">
+                            </label>
+
+                            <button type="submit" class="w-full bg-primary text-white font-bold rounded-xl py-2.5 text-sm">Publish Info</button>
+                        </form>
+                    </div>
+
+                    <!-- Form Agenda -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-3 text-sm">Tambah Agenda</h3>
+                        <form id="form-admin-agenda" class="space-y-3">
+                            <input type="text" id="admin-agenda-title" required placeholder="Nama Kegiatan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="admin-agenda-date" required placeholder="Tgl (15 Juni)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                                <input type="text" id="admin-agenda-time" required placeholder="Jam (08:00)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                            </div>
+                            <input type="text" id="admin-agenda-loc" required placeholder="Lokasi" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                            <button type="submit" class="w-full bg-primary text-white font-bold rounded-xl py-2.5 text-sm">Simpan Agenda</button>
+                        </form>
+                    </div>
+
+                    <!-- Form Galeri -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-3 text-sm">Upload Galeri</h3>
+                        <form id="form-admin-galeri" class="space-y-3">
+                            <input type="text" id="admin-galeri-title" required placeholder="Keterangan Foto" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                            <input type="text" id="admin-galeri-date" required placeholder="Tanggal (Misal: 17 Ags 2024)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                            
+                            <!-- File Upload Foto Galeri -->
+                            <label class="file-upload-label hover-scale">
+                                <i class="fa-solid fa-image text-slate-400 text-xl mb-1"></i>
+                                <span class="text-[10px] text-slate-500" id="galeri-file-name">Pilih Foto dari Galeri HP</span>
+                                <input type="file" id="admin-galeri-file" accept="image/*" required class="hidden" onchange="document.getElementById('galeri-file-name').innerText = this.files[0].name">
+                            </label>
+
+                            <button type="submit" class="w-full bg-primary text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Tambah Foto</button>
+                        </form>
+                    </div>
+
+                    <!-- Form Pengurus Baru -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-8">
+                        <h3 class="font-bold text-slate-800 mb-3 text-sm">Tambah Pengurus</h3>
+                        <form id="form-admin-pengurus" class="space-y-3">
+                            <input type="text" id="admin-pengurus-name" required placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="admin-pengurus-role" required placeholder="Jabatan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500">
+                                <input type="number" id="admin-pengurus-phone" required placeholder="No. WA" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500">
+                            </div>
+                            
+                            <!-- File Upload Foto Profil -->
+                            <label class="file-upload-label hover-scale">
+                                <i class="fa-solid fa-user-tie text-slate-400 text-xl mb-1"></i>
+                                <span class="text-[10px] text-slate-500" id="pengurus-file-name">Upload Foto Pengurus</span>
+                                <input type="file" id="admin-pengurus-file" accept="image/*" class="hidden" onchange="document.getElementById('pengurus-file-name').innerText = this.files[0].name">
+                            </label>
+
+                            <button type="submit" class="w-full bg-indigo-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan Pengurus</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- VIEW: AI CHAT (Posisinya dipindah agar Full Screen / Mengambang) -->
+        <div id="view-ai" class="view-section absolute inset-0 bg-white flex-col z-[60] pb-safe">
+            <div class="bg-slate-50 p-4 pt-10 border-b border-slate-100 flex items-center gap-3 shrink-0">
+                <button onclick="switchView('view-dashboard')" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 rounded-full transition shrink-0">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </button>
+                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                    <h2 class="text-slate-800 font-bold text-sm leading-tight">Pemuda Pintar</h2>
+                    <p class="text-emerald-500 text-[10px] font-medium flex items-center">Online</p>
+                </div>
+            </div>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-white pb-6">
+                <div class="flex gap-2">
+                    <div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1">
+                        <i class="fa-solid fa-robot text-blue-500 text-[10px]"></i>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 leading-relaxed max-w-[85%]">
+                        Halo Warga RT 004! 👋<br><br>Ada yang bisa dibantu? Tanya soal KTP, agenda, atau info lingkungan, saya siap jawab.
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-3 border-t border-slate-100 shrink-0 pb-5">
+                <form id="chat-form" class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Ketik pesan..." autocomplete="off" class="flex-1 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs outline-none transition-all">
+                    <button type="submit" id="chat-submit-btn" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm disabled:opacity-50">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PIN Modal -->
+        <div id="pin-modal" style="display: none;" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] items-center justify-center p-5 opacity-0 transition-opacity duration-300">
+            <div class="bg-white rounded-3xl p-6 w-full max-w-sm transition-transform duration-300" id="pin-modal-content">
+                <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-600">
+                    <i class="fa-solid fa-lock text-lg"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1 text-center">Akses Admin</h3>
+                <p class="text-xs text-slate-500 text-center mb-6">Masukkan PIN pengurus RT.</p>
+                
+                <input type="password" id="pin-input" class="w-full bg-slate-50 border border-slate-200 text-center text-xl tracking-[0.5em] font-mono rounded-xl px-4 py-3 outline-none focus:border-slate-400 mb-5 transition-all" maxlength="4" placeholder="••••" inputmode="numeric">
+                
+                <div class="flex gap-2">
+                    <button onclick="closePinModal()" class="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-sm rounded-xl py-2.5">Batal</button>
+                    <button onclick="verifyPin()" class="flex-1 bg-slate-800 text-white font-bold text-sm rounded-xl py-2.5">Masuk</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compact Bottom Navigation -->
+        <nav id="bottom-nav" class="absolute bottom-0 w-full bg-white border-t border-slate-100 px-6 py-2 flex justify-between items-center z-20 pb-safe">
+            <button onclick="switchView('view-dashboard', this)" class="nav-item flex flex-col items-center gap-1 text-primary w-16 transition-colors">
+                <i class="fa-solid fa-house text-lg mb-0.5"></i>
+                <span class="text-[9px] font-bold">Beranda</span>
+            </button>
+            <button onclick="switchView('view-info', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors">
+                <i class="fa-solid fa-newspaper text-lg mb-0.5"></i>
+                <span class="text-[9px] font-bold">Info</span>
+            </button>
+            <button onclick="switchView('view-agenda', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors">
+                <i class="fa-solid fa-calendar-days text-lg mb-0.5"></i>
+                <span class="text-[9px] font-bold">Agenda</span>
+            </button>
+            <button id="nav-profil" onclick="switchView('view-profil', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors">
+                <i class="fa-regular fa-user text-lg mb-0.5"></i>
+                <span class="text-[9px] font-bold">Profil</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- DATA MOCKUP ---
+        // Info lingkungan now supports 'img' property
+        let informasiData = [
+            { id: 1, title: "Launching Website RT 004 Digital", date: "Minggu Depan", desc: "Proses yang dilakukan pemuda", icon: "fa-broom", color: "bg-emerald-500", img: " " },
+        ];
+
+        let agendaData = [
+            { date: "01 Mei", month: "Mei", title: "Proses Pembuatan Website RT 004 Digital", time: "14:00 WIB", loc: "RT 004" },
+        ];
+
+        let pengurusData = [
+            { role: "Ketua RT", name: "Bpk. Romadhon", phone: "", img: "" },
+            { role: "Sekretaris", name: "Bpk. Fajar Hakim", phone: "", img: "" },
+            { role: "Bendahara", name: "Bpk. Prasojo Sudarmo", phone: "", img: "" },
+            { role: "Seksi Keamanan", name: "Bpk. Iyan Sopyan", phone: "", img: "" }
+        ];
+
+        const layananData = [
+            { title: "Pembuatan KTP Baru", icon: "fa-id-card text-blue-500", reqs: ["Telah berusia 17 tahun.", "Surat Pengantar RT/RW.", "Fotokopi Kartu Keluarga (KK).", "Datang ke Kelurahan."] },
+            { title: "Pembuatan SKCK", icon: "fa-fingerprint text-emerald-500", reqs: ["Surat Pengantar RT/RW & Kelurahan.", "Fotokopi KTP dan KK.", "Fotokopi Akta Kelahiran/Ijazah.", "Pas foto 4x6 latar merah (4 lembar)."] },
+            { title: "Surat Kehilangan", icon: "fa-file-circle-xmark text-red-500", reqs: ["Surat Pengantar RT/RW.", "Fotokopi KTP pelapor.", "Bukti dokumen yang hilang (jika ada).", "Diurus langsung ke Polsek."] },
+            { title: "Keterangan Domisili", icon: "fa-house-user text-purple-500", reqs: ["KTP Asli & Fotokopi.", "Kartu Keluarga (KK).", "Surat Pengantar RT/RW.", "Foto rumah / bangunan (bila badan usaha)."] },
+            { title: "Keterangan Tidak Mampu", icon: "fa-hand-holding-heart text-rose-500", reqs: ["KTP Asli & Fotokopi.", "Kartu Keluarga (KK).", "Surat Pengantar RT/RW.", "Surat pernyataan tidak mampu bermaterai."] },
+            { title: "Surat Pindah Keluar", icon: "fa-truck-fast text-orange-500", reqs: ["KTP Asli & KK Asli.", "Surat Pengantar RT/RW.", "Alamat tujuan pindah lengkap.", "Pas foto 3x4 (3 lembar)."] }
+        ];
+
+        // Galeri now supports date
+        let galeriData = [
+            { title: "Kerja Bakti", date: "12 Ags 2025", img: "https://images.unsplash.com/photo-1593113565241-76856eb2c64b?auto=format&fit=crop&w=400&q=80" },
+            { title: "Lomba 17an", date: "17 Ags 2025", img: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=400&q=80" }
+        ];
+
+        // --- UTILS ---
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-regular fa-circle-check mr-1 text-emerald-400"></i> ${message}`;
+            container.appendChild(toast);
+            
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Helper untuk convert file ke Base64 (Simulasi Upload)
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function renderInfo() {
+            const dashboardList = document.getElementById('dashboard-info-list');
+            const fullList = document.getElementById('full-info-list');
+            let html = '';
+            
+            informasiData.forEach(item => {
+                // If img exists, show thumbnail, else show icon
+                const mediaHTML = item.img 
+                    ? `<img src="${item.img}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0 border border-slate-100">`
+                    : `<div class="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center text-white ${item.color}"><i class="fa-solid ${item.icon} text-sm"></i></div>`;
+
+                html += `
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-3">
+                    ${mediaHTML}
+                    <div class="flex-1">
+                        <h3 class="font-bold text-slate-800 text-xs mb-0.5 line-clamp-1">${item.title}</h3>
+                        <p class="text-[9px] text-slate-400 mb-1">${item.date}</p>
+                        <p class="text-[10px] text-slate-600 line-clamp-2 leading-snug">${item.desc}</p>
+                    </div>
+                </div>`;
+            });
+
+            dashboardList.innerHTML = html;
+            fullList.innerHTML = html;
+        }
+
+        function renderAgenda() {
+            const list = document.getElementById('agenda-list');
+            let html = '';
+            agendaData.forEach(item => {
+                html += `
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
+                    <div class="bg-slate-50 w-12 h-12 rounded-xl flex-shrink-0 flex flex-col items-center justify-center border border-slate-100">
+                        <span class="text-sm font-bold text-primary">${item.date.split(' ')[0]}</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-slate-800 text-xs mb-1">${item.title}</h3>
+                        <div class="flex items-center gap-3 text-[9px] text-slate-500">
+                            <span><i class="fa-regular fa-clock text-slate-400"></i> ${item.time}</span>
+                            <span><i class="fa-solid fa-location-dot text-slate-400"></i> ${item.loc}</span>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function renderPengurus() {
+            const list = document.getElementById('pengurus-list');
+            let html = '';
+            pengurusData.forEach((item, index) => {
+                let imgHTML = item.img 
+                    ? `<img src="${item.img}" alt="${item.name}" class="w-12 h-12 rounded-full object-cover mb-2 border border-slate-200">` 
+                    : `<div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mb-2 border border-slate-200"><i class="fa-solid fa-user text-xl"></i></div>`;
+                
+                html += `
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-col items-center hover-scale animate-item" style="animation-delay: ${index * 50}ms">
+                    ${imgHTML}
+                    <span class="text-[9px] font-bold text-primary uppercase mb-0.5">${item.role}</span>
+                    <h3 class="font-bold text-slate-800 text-[11px] mb-2">${item.name}</h3>
+                    <a href="https://wa.me/${item.phone}" target="_blank" class="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-100 w-full hover:bg-slate-100 transition-colors">
+                        Hubungi
+                    </a>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function renderLayanan(query = "") {
+            const list = document.getElementById('layanan-list');
+            let html = '';
+            
+            const filtered = layananData.filter(l => l.title.toLowerCase().includes(query.toLowerCase()));
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="text-center text-slate-400 text-xs py-5">Layanan tidak ditemukan.</div>`;
+                return;
+            }
+
+            filtered.forEach((item, index) => {
+                let reqList = item.reqs.map(r => `<li>${r}</li>`).join('');
+                html += `
+                <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm animate-item" style="animation-delay: ${index * 50}ms">
+                    <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2"><i class="fa-solid ${item.icon}"></i> ${item.title}</h3>
+                    <ul class="text-xs text-slate-600 list-disc ml-6 mt-2 space-y-1">
+                        ${reqList}
+                    </ul>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function filterLayanan(query) {
+            renderLayanan(query);
+        }
+
+        function renderGaleri() {
+            const list = document.getElementById('galeri-list');
+            let html = '';
+            galeriData.forEach(item => {
+                html += `
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="h-28 w-full bg-slate-100">
+                        <img src="${item.img}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-2.5">
+                        <h3 class="font-bold text-slate-800 text-[10px] truncate">${item.title}</h3>
+                        <p class="text-[8px] text-slate-400 mt-0.5">${item.date}</p>
+                    </div>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function switchView(viewId, navElement = null) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+
+            const bottomNav = document.getElementById('bottom-nav');
+            if (viewId === 'view-ai' || viewId === 'view-admin') {
+                bottomNav.style.display = 'none';
+            } else {
+                bottomNav.style.display = 'flex';
+            }
+
+            if (navElement) {
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('text-primary');
+                    el.classList.add('text-slate-400');
+                });
+                navElement.classList.remove('text-slate-400');
+                navElement.classList.add('text-primary');
+            } else if (viewId === 'view-dashboard') {
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('text-primary');
+                    el.classList.add('text-slate-400');
+                });
+                document.querySelectorAll('.nav-item')[0].classList.remove('text-slate-400');
+                document.querySelectorAll('.nav-item')[0].classList.add('text-primary');
+            }
+        }
+
+
+        // --- FORM HANDLERS ---
+        document.getElementById('form-pengaduan').addEventListener('submit', (e) => {
+            e.preventDefault();
+            showToast('Laporan berhasil dikirim!');
+            e.target.reset();
+            setTimeout(() => switchView('view-dashboard'), 1500);
+        });
+
+        // --- ADMIN & PIN LOGIC ---
+        const pinModal = document.getElementById('pin-modal');
+        const pinInput = document.getElementById('pin-input');
+
+        function showPinModal() {
+            pinModal.style.display = 'flex';
+            pinInput.value = '';
+            setTimeout(() => pinModal.style.opacity = '1', 10);
+            setTimeout(() => pinInput.focus(), 300);
+        }
+
+        function closePinModal() {
+            pinModal.style.opacity = '0';
+            setTimeout(() => pinModal.style.display = 'none', 300);
+        }
+
+        function verifyPin() {
+            if (pinInput.value === '2504') {
+                closePinModal();
+                setTimeout(() => switchView('view-admin'), 300);
+            } else {
+                showToast('PIN Salah!');
+                pinInput.value = '';
+            }
+        }
+
+        // Admin Submit - Info dengan Foto (File API)
+        document.getElementById('form-admin-info').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('admin-info-title').value;
+            const desc = document.getElementById('admin-info-desc').value;
+            const fileInput = document.getElementById('admin-info-file');
+            
+            let imgBase64 = "";
+            if(fileInput.files.length > 0) {
+                imgBase64 = await fileToBase64(fileInput.files[0]);
+            }
+
+            informasiData.unshift({ 
+                id: Date.now(), title, date: "Baru saja", desc, 
+                icon: "fa-bullhorn", color: "bg-emerald-500", img: imgBase64 
+            });
+            renderInfo(); showToast('Info Lingkungan dipublikasikan!'); 
+            e.target.reset();
+            document.getElementById('info-file-name').innerText = "Pilih Foto Opsional";
+        });
+
+        // Admin Submit - Agenda
+        document.getElementById('form-admin-agenda').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('admin-agenda-title').value;
+            const date = document.getElementById('admin-agenda-date').value;
+            const time = document.getElementById('admin-agenda-time').value;
+            const loc = document.getElementById('admin-agenda-loc').value;
+            agendaData.unshift({ date: date, month: date.split(' ')[1] || 'Bln', title, time, loc });
+            renderAgenda(); showToast('Agenda ditambahkan!'); e.target.reset();
+        });
+
+        // Admin Submit - Galeri dengan File API
+        document.getElementById('form-admin-galeri').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('admin-galeri-title').value;
+            const date = document.getElementById('admin-galeri-date').value;
+            const fileInput = document.getElementById('admin-galeri-file');
+            
+            if(fileInput.files.length > 0) {
+                const imgBase64 = await fileToBase64(fileInput.files[0]);
+                galeriData.unshift({ title, date, img: imgBase64 });
+                renderGaleri(); 
+                showToast('Foto berhasil diupload ke Galeri!'); 
+                e.target.reset();
+                document.getElementById('galeri-file-name').innerText = "Pilih Foto dari Galeri HP";
+            }
+        });
+
+        // Admin Submit - Pengurus
+        document.getElementById('form-admin-pengurus').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('admin-pengurus-name').value;
+            const role = document.getElementById('admin-pengurus-role').value;
+            const phone = document.getElementById('admin-pengurus-phone').value;
+            const fileInput = document.getElementById('admin-pengurus-file');
+            
+            let imgBase64 = "";
+            if(fileInput.files.length > 0) {
+                imgBase64 = await fileToBase64(fileInput.files[0]);
+            }
+
+            pengurusData.push({ role, name, phone, img: imgBase64 });
+            renderPengurus();
+            showToast('Data Pengurus Baru Tersimpan!');
+            e.target.reset();
+            document.getElementById('pengurus-file-name').innerText = "Upload Foto Pengurus";
+        });
+
+
+        // --- GEMINI AI IMPLEMENTATION ---
+        const apiKey = "AIzaSyAyS-juKYTzWTzUpwxxzfgqOenxTBj3JYw"; 
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatSubmitBtn = document.getElementById('chat-submit-btn');
+
+        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten AI resmi warga RT 004. Jawab singkat dan ramah.`;
+
+        function addMessageToUI(text, isUser) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex gap-2 ${isUser ? 'justify-end' : ''}`;
+            if (isUser) {
+                msgDiv.innerHTML = `<div class="bg-blue-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-xs">${text}</div>`;
+            } else {
+                msgDiv.innerHTML = `
+                    <div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1">
+                        <i class="fa-solid fa-robot text-blue-500 text-[10px]"></i>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs text-slate-700 leading-relaxed max-w-[85%]">${text}</div>
+                `;
+            }
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const id = 'typing-' + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.id = id;
+            msgDiv.className = `flex gap-2`;
+            msgDiv.innerHTML = `
+                <div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1">
+                    <i class="fa-solid fa-robot text-blue-500 text-[10px]"></i>
+                </div>
+                <div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs typing-indicator flex items-center h-[34px]">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        }
+
+        async function getGeminiResponse(userText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } })
+                });
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (text) {
+                    // Membersihkan format markdown (bintang, tagar, dll) agar rapi
+                    text = text.replace(/\*/g, '');
+                    text = text.replace(/#/g, '');
+                    text = text.replace(/-/g, '•'); // ganti strip dengan bullet point agar elegan
+                    text = text.replace(/\n/g, '<br>');
+                    return text;
+                }
+                return "Maaf, sistem sedang sibuk.";
+            } catch (e) {
+                return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏";
+            }
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+            chatInput.value = ''; chatInput.disabled = true; chatSubmitBtn.disabled = true;
+            addMessageToUI(text, true);
+            const typingId = showTypingIndicator();
+            const responseText = await getGeminiResponse(text);
+            document.getElementById(typingId)?.remove();
+            addMessageToUI(responseText, false);
+            chatInput.disabled = false; chatSubmitBtn.disabled = false; chatInput.focus();
+        });
+
+        // --- INITIALIZE ---
+        renderInfo(); renderAgenda(); renderPengurus(); renderGaleri(); renderLayanan();
+
+    </script>
+</body>
+</html>
