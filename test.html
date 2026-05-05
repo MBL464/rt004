@@ -521,13 +521,20 @@
 
 
         // --- PDF GENERATION LOGIC ---
-        // Helper untuk memuat gambar logo
+        // Helper untuk memuat gambar dengan Fallback Proxy (menghindari CORS Error)
         const loadImage = (url) => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.crossOrigin = 'Anonymous';
                 img.onload = () => resolve(img);
-                img.onerror = (e) => reject(e);
+                img.onerror = () => {
+                    // Fallback to ALLOrigins Proxy if direct fetch fails due to CORS
+                    const proxyImg = new Image();
+                    proxyImg.crossOrigin = 'Anonymous';
+                    proxyImg.onload = () => resolve(proxyImg);
+                    proxyImg.onerror = (e) => reject(e);
+                    proxyImg.src = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+                };
                 img.src = url;
             });
         };
@@ -544,9 +551,10 @@
                 
                 // 1. KOP SURAT
                 try {
-                    // Load Logo Bekasi (dijadikan sekitar 20x20 ukuran proporsional PDF)
-                    const logo = await loadImage('https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png');
-                    doc.addImage(logo, 'PNG', 15, 12, 22, 22);
+                    // Load Logo Bekasi via Proxy langsung agar pasti berjalan di browser
+                    const logoUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png');
+                    const logo = await loadImage(logoUrl);
+                    doc.addImage(logo, 'PNG', 20, 12, 22, 25);
                 } catch(err) {
                     console.log("Logo gagal dimuat, lanjut cetak tanpa logo.");
                 }
@@ -554,33 +562,35 @@
                 // Teks Kop Surat
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(14);
-                doc.text("PENGURUS RUKUN TETANGGA 004 / RW 025", 105, 18, {align: "center"});
+                doc.text("RUKUN TETANGGA 004", 110, 16, {align: "center"});
+                doc.text("RUKUN WARGA 025", 110, 22, {align: "center"});
                 doc.setFontSize(12);
-                doc.text("KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA", 105, 24, {align: "center"});
+                doc.text("KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA,", 110, 28, {align: "center"});
+                doc.text("KOTA BEKASI", 110, 34, {align: "center"});
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
-                doc.text("Perumahan Graha Asri, Kota Bekasi, Jawa Barat", 105, 30, {align: "center"});
+                doc.text("SEKRETARIAT : Perumahan Graha Asri RT 004 / RW 025", 110, 40, {align: "center"});
                 
                 // Garis Kop Surat
                 doc.setLineWidth(0.8);
-                doc.line(15, 36, 195, 36);
+                doc.line(15, 44, 195, 44);
                 doc.setLineWidth(0.3);
-                doc.line(15, 37.5, 195, 37.5);
+                doc.line(15, 45.5, 195, 45.5);
 
                 // 2. JUDUL SURAT
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(14);
-                doc.text("SURAT PENGANTAR", 105, 48, {align: "center"});
+                doc.text("SURAT PENGANTAR", 105, 55, {align: "center"});
                 doc.setLineWidth(0.4);
-                doc.line(78, 49, 132, 49); // Underline judul
+                doc.line(78, 56, 132, 56); // Underline judul
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
-                doc.text("NOMOR : ....... / ....... / ....... / RT 004 / RW 025 / ....... / 20....", 105, 55, {align: "center"});
+                doc.text("NOMOR : ....... / ....... / ....... / RT 004 / RW 025 / ....... / 20....", 105, 62, {align: "center"});
 
                 // 3. ISI SURAT
-                let y = 70;
+                let y = 78;
                 doc.text("Yang bertanda tangan di bawah ini, menerangkan bahwa :", 20, y);
-                y += 12;
+                y += 10;
 
                 // Mengambil Data Form
                 const data = [
