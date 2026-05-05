@@ -520,7 +520,6 @@
         });
 
         // --- PDF GENERATION LOGIC ---
-        // Helper function yang lebih handal menggunakan proxy khusus file binary & gambar
         const getBase64ImageFromUrl = async (imageUrl) => {
             const proxies = [
                 'https://api.codetabs.com/v1/proxy?quest=' + imageUrl,
@@ -529,7 +528,6 @@
 
             for (let proxyUrl of proxies) {
                 try {
-                    // Beri batas waktu 5 detik agar tidak nyangkut (loading terus)
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 5000);
                     
@@ -576,57 +574,54 @@
                     });
                     
                     const ratio = imgProps.w / imgProps.h;
-                    // Ukuran maksimal diperbesar dari 25mm menjadi 30mm agar setara dengan teks kop surat
-                    let targetW = 40; 
-                    let targetH = 40; 
+                    let targetW = 45; 
+                    let targetH = 45; 
                     
-                    // Hitung rasio agar proporsional (TIDAK GEPENG)
                     if (ratio > 1) {
                         targetH = targetW / ratio;
                     } else {
                         targetW = targetH * ratio;
                     }
                     
-                    // Posisikan secara otomatis: rata kiri dengan garis pembatas (x=15) dan rata atas dengan teks judul
-                    const xPos = 15 + (40 - targetW) / 2;
-                    const yPos = 12 + (40 - targetH) / 2;
+                    // Posisikan logo diturunkan ke y=16 agar sejajar dengan baris teks secara keseluruhan
+                    const xPos = 15 + (45 - targetW) / 2;
+                    const yPos = 20;
 
                     doc.addImage(logoBase64, 'PNG', xPos, yPos, targetW, targetH);
                 } catch(err) {
                     console.log("Logo gagal dimuat. Dilanjutkan tanpa logo.");
                 }
 
-                // Teks Kop Surat
+                // Teks Kop Surat digeser ke bawah menyesuaikan posisi logo baru
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(14);
-                doc.text("RUKUN TETANGGA 004", 110, 16, {align: "center"});
-                doc.text("RUKUN WARGA 025", 110, 22, {align: "center"});
+                doc.text("RUKUN TETANGGA 004", 115, 24, {align: "center"});
+                doc.text("RUKUN WARGA 025", 115, 30, {align: "center"});
                 doc.setFontSize(12);
-                doc.text("KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA,", 110, 28, {align: "center"});
-                doc.text("KOTA BEKASI", 110, 34, {align: "center"});
+                doc.text("KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA,", 115, 36, {align: "center"});
+                doc.text("KOTA BEKASI", 115, 42, {align: "center"});
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
-                // Pembaruan teks Sekretariat sesuai permintaan
-                doc.text("Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121", 110, 40, {align: "center"});
+                doc.text("Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121", 115, 52, {align: "center"});
                 
-                // Garis Kop Surat
+                // Garis Kop Surat diturunkan agar pas di bawah Sekretariat (garis ada di y=58)
                 doc.setLineWidth(0.8);
-                doc.line(15, 44, 195, 44);
+                doc.line(15, 58, 195, 58);
                 doc.setLineWidth(0.3);
-                doc.line(15, 45.5, 195, 45.5);
+                doc.line(15, 59.5, 195, 59.5);
 
-                // 2. JUDUL SURAT
+                // 2. JUDUL SURAT (Ikut diturunkan)
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(14);
-                doc.text("SURAT PENGANTAR", 105, 55, {align: "center"});
+                doc.text("SURAT PENGANTAR", 105, 70, {align: "center"});
                 doc.setLineWidth(0.4);
-                doc.line(78, 56, 132, 56); // Underline judul
+                doc.line(78, 71, 132, 71); 
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(11);
-                doc.text("NOMOR : ....... / ....... / ....... / RT 004 / RW 025 / ....... / 20....", 105, 62, {align: "center"});
+                doc.text("NOMOR : ....... / ....... / ....... / RT 004 / RW 025 / ....... / 20....", 105, 78, {align: "center"});
 
-                // 3. ISI SURAT
-                let y = 78;
+                // 3. ISI SURAT (Ikut diturunkan)
+                let y = 94;
                 doc.text("Yang bertanda tangan di bawah ini, menerangkan bahwa :", 20, y);
                 y += 10;
 
@@ -648,7 +643,6 @@
                     doc.text(item.label, 25, y);
                     doc.text(":", 65, y);
                     
-                    // Alamat dan Keperluan butuh text wrap karena bisa panjang
                     let splitVal = doc.splitTextToSize(item.value, 115);
                     doc.text(splitVal, 68, y);
                     y += (splitVal.length * 6) + 2;
@@ -662,7 +656,6 @@
                 // 4. BAGIAN TANDA TANGAN
                 y += (splitClosing.length * 6) + 15;
                 
-                // Format Tanggal
                 const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                 let today = new Date();
                 let tglSurat = today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
@@ -672,7 +665,7 @@
                 doc.text("KETUA RW 025", 55, y, {align: "center"});
                 doc.text("KETUA RT 004 / RW 025", 155, y, {align: "center"});
                 
-                y += 28; // Space untuk TTD
+                y += 28; 
                 doc.setFont("helvetica", "bold");
                 doc.text("( ................................. )", 55, y, {align: "center"});
                 doc.text("( ROMADHON )", 155, y, {align: "center"});
