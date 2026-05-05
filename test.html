@@ -2,359 +2,690 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Surat Pengantar RT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RT 004 Digital</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#059669', // Emerald 600
+                        primaryLight: '#d1fae5', // Emerald 100
+                        bgSoft: '#f8fafc', // Slate 50
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        /* Mengatur tampilan khusus untuk preview kertas */
-        .paper-preview {
-            width: 210mm;
-            min-width: 210mm; /* Kunci ukuran agar tidak menyusut di HP */
-            min-height: 297mm;
-            padding: 20mm;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 12pt;
-            line-height: 1.5;
-            color: black;
-            border: 1px solid #e2e8f0;
-            box-sizing: border-box;
+        
+        #app-container {
+            width: 100%;
+            max-width: 414px; 
+            height: 100vh;
+            max-height: 896px;
+            background-color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
         }
-
-        /* Mengatur agar saat di-print / disave PDF, layout website hilang dan sisa kertasnya saja */
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 0;
-            }
-            body, html {
-                background: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-bg {
-                background: white !important;
-                padding: 0 !important;
-                display: block !important;
-            }
-            .paper-preview {
-                width: 210mm !important;
-                min-width: 210mm !important;
-                height: 297mm !important;
-                min-height: 297mm !important;
-                margin: 0 !important;
-                padding: 20mm !important;
-                box-shadow: none !important;
-                border: none !important;
-                position: relative !important;
-                transform: none !important;
+        @media (min-width: 415px) {
+            #app-container {
+                height: 90vh;
+                border-radius: 2rem;
+                border: 6px solid #0f172a;
             }
         }
         
-        /* Custom scrollbar untuk kemudahan di HP & Desktop */
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .view-section { display: none; animation: fadeSlideUp 0.3s ease-out forwards; }
+        .view-section.active { display: block; }
+        #view-ai.active { display: flex; }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 20px;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background-color: #94a3b8;
-        }
+
+        .animate-item { opacity: 0; animation: fadeSlideUp 0.4s ease-out forwards; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+
+        .hover-scale { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease; }
+        .hover-scale:active { transform: scale(0.95); }
+
+        .typing-indicator span { display: inline-block; width: 5px; height: 5px; background-color: #94a3b8; border-radius: 50%; margin: 0 2px; animation: bounce 1.4s infinite ease-in-out both; }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        #toast-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; pointer-events: none; }
+        .toast { background: #1e293b; color: #ffffff; padding: 12px 16px; border-radius: 10px; margin-bottom: 10px; text-align: center; font-size: 0.8rem; opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateY(-20px); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        .file-upload-label { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 0.75rem; padding: 1rem; cursor: pointer; background-color: #f8fafc; transition: all 0.2s; }
+        .file-upload-label:hover { border-color: #059669; background-color: #f0fdf4; }
     </style>
 </head>
-<body class="text-slate-800 h-screen overflow-hidden">
-    <div id="root" class="h-full"></div>
+<body>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+    <div id="app-container">
+        
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
 
-        function App() {
-            // State untuk Form Data
-            const [formData, setFormData] = useState({
-                nomorSurat: "....... / ....... / ....... / RT 004 / RW 025 / ....... / 2026",
-                nama: "",
-                tempatLahir: "",
-                tglLahir: "",
-                jenisKelamin: "",
-                agama: "",
-                pekerjaan: "",
-                nik: "",
-                alamat: "",
-                keperluan: "",
-                tanggal: "Bekasi, " + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                rwName: "",
-                rtName: "ROMADHON",
-            });
+        <!-- Clean Compact Header -->
+        <header class="bg-white px-5 pt-8 pb-3 shadow-[0_2px_10px_rgba(0,0,0,0.03)] z-10 shrink-0 border-b border-slate-100 flex justify-between items-center relative">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-leaf text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-[15px] font-bold text-slate-800 leading-none">RT 004 Digital</h1>
+                    <p class="text-[10px] font-medium text-slate-500 mt-0.5">Perum. Graha Asri</p>
+                </div>
+            </div>
+            <div class="w-9 h-9 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 border border-slate-100 relative">
+                <i class="fa-regular fa-bell text-[15px]"></i>
+            </div>
+        </header>
 
-            // Default Logo menggunakan URL Publik Logo Bekasi
-            const [logo, setLogo] = useState("https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png");
-
-            const handleChange = (e) => {
-                const { name, value } = e.target;
-                setFormData(prev => ({ ...prev, [name]: value }));
-            };
-
-            const handlePrint = () => {
-                window.print();
-            };
-
-            return (
-                <div class="flex flex-col lg:flex-row h-full">
-                    
-                    {/* Sidebar / Form Area (Hidden on Print) */}
-                    <div class="w-full lg:w-[450px] shrink-0 bg-white flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.04)] z-20 no-print h-full transition-all">
-                        
-                        {/* Header Sticky */}
-                        <div class="p-6 bg-gradient-to-br from-indigo-600 to-blue-700 text-white shrink-0 relative overflow-hidden">
-                            <div class="absolute top-[-20px] right-[-20px] w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                            <h1 class="text-2xl font-extrabold flex items-center gap-3 tracking-tight relative z-10">
-                                <i data-lucide="file-signature" class="w-7 h-7"></i>
-                                E-Surat RT
-                            </h1>
-                            <p class="text-blue-100 text-sm mt-2 font-medium relative z-10 opacity-90">
-                                Lengkapi identitas warga untuk mencetak dokumen.
-                            </p>
-                        </div>
-                        
-                        {/* Scrollable Form Content */}
-                        <div class="flex-1 overflow-y-auto custom-scroll p-6 space-y-6 bg-slate-50/50">
-                            
-                            <div class="space-y-5">
-                                {/* Input: Nama Lengkap */}
-                                <div>
-                                    <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                        <i data-lucide="user" class="w-3.5 h-3.5"></i> Nama Lengkap
-                                    </label>
-                                    <input type="text" name="nama" value={formData.nama} onChange={handleChange} placeholder="Masukkan nama lengkap..." class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
-                                </div>
-
-                                {/* Grid: Tempat & Tanggal Lahir */}
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Tempat Lahir
-                                        </label>
-                                        <input type="text" name="tempatLahir" value={formData.tempatLahir} onChange={handleChange} placeholder="Kota lahir" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
-                                    </div>
-                                    <div>
-                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Tgl Lahir
-                                        </label>
-                                        <input type="date" name="tglLahir" value={formData.tglLahir} onChange={handleChange} class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm cursor-pointer" />
-                                    </div>
-                                </div>
-
-                                {/* Grid: Kelamin & Agama */}
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                            <i data-lucide="users" class="w-3.5 h-3.5"></i> Gender
-                                        </label>
-                                        <select name="jenisKelamin" value={formData.jenisKelamin} onChange={handleChange} class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm cursor-pointer">
-                                            <option value="">Pilih...</option>
-                                            <option value="Laki-laki">Laki-laki</option>
-                                            <option value="Perempuan">Perempuan</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                            <i data-lucide="heart" class="w-3.5 h-3.5"></i> Agama
-                                        </label>
-                                        <input type="text" name="agama" value={formData.agama} onChange={handleChange} placeholder="Agama" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
-                                    </div>
-                                </div>
-
-                                {/* Grid: Pekerjaan & NIK */}
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="col-span-2 sm:col-span-1">
-                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                            <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Pekerjaan
-                                        </label>
-                                        <input type="text" name="pekerjaan" value={formData.pekerjaan} onChange={handleChange} placeholder="Pekerjaan saat ini" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
-                                    </div>
-                                    <div class="col-span-2 sm:col-span-1">
-                                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> NIK
-                                        </label>
-                                        <input type="number" name="nik" value={formData.nik} onChange={handleChange} placeholder="16 digit NIK" class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm" />
-                                    </div>
-                                </div>
-
-                                {/* Input: Alamat */}
-                                <div>
-                                    <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                        <i data-lucide="home" class="w-3.5 h-3.5"></i> Alamat
-                                    </label>
-                                    <textarea name="alamat" rows="2" value={formData.alamat} onChange={handleChange} placeholder="Detail alamat tempat tinggal..." class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm resize-y"></textarea>
-                                </div>
-
-                                {/* Input: Keperluan */}
-                                <div>
-                                    <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Keperluan
-                                    </label>
-                                    <textarea name="keperluan" rows="2" value={formData.keperluan} onChange={handleChange} placeholder="Tujuan pembuatan surat..." class="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all shadow-sm resize-y"></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Footer Sticky / Action Print */}
-                        <div class="p-5 bg-white border-t border-slate-100 shrink-0">
-                            <button onClick={handlePrint} class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 px-4 rounded-xl flex justify-center items-center gap-2 transition-all shadow-[0_8px_20px_-6px_rgba(79,70,229,0.5)] hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-6px_rgba(79,70,229,0.6)] active:translate-y-0">
-                                <i data-lucide="printer" class="w-5 h-5"></i> 
-                                Cetak / Simpan PDF
-                            </button>
-                            <p class="text-[11px] font-medium text-center text-slate-400 mt-3">
-                                Pastikan <span class="font-bold text-slate-500">"Paper Size"</span> adalah A4 saat mencetak.
-                            </p>
-                        </div>
-
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto hide-scrollbar pb-24 bg-bgSoft relative">
+            
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="view-section active px-5 pt-5">
+                
+                <!-- AI Banner -->
+                <div onclick="switchView('view-ai')" class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 mb-6 shadow-md shadow-blue-500/20 cursor-pointer flex items-center gap-3 active:scale-[0.98] transition-transform hover-scale">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-inner relative">
+                        <i class="fa-solid fa-user-tie text-blue-600 text-lg"></i>
+                        <i class="fa-solid fa-sparkles text-amber-400 text-[10px] absolute -top-1 -right-1"></i>
                     </div>
+                    <div class="flex-1">
+                        <h3 class="text-white font-bold text-sm">Pemuda Pintar</h3>
+                        <p class="text-blue-100 text-[10px] mt-0.5">Asisten Ramah Warga. Tanya di sini!</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-white/50 text-sm"></i>
+                </div>
 
-                    {/* Right Panel / Preview Area */}
-                    <div class="print-bg flex-1 bg-slate-200/60 overflow-y-auto overflow-x-auto custom-scroll w-full flex flex-col items-center py-10 relative" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-                        
-                        {/* Petunjuk khusus HP */}
-                        <div class="lg:hidden sticky left-0 right-0 top-0 w-full text-center mb-6 text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-md py-2 px-4 shadow-sm z-10 no-print rounded-full max-w-[80%] mx-auto flex items-center justify-center gap-2">
-                            <i data-lucide="move-horizontal" class="w-4 h-4 text-indigo-600"></i>
-                            Geser untuk melihat area surat
+                <!-- Statistics -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm mb-6">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Data Penduduk</h2>
+                    <div class="grid grid-cols-3 gap-3 mb-3">
+                        <div class="text-center">
+                            <h3 id="stat-total-warga" class="text-xl font-bold text-slate-800">452</h3>
+                            <p class="text-[10px] text-slate-500 font-medium">Total Warga</p>
                         </div>
-
-                        {/* A4 Paper Container */}
-                        <div class="paper-preview relative shrink-0 transition-all duration-300">
-                            
-                            {/* KOP SURAT */}
-                            <div class="flex items-center border-b-[5px] border-double border-black pb-3 mb-6">
-                                <div class="shrink-0 w-[180px] flex justify-center items-center">
-                                    <img src={logo} alt="Logo" class="w-[160px] max-h-[160px] object-contain" />
-                                </div>
-                                <div class="flex-1 text-center pr-[40px]">
-                                    <div class="text-[18pt] font-bold uppercase tracking-wide leading-tight">RUKUN TETANGGA 004</div>
-                                    <div class="text-[18pt] font-bold uppercase tracking-wide leading-tight">RUKUN WARGA 025</div>
-                                    <div class="text-[12pt] font-bold uppercase leading-tight mt-1.5">KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA, KOTA BEKASI</div>
-                                    <div class="text-[11pt] mt-1 text-slate-900">Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121</div>
-                                </div>
-                            </div>
-
-                            {/* JUDUL SURAT */}
-                            <div class="text-center mb-8">
-                                <h3 class="text-lg font-bold underline underline-offset-2">SURAT PENGANTAR</h3>
-                                <p class="mt-1">NOMOR : {formData.nomorSurat}</p>
-                            </div>
-
-                            {/* ISI SURAT */}
-                            <div class="text-justify space-y-4">
-                                <p>Yang bertanda tangan di bawah ini, menerangkan bahwa :</p>
-                                
-                                <table class="w-full ml-6">
-                                    <tbody>
-                                        <tr>
-                                            <td class="w-[160px] align-top py-1.5">Nama Lengkap</td>
-                                            <td class="w-[15px] align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 font-bold uppercase">{formData.nama}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top py-1.5">Tempat/Tgl Lahir</td>
-                                            <td class="align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 capitalize">
-                                                {formData.tempatLahir} {formData.tempatLahir && formData.tglLahir ? ', ' : ''} 
-                                                {formData.tglLahir ? new Date(formData.tglLahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top py-1.5">Jenis Kelamin</td>
-                                            <td class="align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 capitalize">{formData.jenisKelamin}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top py-1.5">Agama</td>
-                                            <td class="align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 capitalize">{formData.agama}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top py-1.5">Pekerjaan</td>
-                                            <td class="align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 capitalize">{formData.pekerjaan}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top py-1.5">NIK</td>
-                                            <td class="align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 tracking-wider">{formData.nik}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top py-1.5">Alamat</td>
-                                            <td class="align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 break-words">{formData.alamat}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top py-1.5">Keperluan</td>
-                                            <td class="align-top py-1.5">:</td>
-                                            <td class="align-top py-1.5 break-words font-semibold">{formData.keperluan}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                <p class="mt-4 indent-8">
-                                    Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan yang berkepentingan untuk menjadi maklum.
-                                </p>
-                            </div>
-
-                            {/* TANDA TANGAN */}
-                            <div class="flex justify-between mt-16 pt-4">
-                                <div class="text-center w-[250px]">
-                                    <p class="opacity-0 mb-1">.</p> {/* Spacer agar sejajar dgn tanggal di kanan */}
-                                    <p>KETUA RW 025</p>
-                                    <div class="h-[90px]"></div> {/* Space untuk tanda tangan */}
-                                    <p class="font-bold underline">({formData.rwName ? " " + formData.rwName.toUpperCase() + " " : "..................................."})</p>
-                                </div>
-                                <div class="text-center w-[250px]">
-                                    <p class="mb-1">{formData.tanggal}</p>
-                                    <p>KETUA RT 004 / RW 025</p>
-                                    <div class="h-[90px]"></div> {/* Space untuk tanda tangan */}
-                                    <p class="font-bold underline">({formData.rtName ? " " + formData.rtName.toUpperCase() + " " : "..................................."})</p>
-                                </div>
-                            </div>
-
+                        <div class="text-center border-x border-slate-100">
+                            <h3 id="stat-total-rumah" class="text-xl font-bold text-slate-800">128</h3>
+                            <p class="text-[10px] text-slate-500 font-medium">Rumah</p>
+                        </div>
+                        <div class="text-center">
+                            <h3 id="stat-total-kk" class="text-xl font-bold text-slate-800">145</h3>
+                            <p class="text-[10px] text-slate-500 font-medium">Kartu Kel.</p>
+                        </div>
+                    </div>
+                    <div class="flex bg-slate-50 rounded-lg p-2 gap-2 text-center text-xs">
+                        <div class="flex-1 flex items-center justify-center gap-1.5 text-blue-600 font-semibold border-r border-slate-200">
+                            <i class="fa-solid fa-mars"></i> <span id="stat-laki">230</span> Laki-laki
+                        </div>
+                        <div class="flex-1 flex items-center justify-center gap-1.5 text-pink-600 font-semibold">
+                            <i class="fa-solid fa-venus"></i> <span id="stat-perempuan">222</span> Perempuan
                         </div>
                     </div>
                 </div>
-            );
+
+                <!-- Quick Services Grid -->
+                <h2 class="text-sm font-bold text-slate-800 mb-3 animate-item">Layanan Digital</h2>
+                <div class="grid grid-cols-3 gap-3 mb-8 animate-item delay-100">
+                    <button onclick="switchView('view-surat')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-primary">
+                            <i class="fa-solid fa-file-lines text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Buat<br>Surat</span>
+                    </button>
+                    <button onclick="switchView('view-alur')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
+                            <i class="fa-solid fa-circle-info text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Info<br>Layanan</span>
+                    </button>
+                    <button onclick="switchView('view-pengaduan')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-orange-500">
+                            <i class="fa-solid fa-bullhorn text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Lapor<br>Warga</span>
+                    </button>
+                    <button onclick="switchView('view-agenda')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600">
+                            <i class="fa-regular fa-calendar-check text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Agenda<br>Kegiatan</span>
+                    </button>
+                    <button onclick="switchView('view-pengurus')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500">
+                            <i class="fa-solid fa-sitemap text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Pengurus<br>RT</span>
+                    </button>
+                    <button onclick="switchView('view-galeri')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center text-rose-500">
+                            <i class="fa-solid fa-images text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Galeri<br>Foto</span>
+                    </button>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold text-slate-800">Info Lingkungan</h2>
+                    <button onclick="switchView('view-info')" class="text-[10px] font-semibold text-primary">Lihat Semua</button>
+                </div>
+                
+                <div class="space-y-3" id="dashboard-info-list"></div>
+            </div>
+
+            <!-- VIEW: SURAT PENGANTAR (PDF GENERATOR) -->
+            <div id="view-surat" class="view-section px-5 pt-6 pb-10">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-4 flex items-center gap-2 text-xs font-medium hover-scale">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                
+                <div class="mb-5">
+                    <h2 class="text-xl font-bold text-slate-800">Cetak Surat Pengantar</h2>
+                    <p class="text-xs text-slate-500 mt-1">Isi form berikut, file PDF akan otomatis terunduh.</p>
+                </div>
+
+                <form id="form-pdf-surat" class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">1. Nama Lengkap</label>
+                        <input type="text" id="pdf-nama" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">2. Tempat Lahir</label>
+                            <input type="text" id="pdf-tempat" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">3. Tanggal Lahir</label>
+                            <input type="date" id="pdf-tgl" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">4. Jenis Kelamin</label>
+                            <select id="pdf-jk" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary">
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">5. Agama</label>
+                            <select id="pdf-agama" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary">
+                                <option value="Islam">Islam</option>
+                                <option value="Kristen Protestan">Protestan</option>
+                                <option value="Katolik">Katolik</option>
+                                <option value="Hindu">Hindu</option>
+                                <option value="Buddha">Buddha</option>
+                                <option value="Konghucu">Konghucu</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">6. Pekerjaan</label>
+                            <input type="text" id="pdf-pekerjaan" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">7. NIK KTP</label>
+                            <input type="number" id="pdf-nik" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">8. Alamat Lengkap</label>
+                        <textarea id="pdf-alamat" required rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">9. Keperluan</label>
+                        <textarea id="pdf-keperluan" required rows="2" placeholder="Cth: Mengurus SKCK, Surat Nikah, dll" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-primary"></textarea>
+                    </div>
+
+                    <button type="submit" id="btn-generate-pdf" class="w-full bg-primary hover:bg-emerald-700 text-white font-bold rounded-xl py-3.5 flex justify-center items-center gap-2 transition-colors text-sm shadow-md mt-4 hover-scale">
+                        <i class="fa-solid fa-file-pdf"></i> Download PDF Surat
+                    </button>
+                </form>
+            </div>
+
+            <!-- VIEW: INFO PENGURUSAN -->
+            <div id="view-alur" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-1 animate-item">Informasi Layanan</h2>
+                <p class="text-slate-500 text-xs mb-4 animate-item delay-100">Cari syarat dokumen administrasi umum.</p>
+
+                <div class="relative mb-6 animate-item delay-200">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-layanan" oninput="filterLayanan(this.value)" placeholder="Cari (misal: KTP, SKCK, Pindah)..." class="w-full bg-white border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl pl-10 pr-4 py-3 text-sm outline-none transition-all shadow-sm">
+                </div>
+
+                <div class="space-y-4 pb-10" id="layanan-list"></div>
+            </div>
+
+            <!-- VIEW: PENGADUAN -->
+            <div id="view-pengaduan" class="view-section px-5 pt-6">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                <h2 class="text-xl font-bold text-slate-800 mb-1">Lapor Warga</h2>
+                <p class="text-slate-500 text-xs mb-6">Sampaikan laporan lingkungan Anda.</p>
+                <form id="form-pengaduan" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Kategori</label>
+                        <select required class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary">
+                            <option value="">Pilih Kategori...</option>
+                            <option value="Keamanan">Keamanan & Ketertiban</option>
+                            <option value="Fasilitas">Kerusakan Fasilitas</option>
+                            <option value="Kebersihan">Kebersihan Lingkungan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Detail Laporan</label>
+                        <textarea required rows="4" placeholder="Tulis deskripsi dan lokasi..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl py-3.5 transition-colors text-sm mt-2">
+                        Kirim Laporan
+                    </button>
+                </form>
+            </div>
+
+            <!-- VIEW: AGENDA, INFO, PENGURUS, GALERI -->
+            <div id="view-agenda" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-5">Agenda Lingkungan</h2><div class="space-y-3" id="agenda-list"></div></div>
+            <div id="view-info" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-5">Info Lingkungan</h2><div class="space-y-4" id="full-info-list"></div></div>
+            <div id="view-pengurus" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-1">Pengurus RT 004</h2><p class="text-slate-500 text-xs mb-6">Masa Bakti 2024 - 2027</p><div class="grid grid-cols-2 gap-3" id="pengurus-list"></div></div>
+            <div id="view-galeri" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-1">Galeri Foto</h2><p class="text-slate-500 text-xs mb-6">Dokumentasi kegiatan warga.</p><div class="grid grid-cols-2 gap-3" id="galeri-list"></div></div>
+
+            <!-- VIEW: PROFIL & ADMIN ACCESS -->
+            <div id="view-profil" class="view-section pt-0 relative z-30">
+                <div class="h-24 bg-slate-800 w-full relative"></div>
+                <div class="px-5 pb-16">
+                    <div class="w-20 h-20 bg-white rounded-full p-1 shadow-sm -mt-10 relative z-10 mb-3 animate-item">
+                        <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200"><i class="fa-solid fa-user text-3xl"></i></div>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 animate-item delay-100">Warga RT 004</h2>
+                    <p class="text-slate-500 text-xs font-medium mt-0.5 animate-item delay-100">Aplikasi Warga Digital</p>
+
+                    <div class="mt-6 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm animate-item delay-200">
+                        <h3 class="font-bold text-slate-800 text-[11px] uppercase tracking-wide mb-3 border-b border-slate-50 pb-2">Informasi Wilayah</h3>
+                        <ul class="text-xs text-slate-600 space-y-3">
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-map-location-dot text-slate-400 w-4 text-center"></i> RT 004 / RW 025</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-building text-slate-400 w-4 text-center"></i> Kel. Teluk Pucung</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-city text-slate-400 w-4 text-center"></i> Kec. Bekasi Utara</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 animate-item delay-300 relative">
+                        <h3 class="font-bold text-slate-800 text-[11px] uppercase tracking-wide mb-2">Akses Pengurus</h3>
+                        <p class="text-xs text-slate-500 mb-4">Masuk sebagai admin untuk mengelola data dan surat.</p>
+                        <button type="button" onclick="showPinModal()" class="w-full bg-white border border-slate-200 text-slate-800 font-bold text-sm py-2.5 rounded-xl hover:bg-slate-100 hover-scale transition flex justify-center items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-lock text-xs"></i> Buka Panel Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ADMIN PANEL -->
+            <div id="view-admin" class="view-section px-5 pt-6 pb-20">
+                <div class="flex justify-between items-center mb-6">
+                    <button onclick="switchView('view-profil', document.getElementById('nav-profil'))" class="text-slate-500 flex items-center gap-2 text-xs font-medium"><i class="fa-solid fa-arrow-left"></i> Tutup Admin</button>
+                    <span class="bg-red-100 text-red-600 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">Admin Mode</span>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800 mb-5">Panel Pengelola</h2>
+                <div class="space-y-4">
+                    <!-- Update Data Penduduk -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-3 text-sm flex items-center gap-2"><i class="fa-solid fa-users-gear text-blue-600"></i> Update Statistik</h3>
+                        <form id="form-admin-stats" class="space-y-3">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div><label class="text-[9px] font-bold text-slate-400 uppercase">Warga</label><input type="number" id="input-stat-warga" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs"></div>
+                                <div><label class="text-[9px] font-bold text-slate-400 uppercase">Rumah</label><input type="number" id="input-stat-rumah" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs"></div>
+                                <div><label class="text-[9px] font-bold text-slate-400 uppercase">KK</label><input type="number" id="input-stat-kk" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="text-[9px] font-bold text-slate-400 uppercase">Laki-laki</label><input type="number" id="input-stat-laki" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs"></div>
+                                <div><label class="text-[9px] font-bold text-slate-400 uppercase">Perempuan</label><input type="number" id="input-stat-perempuan" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs"></div>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Update Statistik</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- VIEW: AI CHAT -->
+        <div id="view-ai" class="view-section absolute inset-0 bg-white flex-col z-[60] pb-safe">
+            <div class="bg-slate-50 p-4 pt-10 border-b border-slate-100 flex items-center gap-3 shrink-0">
+                <button onclick="switchView('view-dashboard')" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 rounded-full transition shrink-0"><i class="fa-solid fa-arrow-left text-sm"></i></button>
+                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0"><i class="fa-solid fa-user-tie"></i></div>
+                <div>
+                    <h2 class="text-slate-800 font-bold text-sm leading-tight">Pemuda Pintar</h2>
+                    <p class="text-emerald-500 text-[10px] font-medium flex items-center">Online</p>
+                </div>
+            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-white pb-6">
+                <div class="flex gap-2">
+                    <div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-user-tie text-blue-500 text-[10px]"></i></div>
+                    <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 leading-relaxed max-w-[85%]">
+                        Assalamu'alaikum Bapak/Ibu Warga RT 004! 👋<br><br>Ada yang bisa dibantu? Tanya soal KTP, agenda, atau info lingkungan, saya siap jawab dengan senang hati.
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-3 border-t border-slate-100 shrink-0 pb-5">
+                <form id="chat-form" class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Ketik pesan..." autocomplete="off" class="flex-1 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-full px-4 py-2.5 text-xs outline-none transition-all">
+                    <button type="submit" id="chat-submit-btn" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-sm disabled:opacity-50"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PIN Modal -->
+        <div id="pin-modal" style="display: none;" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] items-center justify-center p-5 opacity-0 transition-opacity duration-300">
+            <div class="bg-white rounded-3xl p-6 w-full max-w-sm transition-transform duration-300" id="pin-modal-content">
+                <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-600"><i class="fa-solid fa-lock text-lg"></i></div>
+                <h3 class="text-base font-bold text-slate-800 mb-1 text-center">Akses Admin</h3>
+                <p class="text-xs text-slate-500 text-center mb-6">Masukkan PIN pengurus RT.</p>
+                <input type="password" id="pin-input" class="w-full bg-slate-50 border border-slate-200 text-center text-xl tracking-[0.5em] font-mono rounded-xl px-4 py-3 outline-none focus:border-slate-400 mb-5 transition-all" maxlength="4" placeholder="••••" inputmode="numeric">
+                <div class="flex gap-2">
+                    <button onclick="closePinModal()" class="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-sm rounded-xl py-2.5">Batal</button>
+                    <button onclick="verifyPin()" class="flex-1 bg-slate-800 text-white font-bold text-sm rounded-xl py-2.5">Masuk</button>
+                </div>
+            </div>
+        </div>
+
+        <nav id="bottom-nav" class="absolute bottom-0 w-full bg-white border-t border-slate-100 px-6 py-2 flex justify-between items-center z-20 pb-safe">
+            <button onclick="switchView('view-dashboard', this)" class="nav-item flex flex-col items-center gap-1 text-primary w-16 transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[9px] font-bold">Beranda</span></button>
+            <button onclick="switchView('view-info', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors"><i class="fa-solid fa-newspaper text-lg mb-0.5"></i><span class="text-[9px] font-bold">Info</span></button>
+            <button onclick="switchView('view-agenda', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors"><i class="fa-solid fa-calendar-days text-lg mb-0.5"></i><span class="text-[9px] font-bold">Agenda</span></button>
+            <button id="nav-profil" onclick="switchView('view-profil', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors"><i class="fa-regular fa-user text-lg mb-0.5"></i><span class="text-[9px] font-bold">Profil</span></button>
+        </nav>
+
+    </div>
+
+    <script>
+        let statistics = { total: 452, rumah: 128, kk: 145, laki: 230, perempuan: 222 };
+        let informasiData = [{ id: 1, title: "Kerja Bakti Minggu Bersih", date: "Hari ini", desc: "Membersihkan area fasilitas umum.", icon: "fa-broom", color: "bg-emerald-500", img: "" }];
+        let agendaData = [{ date: "10 Mei", month: "Mei", title: "Rapat Rutin Pengurus", time: "19:30 WIB", loc: "Fasum RT 004" }];
+        let pengurusData = [{ role: "Ketua RT", name: "Bpk. Budi Santoso", phone: "081234567890", img: "" }];
+        let galeriData = [{ title: "Kerja Bakti", date: "12 Ags 2025", img: "https://images.unsplash.com/photo-1593113565241-76856eb2c64b?auto=format&fit=crop&w=400&q=80" }];
+        const layananData = [
+            { title: "Pembuatan KTP Baru", icon: "fa-id-card text-blue-500", reqs: ["Telah berusia 17 tahun.", "Surat Pengantar RT/RW.", "Fotokopi Kartu Keluarga (KK).", "Datang ke Kelurahan."] },
+            { title: "Pembuatan SKCK", icon: "fa-fingerprint text-emerald-500", reqs: ["Surat Pengantar RT/RW.", "Fotokopi KTP dan KK.", "Pas foto 4x6 latar merah (4 lembar)."] }
+        ];
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.innerHTML = `<i class="fa-regular fa-circle-check mr-1 text-emerald-400"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // --- RENDER FUNCTIONS ---
+        function updateStatsUI() {
+            document.getElementById('stat-total-warga').innerText = statistics.total;
+            document.getElementById('stat-total-rumah').innerText = statistics.rumah;
+            document.getElementById('stat-total-kk').innerText = statistics.kk;
+            document.getElementById('stat-laki').innerText = statistics.laki;
+            document.getElementById('stat-perempuan').innerText = statistics.perempuan;
+            document.getElementById('input-stat-warga').value = statistics.total;
+            document.getElementById('input-stat-rumah').value = statistics.rumah;
+            document.getElementById('input-stat-kk').value = statistics.kk;
+            document.getElementById('input-stat-laki').value = statistics.laki;
+            document.getElementById('input-stat-perempuan').value = statistics.perempuan;
+        }
 
-        // Initialize icons after React mounts
-        setTimeout(() => lucide.createIcons(), 100);
+        function renderInfo() {
+            const html = informasiData.map(item => `
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-3">
+                    <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white ${item.color}"><i class="fa-solid ${item.icon} text-sm"></i></div>
+                    <div class="flex-1"><h3 class="font-bold text-slate-800 text-xs mb-0.5">${item.title}</h3><p class="text-[10px] text-slate-600 line-clamp-2">${item.desc}</p></div>
+                </div>
+            `).join('');
+            document.getElementById('dashboard-info-list').innerHTML = html;
+            document.getElementById('full-info-list').innerHTML = html;
+        }
+        function renderAgenda() { document.getElementById('agenda-list').innerHTML = agendaData.map(item => `<div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4"><div class="bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-100"><span class="text-sm font-bold text-primary">${item.date.split(' ')[0]}</span></div><div class="flex-1"><h3 class="font-bold text-slate-800 text-xs mb-1">${item.title}</h3><div class="text-[9px] text-slate-500"><i class="fa-regular fa-clock"></i> ${item.time} | <i class="fa-solid fa-location-dot"></i> ${item.loc}</div></div></div>`).join(''); }
+        function renderPengurus() { document.getElementById('pengurus-list').innerHTML = pengurusData.map(item => `<div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 text-center"><div class="w-12 h-12 rounded-full mx-auto bg-slate-50 flex items-center justify-center text-slate-300 mb-2 border border-slate-200"><i class="fa-solid fa-user text-xl"></i></div><span class="text-[9px] font-bold text-primary uppercase">${item.role}</span><h3 class="font-bold text-slate-800 text-[11px] mb-2">${item.name}</h3></div>`).join(''); }
+        function renderGaleri() { document.getElementById('galeri-list').innerHTML = galeriData.map(item => `<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"><img src="${item.img}" class="h-28 w-full object-cover"><div class="p-2.5"><h3 class="font-bold text-slate-800 text-[10px] truncate">${item.title}</h3><p class="text-[8px] text-slate-400">${item.date}</p></div></div>`).join(''); }
+        function filterLayanan(query) {
+            const filtered = layananData.filter(l => l.title.toLowerCase().includes(query.toLowerCase()));
+            document.getElementById('layanan-list').innerHTML = filtered.map(item => `<div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm"><h3 class="font-bold text-sm text-slate-800"><i class="fa-solid ${item.icon}"></i> ${item.title}</h3><ul class="text-xs text-slate-600 list-disc ml-6 mt-2">${item.reqs.map(r => `<li>${r}</li>`).join('')}</ul></div>`).join('');
+        }
+
+        function switchView(viewId, navElement = null) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            document.getElementById('bottom-nav').style.display = (viewId === 'view-ai' || viewId === 'view-admin') ? 'none' : 'flex';
+            if (navElement) {
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.replace('text-primary', 'text-slate-400'));
+                navElement.classList.replace('text-slate-400', 'text-primary');
+            }
+        }
+
+        const pinModal = document.getElementById('pin-modal');
+        function showPinModal() { pinModal.style.display = 'flex'; setTimeout(() => pinModal.style.opacity = '1', 10); }
+        function closePinModal() { pinModal.style.opacity = '0'; setTimeout(() => pinModal.style.display = 'none', 300); }
+        function verifyPin() {
+            if (document.getElementById('pin-input').value === '2504') { closePinModal(); setTimeout(() => switchView('view-admin'), 300); }
+            else { showToast('PIN Salah!'); document.getElementById('pin-input').value = ''; }
+        }
+
+        document.getElementById('form-admin-stats').addEventListener('submit', (e) => {
+            e.preventDefault();
+            statistics = { total: document.getElementById('input-stat-warga').value, rumah: document.getElementById('input-stat-rumah').value, kk: document.getElementById('input-stat-kk').value, laki: document.getElementById('input-stat-laki').value, perempuan: document.getElementById('input-stat-perempuan').value };
+            updateStatsUI(); showToast('Statistik Berhasil Diperbarui!');
+        });
+
+
+        // --- PDF GENERATION LOGIC ---
+        // Helper untuk memuat gambar logo
+        const loadImage = (url) => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = (e) => reject(e);
+                img.src = url;
+            });
+        };
+
+        document.getElementById('form-pdf-surat').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-generate-pdf');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses PDF...';
+            btn.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4'); // Kertas A4
+                
+                // 1. KOP SURAT
+                try {
+                    // Load Logo Bekasi (dijadikan sekitar 20x20 ukuran proporsional PDF)
+                    const logo = await loadImage('https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png');
+                    doc.addImage(logo, 'PNG', 15, 12, 22, 22);
+                } catch(err) {
+                    console.log("Logo gagal dimuat, lanjut cetak tanpa logo.");
+                }
+
+                // Teks Kop Surat
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.text("PENGURUS RUKUN TETANGGA 004 / RW 025", 105, 18, {align: "center"});
+                doc.setFontSize(12);
+                doc.text("KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA", 105, 24, {align: "center"});
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text("Perumahan Graha Asri, Kota Bekasi, Jawa Barat", 105, 30, {align: "center"});
+                
+                // Garis Kop Surat
+                doc.setLineWidth(0.8);
+                doc.line(15, 36, 195, 36);
+                doc.setLineWidth(0.3);
+                doc.line(15, 37.5, 195, 37.5);
+
+                // 2. JUDUL SURAT
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.text("SURAT PENGANTAR", 105, 48, {align: "center"});
+                doc.setLineWidth(0.4);
+                doc.line(78, 49, 132, 49); // Underline judul
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                doc.text("NOMOR : ....... / ....... / ....... / RT 004 / RW 025 / ....... / 20....", 105, 55, {align: "center"});
+
+                // 3. ISI SURAT
+                let y = 70;
+                doc.text("Yang bertanda tangan di bawah ini, menerangkan bahwa :", 20, y);
+                y += 12;
+
+                // Mengambil Data Form
+                const data = [
+                    { label: "Nama Lengkap", value: document.getElementById('pdf-nama').value.toUpperCase() },
+                    { label: "Tempat/Tgl Lahir", value: document.getElementById('pdf-tempat').value + ", " + document.getElementById('pdf-tgl').value },
+                    { label: "Jenis Kelamin", value: document.getElementById('pdf-jk').value },
+                    { label: "Agama", value: document.getElementById('pdf-agama').value },
+                    { label: "Pekerjaan", value: document.getElementById('pdf-pekerjaan').value },
+                    { label: "NIK", value: document.getElementById('pdf-nik').value },
+                    { label: "Alamat", value: document.getElementById('pdf-alamat').value },
+                    { label: "Keperluan", value: document.getElementById('pdf-keperluan').value }
+                ];
+
+                // Render List Data
+                doc.setFontSize(11);
+                data.forEach(item => {
+                    doc.text(item.label, 25, y);
+                    doc.text(":", 65, y);
+                    
+                    // Alamat dan Keperluan butuh text wrap karena bisa panjang
+                    let splitVal = doc.splitTextToSize(item.value, 115);
+                    doc.text(splitVal, 68, y);
+                    y += (splitVal.length * 6) + 2;
+                });
+
+                y += 6;
+                let closingText = "Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan yang berkepentingan untuk menjadi maklum.";
+                let splitClosing = doc.splitTextToSize(closingText, 170);
+                doc.text(splitClosing, 20, y);
+                
+                // 4. BAGIAN TANDA TANGAN
+                y += (splitClosing.length * 6) + 15;
+                
+                // Format Tanggal
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                let today = new Date();
+                let tglSurat = today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
+
+                doc.text("Bekasi, " + tglSurat, 155, y, {align: "center"});
+                y += 6;
+                doc.text("KETUA RW 025", 55, y, {align: "center"});
+                doc.text("KETUA RT 004 / RW 025", 155, y, {align: "center"});
+                
+                y += 28; // Space untuk TTD
+                doc.setFont("helvetica", "bold");
+                doc.text("( ................................. )", 55, y, {align: "center"});
+                doc.text("( ROMADHON )", 155, y, {align: "center"});
+
+                // Download File
+                const fileName = `Surat_Pengantar_RT004_${data[0].value.replace(/\s/g, '_')}.pdf`;
+                doc.save(fileName);
+
+                showToast('PDF Berhasil Diunduh!');
+                e.target.reset();
+                setTimeout(() => switchView('view-dashboard'), 1500);
+
+            } catch (error) {
+                console.error(error);
+                showToast('Terjadi kesalahan membuat PDF.');
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Download PDF Surat';
+                btn.disabled = false;
+            }
+        });
+
+
+        // --- GEMINI AI ---
+        const apiKey = "";
+        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. 
+        Tugasmu membantu warga dengan ramah, santun, dan komunikatif. 
+        Gunakan sapaan "Bapak/Ibu" atau "Warga". 
+        Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
+
+        async function getGeminiResponse(userText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) });
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, sistem sedang sibuk.";
+                return text.replace(/\*/g, '').replace(/#/g, '').replace(/\n/g, '<br>');
+            } catch (e) { return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏"; }
+        }
+
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML += `<div class="flex justify-end gap-2"><div class="bg-blue-600 text-white p-2.5 rounded-2xl rounded-tr-none text-xs max-w-[85%]">${text}</div></div>`;
+            
+            const typingId = 'typing-' + Date.now();
+            chatMessages.innerHTML += `<div id="${typingId}" class="flex gap-2"><div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs typing-indicator flex items-center h-[34px]"><span></span><span></span><span></span></div></div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const response = await getGeminiResponse(text);
+            document.getElementById(typingId).remove();
+            chatMessages.innerHTML += `<div class="flex gap-2"><div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-user-tie text-blue-500 text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs text-slate-700 leading-relaxed max-w-[85%]">${response}</div></div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+
+        // INIT
+        updateStatsUI(); renderInfo(); renderAgenda(); renderPengurus(); renderGaleri(); filterLayanan('');
     </script>
 </body>
 </html>
