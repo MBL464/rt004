@@ -519,24 +519,37 @@
             updateStatsUI(); showToast('Statistik Berhasil Diperbarui!');
         });
 
-
         // --- PDF GENERATION LOGIC ---
-        // Helper untuk memuat gambar dengan Fallback Proxy (menghindari CORS Error)
-        const loadImage = (url) => {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = 'Anonymous';
-                img.onload = () => resolve(img);
-                img.onerror = () => {
-                    // Fallback to ALLOrigins Proxy if direct fetch fails due to CORS
-                    const proxyImg = new Image();
-                    proxyImg.crossOrigin = 'Anonymous';
-                    proxyImg.onload = () => resolve(proxyImg);
-                    proxyImg.onerror = (e) => reject(e);
-                    proxyImg.src = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-                };
-                img.src = url;
-            });
+        // Helper function yang lebih handal menggunakan proxy khusus file binary & gambar
+        const getBase64ImageFromUrl = async (imageUrl) => {
+            const proxies = [
+                'https://api.codetabs.com/v1/proxy?quest=' + imageUrl,
+                'https://corsproxy.io/?' + encodeURIComponent(imageUrl)
+            ];
+
+            for (let proxyUrl of proxies) {
+                try {
+                    // Beri batas waktu 5 detik agar tidak nyangkut (loading terus)
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    
+                    const res = await fetch(proxyUrl, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    
+                    if (!res.ok) throw new Error("Fetch failed");
+                    
+                    const blob = await res.blob();
+                    return await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (e) {
+                    console.log("Mencoba jalur proxy lain...");
+                }
+            }
+            throw new Error("Semua proxy gagal memuat gambar");
         };
 
         document.getElementById('form-pdf-surat').addEventListener('submit', async (e) => {
@@ -551,12 +564,36 @@
                 
                 // 1. KOP SURAT
                 try {
-                    // Load Logo Bekasi via Proxy langsung agar pasti berjalan di browser
-                    const logoUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png');
-                    const logo = await loadImage(logoUrl);
-                    doc.addImage(logo, 'PNG', 20, 12, 22, 25);
+                    // Pemuatan logo dipastikan aman menggunakan Fetch -> Base64 Data URI
+                    const logoUrl = 'https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';
+                    const logoBase64 = await getBase64ImageFromUrl(logoUrl);
+                    
+                    // Mendapatkan ukuran asli gambar agar tidak gepeng (Proporsional)
+                    const imgProps = await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => resolve({ w: img.width, h: img.height });
+                        img.src = logoBase64;
+                    });
+                    
+                    const ratio = imgProps.w / imgProps.h;
+                    // Ukuran maksimal diperbesar dari 25mm menjadi 30mm agar setara dengan teks kop surat
+                    let targetW = 30; 
+                    let targetH = 30; 
+                    
+                    // Hitung rasio agar proporsional (TIDAK GEPENG)
+                    if (ratio > 1) {
+                        targetH = targetW / ratio;
+                    } else {
+                        targetW = targetH * ratio;
+                    }
+                    
+                    // Posisikan secara otomatis: rata kiri dengan garis pembatas (x=15) dan rata atas dengan teks judul
+                    const xPos = 15 + (30 - targetW) / 2;
+                    const yPos = 12 + (30 - targetH) / 2;
+
+                    doc.addImage(logoBase64, 'PNG', xPos, yPos, targetW, targetH);
                 } catch(err) {
-                    console.log("Logo gagal dimuat, lanjut cetak tanpa logo.");
+                    console.log("Logo gagal dimuat. Dilanjutkan tanpa logo.");
                 }
 
                 // Teks Kop Surat
@@ -569,7 +606,8 @@
                 doc.text("KOTA BEKASI", 110, 34, {align: "center"});
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
-                doc.text("SEKRETARIAT : Perumahan Graha Asri RT 004 / RW 025", 110, 40, {align: "center"});
+                // Pembaruan teks Sekretariat sesuai permintaan
+                doc.text("Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121", 110, 40, {align: "center"});
                 
                 // Garis Kop Surat
                 doc.setLineWidth(0.8);
@@ -649,7 +687,7 @@
 
             } catch (error) {
                 console.error(error);
-                showToast('Terjadi kesalahan membuat PDF.');
+                showToast('Terjadi kesalahan saat memproses data PDF.');
             } finally {
                 btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Download PDF Surat';
                 btn.disabled = false;
