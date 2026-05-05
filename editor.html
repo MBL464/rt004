@@ -910,7 +910,6 @@
 
 
         // --- GEMINI AI IMPLEMENTATION ---
-        const apiKey = "AIzaSyBknA7StwYAjOckdXTFcVXYBi6bJCOkl-M"; 
         const chatMessages = document.getElementById('chat-messages');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
@@ -953,29 +952,47 @@
             return id;
         }
 
-        async function getGeminiResponse(userText) {
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-            try {
-                const response = await fetch(url, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } })
-                });
-                const result = await response.json();
-                let text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (text) {
-                    // Membersihkan format markdown (bintang, tagar, dll) agar rapi
-                    text = text.replace(/\*/g, '');
-                    text = text.replace(/#/g, '');
-                    text = text.replace(/-/g, '•'); // ganti strip dengan bullet point agar elegan
-                    text = text.replace(/\n/g, '<br>');
-                    return text;
-                }
-                return "Maaf, sistem sedang sibuk.";
-            } catch (e) {
-                return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏";
-            }
+async function getGeminiResponse(userText) {
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: `${systemPrompt}\n\nPertanyaan: ${userText}`
+                            }
+                        ]
+                    }
+                ]
+            })
+        });
+
+        const result = await response.json();
+        console.log("AI RESPONSE:", result); // debug
+
+        let text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (text) {
+            // ✨ cleaning tetap dipakai (bagus ini)
+            text = text.replace(/\*/g, '');
+            text = text.replace(/#/g, '');
+            text = text.replace(/-/g, '•');
+            text = text.replace(/\n/g, '<br>');
+            return text;
         }
+
+        return "Maaf, sistem sedang sibuk.";
+
+    } catch (e) {
+        console.error("ERROR:", e);
+        return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏";
+    }
+}
 
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
