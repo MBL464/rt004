@@ -966,21 +966,26 @@ async function getGeminiResponse(userText) {
 
         const result = await response.json();
 
-        let text = result.reply;
+        console.log("AI RESULT:", result); // debug
 
-        if (text) {
-            text = text.replace(/\*/g, '');
-            text = text.replace(/#/g, '');
-            text = text.replace(/-/g, '•');
-            text = text.replace(/\n/g, '<br>');
-            return text;
+        let text = result?.reply;
+
+        // 🔥 fallback kalau kosong
+        if (!text || text.trim() === "") {
+            return "Maaf, AI sedang sibuk. Coba ulangi ya 🙏";
         }
 
-        return "Maaf, sistem sedang sibuk.";
+        // ✨ cleaning
+        text = text.replace(/\*/g, '');
+        text = text.replace(/#/g, '');
+        text = text.replace(/-/g, '•');
+        text = text.replace(/\n/g, '<br>');
+
+        return text;
 
     } catch (e) {
-        console.error(e);
-        return "Mohon maaf, AI sedang luring 🙏";
+        console.error("ERROR:", e);
+        return "Koneksi ke AI terganggu. Coba lagi 🙏";
     }
 }
 
