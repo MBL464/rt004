@@ -116,7 +116,7 @@
         
         /* Memisahkan state animasi agar di-refresh browser saat menu kembali dibuka */
         .pop-in { opacity: 0; }
-        .view-section.active .pop-in, #loader-overlay .pop-in { animation: popIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        .view-section.active .pop-in, #loader-overlay .pop-in, #view-login.active .pop-in { animation: popIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
 
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -132,6 +132,8 @@
         .delay-200 { animation-delay: 200ms; }
         .delay-300 { animation-delay: 300ms; }
         .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .delay-600 { animation-delay: 600ms; }
 
         .typing-indicator span { display: inline-block; width: 5px; height: 5px; background-color: #94a3b8; border-radius: 50%; margin: 0 2px; animation: bounce 1.4s infinite ease-in-out both; }
         .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
@@ -169,7 +171,7 @@
         <!-- Toast Container -->
         <div id="toast-container"></div>
 
-        <!-- ====== VIEW: LOGIN WARGA (Baru Ditambahkan) ====== -->
+        <!-- ====== VIEW: LOGIN WARGA ====== -->
         <div id="view-login" class="view-section absolute inset-0 z-[150] bg-gradient-to-b from-emerald-500 to-emerald-700 flex-col justify-center items-center p-6">
             <!-- Logo Aplikasi di Halaman Login -->
             <div class="w-28 h-28 bg-white rounded-full p-1.5 shadow-2xl mb-6 pop-in overflow-hidden border-4 border-emerald-400">
@@ -216,7 +218,6 @@
                 <button id="btn-install-app" class="hidden bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-[10px] font-bold items-center gap-1.5 hover-scale border border-emerald-100">
                     <i class="fa-solid fa-download"></i> Install
                 </button>
-                <!-- Notifikasi telah dihilangkan -->
             </div>
         </header>
 
@@ -280,9 +281,13 @@
                     </div>
                 </div>
 
-                <!-- Grid Menu Layanan Digital -->
+                <!-- Grid Menu Layanan Digital & Tombol Panduan -->
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-800">Layanan Digital</h2>
+                    <!-- Tombol Panduan Tutorial (Mengarah ke Halaman Panduan) -->
+                    <button onclick="window.switchView('view-tutorial')" class="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-1.5 rounded-full flex items-center gap-1.5 hover-scale shadow-sm">
+                        <i class="fa-solid fa-lightbulb text-amber-400"></i> Panduan
+                    </button>
                 </div>
                 
                 <div class="grid grid-cols-3 gap-3.5 mb-8">
@@ -346,6 +351,65 @@
                 <div class="space-y-3 pb-5" id="dashboard-info-list"></div>
             </div>
 
+            <!-- ====== VIEW: PANDUAN APLIKASI (TUTORIAL MENU BARU) ====== -->
+            <div id="view-tutorial" class="view-section flex-col px-5 pt-6 pb-10">
+                <button onclick="window.switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                
+                <div class="mb-6 pop-in">
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">Panduan Aplikasi</h2>
+                    <p class="text-xs font-medium text-slate-500 mt-2 leading-relaxed">Pelajari kegunaan dari setiap fitur agar urusan Anda lebih mudah dan cepat.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Kartu Panduan: AI Pemuda Pintar -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-100 hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-user-tie"></i></div>
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-800 mb-1">AI Pemuda Pintar</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Asisten virtual pintar milik warga. Anda bisa mengajaknya mengobrol, bertanya syarat membuat dokumen, atau mencari tahu agenda RT secara cepat. Cukup ketik pertanyaan Anda!</p>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Panduan: Buat Surat -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-100 hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-signature"></i></div>
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-800 mb-1">Buat Surat Pengantar</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Membuat Surat Pengantar RT tidak pernah semudah ini. Isi formulir dengan lengkap, lalu tekan tombol kirim. Aplikasi akan otomatis membuatkan file PDF dan membukakan WhatsApp Pengurus untuk Anda kirimkan.</p>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Panduan: Cek Layanan Publik -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-200 hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-magnifying-glass-dollar"></i></div>
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-800 mb-1">Cek Layanan Publik</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Pintasan praktis untuk mengecek tagihan PBB, Pajak Kendaraan, PLN, PDAM, atau status Bansos. Masukkan nomor Anda di sini, sistem akan menyalin data dan menuntun Anda ke website resmi Pemerintah.</p>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Panduan: Lapor Warga -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-200 hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-bullhorn"></i></div>
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-800 mb-1">Lapor Warga</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Temukan lampu jalan mati? Ada tumpukan sampah? Gunakan menu ini untuk melaporkan kondisi lingkungan. Laporan akan diformat rapi dan langsung diteruskan ke WhatsApp Pengurus.</p>
+                        </div>
+                    </div>
+
+                    <!-- Kartu Panduan: Panel Admin -->
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-300 hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-slate-800 text-white rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-gear"></i></div>
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-800 mb-1">Panel Admin (Pengelola)</h3>
+                            <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Menu rahasia ini hanya bisa diakses oleh Pengurus RT menggunakan PIN. Berfungsi untuk memperbarui jumlah warga, menambah jadwal agenda, menulis berita, dan mengatur seluruh informasi aplikasi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ====== VIEW: CEK LAYANAN PUBLIK ====== -->
             <div id="view-layanan-publik" class="view-section flex-col px-5 pt-6 pb-10">
                 <button onclick="window.switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale">
@@ -399,7 +463,6 @@
                 <form id="form-pdf-surat" class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4 pop-in delay-100">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">1. Nama Lengkap</label>
-                        <!-- Form Nama otomatis terisi dari Login jika memungkinkan -->
                         <input type="text" id="pdf-nama" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
                     </div>
                     
@@ -788,9 +851,7 @@
     </div>
 
     <!-- KUMPULAN SCRIPT JAVASCRIPT APLIKASI -->
-    <!-- Type 'module' berarti script ini bisa menggunakan fitur import (khususnya untuk Firebase Cloud) -->
     <script type="module">
-        // Import alat-alat dari Firebase (Google Database)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -799,28 +860,22 @@
         // 1. DEKLARASI FUNGSI GLOBAL & DATA SEMENTARA (State)
         // ============================================================================
         
-        // Cek Nama Warga dari Memory HP (Local Storage)
         window.wargaName = localStorage.getItem('rt004_username') || '';
 
-        // Fungsi Aksi Login
         document.getElementById('form-login').addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('login-name').value.trim();
             if(!name) { window.showToast("Nama tidak boleh kosong!"); return; }
             
-            // Simpan nama ke memory HP
             localStorage.setItem('rt004_username', name);
             window.wargaName = name;
             
-            // Masukkan nama ke AI Chat
             const chatWelcome = document.getElementById('ai-welcome-msg');
             if(chatWelcome) chatWelcome.innerHTML = `Assalamu'alaikum Bapak/Ibu <b>${name}</b>! 👋<br><br>Ada yang bisa dibantu? Tanya soal syarat administrasi KTP, jadwal agenda, atau lapor info lingkungan, saya siap jawab dengan senang hati.`;
             
-            // Masukkan nama ke form surat PDF agar otomatis terisi
             const formPdfNama = document.getElementById('pdf-nama');
             if(formPdfNama) formPdfNama.value = name;
 
-            // Transisi masuk ke Dashboard
             document.getElementById('view-login').style.display = 'none';
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('bottom-nav').style.display = 'flex';
@@ -828,15 +883,13 @@
             window.showToast(`Selamat datang di aplikasi, ${name}!`);
         });
 
-        // Variabel untuk mengontrol status keamanan admin
         window.isAdminUnlocked = false;
         window.pendingNavElement = null;
         window.currentAdminCat = '';
         window.currentEditId = null;
         window.pendingDeleteId = null;
-        window.adminPin = "2504"; // Ini PIN bawaan/cadangan jika internet mati
+        window.adminPin = "2504"; 
         
-        // Data penyimpanan sementara (Akan di-timpa oleh data dari Cloud jika internet aktif)
         let statistics = { total: 0, rumah: 0, kk: 0, laki: 0, perempuan: 0 };
         let informasiData = [];
         let agendaData = [];
@@ -844,7 +897,6 @@
         let galeriData = [];
         let layananData = [];
 
-        // Fungsi memunculkan Notifikasi Hitam (Toast)
         window.showToast = function(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -854,14 +906,12 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // Fungsi mengubah Foto yang di-upload Admin menjadi teks (Base64) agar bisa disimpan ke Database
         window.fileToBase64 = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    // Kompresi otomatis agar ukuran foto tidak membebani server
                     const canvas = document.createElement('canvas');
                     const MAX_WIDTH = 800; 
                     let scaleSize = 1;
@@ -870,15 +920,13 @@
                     canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // Simpan dengan kualitas 60%
+                    resolve(canvas.toDataURL('image/jpeg', 0.6)); 
                 };
                 img.src = event.target.result;
             };
             reader.onerror = error => reject(error);
         });
 
-        // --- FUNGSI MENGGAMBAR TAMPILAN KE LAYAR (Render UI) ---
-        
         window.updateStatsUI = function() {
             document.getElementById('stat-total-warga').innerText = statistics.total || 0;
             document.getElementById('stat-total-rumah').innerText = statistics.rumah || 0;
@@ -952,7 +1000,6 @@
             `).join('') || '<p class="text-xs text-slate-400 text-center mt-5">Layanan yang Anda cari tidak ditemukan.</p>';
         }
 
-        // Fungsi mengganti halaman menu yang disempurnakan untuk Login
         window.switchView = function(viewId, navElement = null) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
@@ -960,13 +1007,12 @@
             const header = document.getElementById('main-header');
             const bottomNav = document.getElementById('bottom-nav');
 
-            // Sembunyikan Header & Nav saat di Login, AI Chat, atau baca Artikel
             if (viewId === 'view-login') {
                 header.style.display = 'none';
                 bottomNav.style.display = 'none';
             } else {
                 header.style.display = 'flex';
-                bottomNav.style.display = (viewId === 'view-ai' || viewId === 'view-kabar-detail') ? 'none' : 'flex';
+                bottomNav.style.display = (viewId === 'view-ai' || viewId === 'view-kabar-detail' || viewId === 'view-tutorial') ? 'none' : 'flex';
             }
             
             if (navElement) {
@@ -976,7 +1022,7 @@
         }
 
         // ============================================================================
-        // FITUR CEK LAYANAN PUBLIK (Data dan Logika Pop-Up)
+        // FITUR CEK LAYANAN PUBLIK
         // ============================================================================
         const cekLayananData = {
             'pbb': { title: 'Cek PBB', desc: 'Masukkan Nomor Objek Pajak (NOP) Anda. Sistem akan otomatis menyalin NOP dan mengarahkan Anda ke portal Bapenda.', label: 'Nomor Objek Pajak (NOP)', placeholder: 'Contoh: 32.75.xxx.xxx', url: 'https://bapenda.bekasikota.go.id/', guide: ['Tekan lama di kolom NOP lalu pilih <b>Tempel / Paste</b>', 'Klik tombol <b>Cari</b> atau <b>Cek Tagihan</b>'] },
@@ -1002,7 +1048,6 @@
             const btn = document.getElementById('btn-cek-layanan');
             btn.innerHTML = 'CEK SEKARANG'; btn.disabled = false;
             
-            // Animasi memunculkan Modal Layanan dari bawah layar
             const modal = document.getElementById('modal-layanan');
             const content = document.getElementById('modal-layanan-content');
             modal.style.display = 'flex';
@@ -1024,7 +1069,6 @@
             const input = document.getElementById('layanan-input');
             if (!input.value.trim()) { window.showToast("Maaf, data tidak boleh kosong!"); input.focus(); return; }
             
-            // Perintah untuk menyalin teks (Copy to Clipboard)
             input.select(); document.execCommand('copy');
             
             const btn = document.getElementById('btn-cek-layanan');
@@ -1032,7 +1076,6 @@
             btn.disabled = true;
             window.showToast("Data berhasil disalin! Bersiap dialihkan...");
 
-            // Tunda 2 detik agar warga sempat membaca panduan
             setTimeout(() => {
                 window.open(cekLayananData[activeLayananId].url, '_blank');
                 window.closeLayananModal();
@@ -1056,7 +1099,6 @@
             setTimeout(() => m.style.display = 'none', 300); 
         }
         window.triggerAdminAuth = function(navElement) {
-            // Jika sudah memasukkan PIN (Sesi aktif), langsung buka menu Admin
             if (window.isAdminUnlocked) {
                 window.switchView('view-admin', navElement);
                 document.getElementById('admin-home').classList.remove('hidden');
@@ -1068,7 +1110,6 @@
             }
         }
         window.verifyPin = function() {
-            // Mengubah PIN input ke sandi Base64 agar tidak bisa dibaca kasat mata pada Inspect Element
             if (btoa(document.getElementById('pin-input').value) === btoa(window.adminPin)) { 
                 window.closePinModal(); 
                 window.isAdminUnlocked = true;
@@ -1088,7 +1129,6 @@
             window.showToast('Panel Admin Berhasil Dikunci');
         }
 
-        // --- FUNGSI NAVIGASI MENU DI DALAM PANEL ADMIN ---
         window.getCategoryArray = function(cat) {
             switch(cat) {
                 case 'info': return informasiData;
@@ -1143,9 +1183,7 @@
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm animate-item">
                         <div class="text-sm font-bold text-slate-700 truncate pr-3 flex-1">${displayTitle}</div>
                         <div class="flex gap-2 shrink-0">
-                            <!-- Tombol Edit (Pensil) -->
                             <button onclick="window.openAdminForm('${item.id}')" class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg hover-scale"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <!-- Tombol Hapus (Tong Sampah) -->
                             <button onclick="window.requestDelete('${item.id}')" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg hover-scale"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </div>
                     </div>
@@ -1168,7 +1206,6 @@
             document.querySelectorAll('.file-upload-label span').forEach(el => { if(el.id) el.innerText = "Pilih Gambar/Foto Baru"; });
 
             if (id) {
-                // Tarik data yang ada untuk diedit
                 const item = window.getCategoryArray(window.currentAdminCat).find(x => x.id === id);
                 if (!item) return;
                 
@@ -1195,7 +1232,6 @@
             }
         }
 
-        // FUNGSI KONFIRMASI HAPUS DATA
         window.requestDelete = function(id) {
             window.pendingDeleteId = id;
             const modal = document.getElementById('confirm-modal');
@@ -1212,7 +1248,6 @@
             window.pendingDeleteId = null;
         }
 
-        // FUNGSI RENDER ULANG SEMUA TAMPILAN JIKA ADA PERUBAHAN
         window.reRenderAppViews = function() {
             window.updateStatsUI(); window.renderInfo(); window.renderAgenda(); window.renderPengurus(); window.renderGaleri(); window.filterLayanan(document.getElementById('search-layanan')?.value || '');
         }
@@ -1221,7 +1256,6 @@
         // 2. FIREBASE INITIALIZATION (Koneksi ke Database Cloud Google)
         // ============================================================================
         
-        // ⚠️ PENTING: Jika aplikasi mau dipasang di Github/Internet, isi kode di bawah dengan kode dari Firebase Anda!
         let firebaseConfig = {
             apiKey: "",
             authDomain: "",
@@ -1240,7 +1274,6 @@
         const isConfigValid = firebaseConfig.apiKey && firebaseConfig.apiKey !== "";
 
         if (isConfigValid) {
-            // Jika ada kode API, hubungkan ke Firebase
             try {
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
@@ -1254,7 +1287,6 @@
         const initAuth = async () => {
             if (!auth) return; 
             try {
-                // Meminta izin masuk ke server Firebase sebagai tamu (Anonymous) agar bisa baca data
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
@@ -1271,7 +1303,6 @@
             }
         };
 
-        // Memantau apabila berhasil terhubung
         if (auth) {
             onAuthStateChanged(auth, (user) => {
                 currentUser = user;
@@ -1280,10 +1311,8 @@
             initAuth();
         }
 
-        // Cek Logika Awal Aplikasi saat dimuat (Cek Warga Login)
         window.addEventListener('DOMContentLoaded', () => {
             if (!window.wargaName) {
-                // Jika belum memasukkan nama (Belum Login)
                 document.getElementById('main-header').style.display = 'none';
                 document.getElementById('bottom-nav').style.display = 'none';
                 document.getElementById('view-dashboard').classList.remove('active');
@@ -1291,26 +1320,22 @@
                 document.getElementById('view-login').style.display = 'flex';
                 document.getElementById('view-login').classList.add('active');
             } else {
-                // Jika sudah Login, perbarui Chat AI dengan namanya
                 document.getElementById('view-login').style.display = 'none';
                 document.getElementById('main-header').style.display = 'flex';
                 document.getElementById('bottom-nav').style.display = 'flex';
                 const chatWelcome = document.getElementById('ai-welcome-msg');
                 if(chatWelcome) chatWelcome.innerHTML = `Assalamu'alaikum Bapak/Ibu <b>${window.wargaName}</b>! 👋<br><br>Ada yang bisa dibantu? Tanya soal syarat administrasi KTP, jadwal agenda, atau lapor info lingkungan, saya siap jawab dengan senang hati.`;
                 
-                // Pastikan nilai default form PDF terisi
                 const formPdfNama = document.getElementById('pdf-nama');
                 if(formPdfNama) formPdfNama.value = window.wargaName;
             }
             
-            // Matikan Loader (Layar Putih)
             loader.style.opacity = '0';
             setTimeout(() => { loader.style.display = 'none'; if(!isConfigValid) window.showToast("Aplikasi berjalan dalam Mode Lokal."); }, 400);
             
             window.reRenderAppViews();
         });
 
-        // Fungsi canggih (Real-Time Listener): Jika ada data berubah di server, tampilan web akan langsung terganti tanpa perlu refresh
         function setupFirestoreListeners() {
             if (!currentUser || !db) return;
 
@@ -1355,7 +1380,6 @@
             }, (err) => console.error(err));
         }
 
-        // Kalau database masih kosong saat pertama kali diakses, isikan data bawaan (Dummy)
         async function checkAndSeedData() {
             if (!currentUser || !db) return;
             try {
@@ -1386,7 +1410,6 @@
             btn.disabled = true;
 
             try {
-                // Khusus pengaturan PIN
                 if (window.currentAdminCat === 'settings') {
                     const pinLama = document.getElementById('input-pin-lama').value;
                     const pinBaru = document.getElementById('input-pin-baru').value;
@@ -1396,7 +1419,6 @@
                     window.adminPin = pinBaru; window.closeAdminForm(); window.showToast('PIN Berhasil Diubah!'); return;
                 }
 
-                // Khusus Statistik
                 if (window.currentAdminCat === 'stats') {
                     const newStats = {
                         total: document.getElementById('input-stat-warga').value, rumah: document.getElementById('input-stat-rumah').value, kk: document.getElementById('input-stat-kk').value, laki: document.getElementById('input-stat-laki').value, perempuan: document.getElementById('input-stat-perempuan').value
@@ -1405,7 +1427,6 @@
                     window.closeAdminForm(); window.showToast('Statistik Cloud Diperbarui!'); return;
                 }
 
-                // Untuk data List (Kabar, Layanan, Agenda, Galeri)
                 let item = {};
                 if (window.currentAdminCat === 'info') {
                     item.title = document.getElementById('admin-info-title').value; item.desc = document.getElementById('admin-info-desc').value; item.date = "Baru saja";
@@ -1424,7 +1445,6 @@
                     if(!window.currentEditId && !item.img) throw new Error("Foto Wajib Diupload!");
                 }
 
-                // Eksekusi penyimpanan ke Cloud
                 const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', window.currentAdminCat);
                 const docRef = window.currentEditId ? doc(collectionRef, window.currentEditId) : doc(collectionRef);
                 if(!window.currentEditId) item.timestamp = Date.now();
@@ -1438,7 +1458,6 @@
             }
         }
 
-        // FUNGSI EKSEKUSI HAPUS DATA DARI CLOUD
         document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
             if (window.pendingDeleteId !== null && currentUser && db) {
                 try {
@@ -1471,22 +1490,19 @@
 
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
-                // Munculkan Pop-up Install bawaan Android
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') { installBtn.style.display = 'none'; }
                 deferredPrompt = null;
             } else {
-                // Trik panduan untuk pengguna iPhone (iOS)
                 window.showToast('Untuk install di iPhone: Ketuk Share/Bagikan di browser, lalu pilih "Add to Home Screen"');
             }
         });
 
         // --- PDF GENERATOR LOGIC ---
-        // Fungsi untuk mengunduh Logo agar bisa dimasukkan ke dalam Kertas PDF (Dengan proxy anti-gagal)
         const getBase64ImageFromUrl = async (imageUrl) => {
             const proxies = [
-                imageUrl, // Coba langsung tanpa proxy (Paling Cepat)
+                imageUrl, 
                 'https://api.allorigins.win/raw?url=' + encodeURIComponent(imageUrl),
                 'https://api.codetabs.com/v1/proxy?quest=' + imageUrl,
                 'https://corsproxy.io/?' + encodeURIComponent(imageUrl)
@@ -1495,7 +1511,7 @@
             for (let proxyUrl of proxies) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 detik batas tunggu per jalur
+                    const timeoutId = setTimeout(() => controller.abort(), 6000); 
                     const res = await fetch(proxyUrl, { signal: controller.signal });
                     clearTimeout(timeoutId);
                     
@@ -1503,7 +1519,6 @@
                     
                     const blob = await res.blob();
                     
-                    // Verifikasi apakah yang didownload benar-benar gambar
                     if (!blob.type.startsWith('image/')) throw new Error("Bukan file gambar");
 
                     return await new Promise((resolve, reject) => {
@@ -1519,7 +1534,6 @@
             throw new Error("Semua jalur proxy gagal");
         };
 
-        // Proses Pembuatan Surat Saat Warga Mengisi Form
         document.getElementById('form-pdf-surat').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btn-generate-pdf');
@@ -1527,12 +1541,10 @@
             btn.disabled = true;
 
             try {
-                // Memanggil alat jsPDF
                 const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4'); // p = portrait, mm = milimeter, a4 = ukuran kertas
+                const doc = new jsPDF('p', 'mm', 'a4'); 
                 
                 try {
-                    // Masukkan Logo Pemkot Bekasi khusus untuk PDF
                     const logoUrl = 'https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';
                     const logoBase64 = await getBase64ImageFromUrl(logoUrl);
                     
@@ -1543,14 +1555,13 @@
                     });
                     
                     const ratio = imgProps.w / imgProps.h;
-                    let targetW = 45; let targetH = 45; 
+                    let targetW = 40; let targetH = 40; 
                     if (ratio > 1) { targetH = targetW / ratio; } else { targetW = targetH * ratio; }
                     
-                    const xPos = 15 + (45 - targetW) / 2; const yPos = 20;
+                    const xPos = 15 + (40 - targetW) / 2; const yPos = 12;
                     doc.addImage(logoBase64, 'PNG', xPos, yPos, targetW, targetH);
                 } catch(err) { console.log("Logo PDF gagal dimuat ke dalam kertas."); }
 
-                // Tulis Teks Kop Surat di atas Kertas
                 doc.setFont("helvetica", "bold"); doc.setFontSize(14);
                 doc.text("RUKUN TETANGGA 004", 115, 20, {align: "center"});
                 doc.text("RUKUN WARGA 025", 115, 26, {align: "center"});
@@ -1560,7 +1571,6 @@
                 doc.setFont("helvetica", "normal"); doc.setFontSize(10);
                 doc.text("Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121", 115, 46, {align: "center"});
                 
-                // Buat Garis Pembatas
                 doc.setLineWidth(0.8); doc.line(15, 52, 195, 52);
                 doc.setLineWidth(0.3); doc.line(15, 53.5, 195, 53.5);
 
@@ -1574,7 +1584,6 @@
                 doc.text("Yang bertanda tangan di bawah ini, menerangkan bahwa :", 20, y);
                 y += 10;
 
-                // Format Tanggal Lahir (Ubah angka YYYY-MM-DD menjadi format DD Bulan YYYY yang resmi)
                 const rawTgl = document.getElementById('pdf-tgl').value;
                 let formattedTgl = rawTgl;
                 if (rawTgl) {
@@ -1588,7 +1597,6 @@
                     }
                 }
 
-                // Ambil semua data yang diisi warga
                 const data = [
                     { label: "Nama Lengkap", value: document.getElementById('pdf-nama').value.toUpperCase() },
                     { label: "Tempat/Tgl Lahir", value: document.getElementById('pdf-tempat').value + ", " + formattedTgl },
@@ -1600,11 +1608,10 @@
                     { label: "Keperluan", value: document.getElementById('pdf-keperluan').value }
                 ];
 
-                // Cetak data ke kertas
                 doc.setFontSize(11);
                 data.forEach(item => {
                     doc.text(item.label, 25, y); doc.text(":", 65, y);
-                    let splitVal = doc.splitTextToSize(item.value, 115); // Bungkus teks agar tidak lewat batas kertas
+                    let splitVal = doc.splitTextToSize(item.value, 115); 
                     doc.text(splitVal, 68, y); y += (splitVal.length * 6) + 2;
                 });
 
@@ -1612,7 +1619,6 @@
                 let closingText = "Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan yang berkepentingan untuk menjadi maklum.";
                 let splitClosing = doc.splitTextToSize(closingText, 170); doc.text(splitClosing, 20, y);
                 
-                // Area Tanda Tangan
                 y += (splitClosing.length * 6) + 15;
                 const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                 let today = new Date(); let tglSurat = today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
@@ -1626,12 +1632,10 @@
                 doc.text("( ................................. )", 55, y, {align: "center"});
                 doc.text("( ROMADHON )", 155, y, {align: "center"});
 
-                // Eksekusi Unduh File PDF
                 const fileName = `Surat_Pengantar_RT004_${data[0].value.replace(/\s/g, '_')}.pdf`;
                 doc.save(fileName); 
                 window.showToast('PDF Berhasil Diunduh!');
                 
-                // ---- BLOK ARSIP GOOGLE DRIVE (Opsional) ----
                 window.showToast('Mengarsipkan surat ke Server...');
                 try {
                     const pdfBase64 = doc.output('datauristring').split(',')[1];
@@ -1640,7 +1644,6 @@
                     setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
                 } catch(e) { console.log('Gagal arsip drive: ', e); }
 
-                // ---- BLOK KIRIM WHATSAPP OTOMATIS ----
                 const namaWA = document.getElementById('pdf-nama').value.toUpperCase();
                 const keperluanWA = document.getElementById('pdf-keperluan').value;
                 const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
@@ -1648,7 +1651,6 @@
                 const textWA = `*PERMOHONAN SURAT PENGANTAR RT 004*%0A%0A*Nama:* ${namaWA}%0A*Keperluan:* ${keperluanWA}%0A%0A_Catatan: File PDF surat telah diunduh dan diarsipkan otomatis ke sistem. (Bapak/Ibu Warga, silakan lampirkan file PDF ke dalam pesan ini)._`;
                 
                 setTimeout(() => {
-                    // Membuka Aplikasi WhatsApp
                     window.open(`https://wa.me/${nomorWAPengurus}?text=${textWA}`, '_blank');
                     e.target.reset(); window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
                 }, 2500); 
@@ -1662,22 +1664,19 @@
         });
 
         // --- GEMINI AI CHAT (Sistem Pemuda Pintar) ---
-        const apiKey = ""; // Kunci API ini dirahasiakan oleh Server Vercel/Internal
+        const apiKey = ""; 
         const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. Tugasmu membantu warga dengan ramah, santun, dan komunikatif. Gunakan sapaan "Bapak/Ibu" atau "Warga". Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
 
         async function getGeminiResponse(userText) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             try {
-                // Meminta jawaban kepada Server AI Gemini
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) });
                 const result = await response.json();
                 let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, sistem sedang sibuk.";
-                // Membersihkan jawaban AI dari kode markdown yang aneh
                 return text.replace(/\*/g, '').replace(/#/g, '').replace(/\n/g, '<br>');
             } catch (e) { return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏"; }
         }
 
-        // Aksi saat warga mengirim pesan di Chat
         document.getElementById('chat-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('chat-input');
@@ -1687,19 +1686,16 @@
             
             const chatMessages = document.getElementById('chat-messages');
             
-            // Render Balasan Warga (Biru di Kanan)
             chatMessages.innerHTML += `<div class="flex justify-end gap-2 pop-in"><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none text-[13px] max-w-[85%] shadow-md">${text}</div></div>`;
             
-            // Memunculkan efek AI Sedang Mengetik... (Tiga titik melompat)
             const typingId = 'typing-' + Date.now();
             chatMessages.innerHTML += `<div id="${typingId}" class="flex gap-2"><div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs typing-indicator flex items-center h-[34px] shadow-sm"><span></span><span></span><span></span></div></div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // Meminta dan Render Jawaban AI (Abu-abu di Kiri)
             const response = await getGeminiResponse(text);
             document.getElementById(typingId).remove();
             chatMessages.innerHTML += `<div class="flex gap-2 pop-in"><div class="w-8 h-8 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1 border border-blue-100 shadow-inner"><i class="fa-solid fa-user-tie text-blue-500 text-xs"></i></div><div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl rounded-tl-none text-[13px] text-slate-700 leading-relaxed max-w-[85%] shadow-sm">${response}</div></div>`;
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Geser layar ke paling bawah otomatis
+            chatMessages.scrollTop = chatMessages.scrollHeight; 
         });
     </script>
 </body>
