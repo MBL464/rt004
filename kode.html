@@ -105,12 +105,31 @@
         input, select, textarea {
             font-size: 16px !important; 
         }
+
+        #loader-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
     </style>
 </head>
 <body>
 
     <div id="app-container">
         
+        <!-- App Loader -->
+        <div id="loader-overlay">
+            <i class="fa-solid fa-circle-notch fa-spin text-4xl text-primary"></i>
+            <p class="text-slate-600 font-medium text-sm">Menghubungkan ke Server...</p>
+        </div>
+
         <!-- Toast Container -->
         <div id="toast-container"></div>
 
@@ -227,6 +246,12 @@
                         </div>
                         <span class="text-[10px] font-semibold text-slate-600 text-center">Galeri<br>Foto</span>
                     </button>
+                    <button onclick="switchView('view-layanan-publik')" class="flex flex-col items-center gap-2 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover-scale cursor-pointer">
+                        <div class="w-10 h-10 bg-teal-50 rounded-full flex items-center justify-center text-teal-600">
+                            <i class="fa-solid fa-magnifying-glass-dollar text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-600 text-center">Cek<br>Layanan</span>
+                    </button>
                 </div>
 
                 <div class="flex justify-between items-center mb-4">
@@ -235,6 +260,45 @@
                 </div>
                 
                 <div class="space-y-3" id="dashboard-info-list"></div>
+            </div>
+
+            <!-- VIEW: CEK LAYANAN PUBLIK -->
+            <div id="view-layanan-publik" class="view-section px-5 pt-6 pb-10">
+                <button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+                
+                <div class="mb-6 animate-item">
+                    <h2 class="text-xl font-bold text-slate-800">Cek Layanan Publik</h2>
+                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Pilih layanan yang ingin Anda cek. Kami akan memandu Anda menuju website resmi pemerintah.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 animate-item delay-100">
+                    <button onclick="openLayananModal('pbb')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center gap-3 hover-scale">
+                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-house"></i></div>
+                        <span class="font-bold text-sm text-slate-800">Cek PBB</span>
+                    </button>
+                    <button onclick="openLayananModal('kendaraan')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center gap-3 hover-scale">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-car"></i></div>
+                        <span class="font-bold text-sm text-slate-800">Cek Kendaraan</span>
+                    </button>
+                    <button onclick="openLayananModal('listrik')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center gap-3 hover-scale">
+                        <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-bolt"></i></div>
+                        <span class="font-bold text-sm text-slate-800">Cek Listrik</span>
+                    </button>
+                    <button onclick="openLayananModal('air')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center gap-3 hover-scale">
+                        <div class="w-14 h-14 bg-cyan-50 text-cyan-500 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-faucet-drip"></i></div>
+                        <span class="font-bold text-sm text-slate-800">Cek Air PDAM</span>
+                    </button>
+                    <button onclick="openLayananModal('bpjs')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center gap-3 hover-scale">
+                        <div class="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-heart-pulse"></i></div>
+                        <span class="font-bold text-sm text-slate-800">Cek BPJS</span>
+                    </button>
+                    <button onclick="openLayananModal('bansos')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center gap-3 hover-scale">
+                        <div class="w-14 h-14 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        <span class="font-bold text-sm text-slate-800">Cek Bansos</span>
+                    </button>
+                </div>
             </div>
 
             <!-- VIEW: SURAT PENGANTAR (PDF GENERATOR) -->
@@ -308,7 +372,7 @@
                     </div>
 
                     <button type="submit" id="btn-generate-pdf" class="w-full bg-primary hover:bg-emerald-700 text-white font-bold rounded-xl py-3.5 flex justify-center items-center gap-2 transition-colors text-sm shadow-md mt-4 hover-scale">
-                        <i class="fa-solid fa-file-pdf"></i> Download & Arsipkan PDF
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Download, Arsip & Kirim WA
                     </button>
                 </form>
             </div>
@@ -373,17 +437,47 @@
             <div id="view-pengurus" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-1">Pengurus RT 004</h2><p class="text-slate-500 text-xs mb-6">Masa Bakti 2024 - 2027</p><div class="grid grid-cols-2 gap-3" id="pengurus-list"></div></div>
             <div id="view-galeri" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-1">Galeri Foto</h2><p class="text-slate-500 text-xs mb-6">Dokumentasi kegiatan warga.</p><div class="grid grid-cols-2 gap-3" id="galeri-list"></div></div>
 
+            <!-- VIEW: PROFIL & ADMIN ACCESS -->
+            <div id="view-profil" class="view-section pt-0 relative z-30">
+                <div class="h-24 bg-slate-800 w-full relative"></div>
+                <div class="px-5 pb-16">
+                    <div class="w-20 h-20 bg-white rounded-full p-1 shadow-sm -mt-10 relative z-10 mb-3 animate-item">
+                        <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200"><i class="fa-solid fa-user text-3xl"></i></div>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 animate-item delay-100">Warga RT 004</h2>
+                    <p class="text-slate-500 text-xs font-medium mt-0.5 animate-item delay-100">Aplikasi Warga Digital</p>
+
+                    <div class="mt-6 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm animate-item delay-200">
+                        <h3 class="font-bold text-slate-800 text-[11px] uppercase tracking-wide mb-3 border-b border-slate-50 pb-2">Informasi Wilayah</h3>
+                        <ul class="text-xs text-slate-600 space-y-3">
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-map-location-dot text-slate-400 w-4 text-center"></i> RT 004 / RW 025</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-building text-slate-400 w-4 text-center"></i> Kel. Teluk Pucung</li>
+                            <li class="flex items-center gap-3"><i class="fa-solid fa-city text-slate-400 w-4 text-center"></i> Kec. Bekasi Utara</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 animate-item delay-300 relative">
+                        <h3 class="font-bold text-slate-800 text-[11px] uppercase tracking-wide mb-2">Akses Pengurus</h3>
+                        <p class="text-xs text-slate-500 mb-4">Masuk sebagai admin untuk mengelola data dan surat.</p>
+                        <button type="button" onclick="showPinModal()" class="w-full bg-white border border-slate-200 text-slate-800 font-bold text-sm py-2.5 rounded-xl hover:bg-slate-100 hover-scale transition flex justify-center items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-lock text-xs"></i> Buka Panel Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- VIEW: FULL ADMIN PANEL (CRUD) -->
             <div id="view-admin" class="view-section px-5 pt-5 pb-20">
                 <!-- Header Admin -->
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-slate-800">Panel Admin</h2>
-                    <button onclick="lockAdmin()" class="bg-red-50 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 hover-scale"><i class="fa-solid fa-lock"></i> Kunci</button>
+                    <button onclick="switchView('view-profil', document.getElementById('nav-profil'))" class="text-slate-500 flex items-center gap-2 text-xs font-medium"><i class="fa-solid fa-arrow-left"></i> Tutup Admin</button>
+                    <span class="bg-red-100 text-red-600 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">Admin Mode</span>
                 </div>
-
+                <h2 class="text-xl font-bold text-slate-800 mb-5">Panel Pengelola</h2>
+                
                 <!-- Admin Menu Utama -->
                 <div id="admin-home">
-                    <p class="text-slate-500 text-xs mb-5">Pilih kategori data yang ingin Anda kelola.</p>
+                    <p class="text-slate-500 text-xs mb-5">Pilih kategori data yang ingin Anda kelola di Database Cloud.</p>
                     <div class="grid grid-cols-2 gap-3">
                         <button onclick="openAdminCategory('stats')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center gap-2 hover-scale text-center">
                             <i class="fa-solid fa-chart-pie text-2xl text-blue-500"></i><span class="text-xs font-bold text-slate-700">Statistik</span>
@@ -403,6 +497,9 @@
                         <button onclick="openAdminCategory('galeri')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center gap-2 hover-scale text-center">
                             <i class="fa-solid fa-images text-2xl text-rose-500"></i><span class="text-xs font-bold text-slate-700">Galeri Foto</span>
                         </button>
+                        <button onclick="openAdminCategory('settings')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center gap-2 hover-scale text-center col-span-2">
+                            <i class="fa-solid fa-key text-2xl text-slate-500"></i><span class="text-xs font-bold text-slate-700">Ubah PIN Admin</span>
+                        </button>
                     </div>
                 </div>
 
@@ -412,7 +509,7 @@
                         <button onclick="closeAdminCategory()" class="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover-scale"><i class="fa-solid fa-arrow-left"></i></button>
                         <h2 id="admin-cat-title" class="text-lg font-bold text-slate-800">Kategori</h2>
                     </div>
-                    <button onclick="openAdminForm(null)" class="w-full bg-slate-800 text-white font-bold rounded-xl py-3 text-sm mb-4 hover-scale">+ Tambah Baru</button>
+                    <button onclick="openAdminForm(null)" class="w-full bg-slate-800 text-white font-bold rounded-xl py-3 text-sm mb-4 hover-scale">+ Tambah Data Baru</button>
                     <div id="admin-item-container" class="space-y-3">
                         <!-- List Item Rendered via JS -->
                     </div>
@@ -425,7 +522,7 @@
                         <h2 id="admin-form-title" class="text-lg font-bold text-slate-800">Form</h2>
                     </div>
 
-                    <!-- Form Statistik (Khusus tanpa Add/Delete) -->
+                    <!-- Form Statistik -->
                     <form id="form-stats" class="admin-form-el space-y-3 hidden" onsubmit="saveAdminData(event)">
                         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                             <div class="grid grid-cols-3 gap-2 mb-3">
@@ -437,7 +534,7 @@
                                 <div><label class="text-[9px] font-bold text-slate-400 uppercase">Laki-laki</label><input type="number" id="input-stat-laki" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs"></div>
                                 <div><label class="text-[9px] font-bold text-slate-400 uppercase">Perempuan</label><input type="number" id="input-stat-perempuan" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-xs"></div>
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan Perubahan</button>
+                            <button type="submit" class="w-full bg-blue-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan ke Cloud</button>
                         </div>
                     </form>
 
@@ -448,10 +545,10 @@
                             <textarea id="admin-info-desc" required placeholder="Isi artikel/berita selengkapnya..." rows="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none"></textarea>
                             <label class="file-upload-label hover-scale mb-3">
                                 <i class="fa-solid fa-image text-slate-400 text-xl mb-1"></i>
-                                <span class="text-[10px] text-slate-500" id="info-file-name">Pilih Foto Opsional (Kosongkan bila sama)</span>
+                                <span class="text-[10px] text-slate-500" id="info-file-name">Pilih Foto (Kosongkan bila tidak diubah)</span>
                                 <input type="file" id="admin-info-file" accept="image/*" class="hidden" onchange="document.getElementById('info-file-name').innerText = this.files[0].name">
                             </label>
-                            <button type="submit" class="w-full bg-emerald-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan Data</button>
+                            <button type="submit" class="w-full bg-emerald-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan ke Cloud</button>
                         </div>
                     </form>
 
@@ -468,7 +565,7 @@
                                 <option value="fa-truck-fast text-orange-500">Ikon Pindah/Truk (Oranye)</option>
                             </select>
                             <textarea id="admin-layanan-reqs" required placeholder="Syarat-syarat (Pisahkan dengan Enter per baris)" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none text-sm leading-relaxed"></textarea>
-                            <button type="submit" class="w-full bg-cyan-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan Data</button>
+                            <button type="submit" class="w-full bg-cyan-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan ke Cloud</button>
                         </div>
                     </form>
 
@@ -481,7 +578,7 @@
                                 <input type="text" id="admin-agenda-time" required placeholder="Jam (08:00 WIB)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none">
                             </div>
                             <input type="text" id="admin-agenda-loc" required placeholder="Lokasi Kegiatan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none">
-                            <button type="submit" class="w-full bg-purple-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan Data</button>
+                            <button type="submit" class="w-full bg-purple-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan ke Cloud</button>
                         </div>
                     </form>
 
@@ -491,14 +588,14 @@
                             <input type="text" id="admin-pengurus-name" required placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none">
                             <div class="grid grid-cols-2 gap-2 mb-3">
                                 <input type="text" id="admin-pengurus-role" required placeholder="Jabatan" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none">
-                                <input type="number" id="admin-pengurus-phone" required placeholder="No. WA Aktif" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none">
+                                <input type="number" id="admin-pengurus-phone" required placeholder="No. WA Aktif (Cth: 62812...)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 outline-none">
                             </div>
                             <label class="file-upload-label hover-scale mb-3">
                                 <i class="fa-solid fa-user-tie text-slate-400 text-xl mb-1"></i>
                                 <span class="text-[10px] text-slate-500" id="pengurus-file-name">Upload Foto (Kosongkan bila sama)</span>
                                 <input type="file" id="admin-pengurus-file" accept="image/*" class="hidden" onchange="document.getElementById('pengurus-file-name').innerText = this.files[0].name">
                             </label>
-                            <button type="submit" class="w-full bg-indigo-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan Data</button>
+                            <button type="submit" class="w-full bg-indigo-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan ke Cloud</button>
                         </div>
                     </form>
 
@@ -512,7 +609,16 @@
                                 <span class="text-[10px] text-slate-500" id="galeri-file-name">Pilih Foto Utama</span>
                                 <input type="file" id="admin-galeri-file" accept="image/*" class="hidden" onchange="document.getElementById('galeri-file-name').innerText = this.files[0].name">
                             </label>
-                            <button type="submit" class="w-full bg-rose-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan Data</button>
+                            <button type="submit" class="w-full bg-rose-600 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan ke Cloud</button>
+                        </div>
+                    </form>
+
+                    <!-- Form Pengaturan PIN -->
+                    <form id="form-settings" class="admin-form-el space-y-3 hidden" onsubmit="saveAdminData(event)">
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                            <input type="password" id="input-pin-lama" required placeholder="PIN Lama Saat Ini" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none" maxlength="4" inputmode="numeric">
+                            <input type="password" id="input-pin-baru" required placeholder="PIN Baru (4 Angka)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none" maxlength="4" inputmode="numeric">
+                            <button type="submit" class="w-full bg-slate-800 text-white font-bold rounded-xl py-2.5 text-sm hover-scale">Simpan PIN ke Cloud</button>
                         </div>
                     </form>
                 </div>
@@ -546,6 +652,34 @@
             </div>
         </div>
 
+        <!-- Layanan Publik Modal -->
+        <div id="modal-layanan" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[120] items-end sm:items-center justify-center p-0 sm:p-5 opacity-0 transition-opacity duration-300">
+            <div class="bg-white rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md transition-transform duration-300 translate-y-full sm:translate-y-0" id="modal-layanan-content">
+                <div class="w-12 h-1 h-1.5 bg-slate-200 rounded-full mx-auto mb-5 sm:hidden"></div> <!-- Handle bar untuk mobile -->
+                <div class="flex justify-between items-center mb-2">
+                    <h3 id="layanan-title" class="text-xl font-bold text-slate-800">Cek Layanan</h3>
+                    <button onclick="closeLayananModal()" class="w-8 h-8 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <p id="layanan-desc" class="text-sm text-slate-600 mb-5 leading-relaxed">Penjelasan layanan.</p>
+                
+                <div class="mb-5">
+                    <label id="layanan-input-label" class="block text-xs font-bold text-slate-500 uppercase mb-2">Nomor / Data</label>
+                    <input type="text" id="layanan-input" class="w-full bg-slate-50 border border-slate-300 focus:border-blue-500 focus:bg-white rounded-xl px-4 py-3.5 text-base outline-none transition-all font-medium text-slate-800 shadow-inner">
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
+                    <h4 class="text-xs font-bold text-blue-800 uppercase tracking-wide mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-info"></i> Panduan Setelah Dialihkan:</h4>
+                    <ul id="layanan-guide" class="text-sm text-blue-700 list-disc list-outside ml-4 space-y-1.5 leading-relaxed font-medium">
+                        <!-- Panduan JS -->
+                    </ul>
+                </div>
+
+                <button id="btn-cek-layanan" onclick="prosesCekLayanan()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl py-3.5 shadow-md shadow-blue-500/30 transition-all active:scale-95">
+                    CEK SEKARANG
+                </button>
+            </div>
+        </div>
+
         <!-- PIN Modal -->
         <div id="pin-modal" style="display: none;" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] items-center justify-center p-5 opacity-0 transition-opacity duration-300">
             <div class="bg-white rounded-3xl p-6 w-full max-w-sm transition-transform duration-300" id="pin-modal-content">
@@ -565,7 +699,7 @@
             <div class="bg-white rounded-3xl p-6 w-full max-w-xs text-center transition-transform duration-300" id="confirm-modal-content">
                 <div class="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
                 <h3 class="text-base font-bold text-slate-800 mb-1">Hapus Data?</h3>
-                <p class="text-xs text-slate-500 mb-6">Data yang dihapus tidak bisa dikembalikan lagi.</p>
+                <p class="text-xs text-slate-500 mb-6">Data yang dihapus dari Cloud tidak bisa dikembalikan.</p>
                 <div class="flex gap-2">
                     <button onclick="closeConfirmModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold text-sm rounded-xl py-2.5 hover-scale">Batal</button>
                     <button id="btn-confirm-delete" class="flex-1 bg-red-500 text-white font-bold text-sm rounded-xl py-2.5 shadow-md shadow-red-500/20 hover-scale">Ya, Hapus</button>
@@ -582,25 +716,201 @@
 
     </div>
 
-    <script>
-        // --- MASTER DATA STATE ---
-        let statistics = { total: 452, rumah: 128, kk: 145, laki: 230, perempuan: 222 };
-        let informasiData = [{ id: 101, title: "Kerja Bakti Minggu Bersih", date: "Hari ini, 08:00 WIB", desc: "Diberitahukan kepada seluruh warga RT 004, besok pagi kita akan melaksanakan kegiatan kerja bakti rutin bulan ini.\n\nFokus pengerjaan kita adalah membersihkan area fasilitas umum taman dan pengerukan gorong-gorong utama untuk mencegah genangan air saat musim hujan.\n\nMohon kehadiran perwakilan 1 orang pria dewasa dari setiap rumah dengan membawa alat kebersihan masing-masing.", icon: "fa-bullhorn", color: "bg-emerald-500", img: "" }];
-        let agendaData = [{ id: 201, date: "10 Mei", month: "Mei", title: "Rapat Rutin Pengurus", time: "19:30 WIB", loc: "Fasum RT 004" }];
-        let pengurusData = [{ id: 301, role: "Ketua RT", name: "Bpk. Budi Santoso", phone: "081234567890", img: "" }];
-        let galeriData = [{ id: 401, title: "Kerja Bakti", date: "12 Ags 2025", img: "https://images.unsplash.com/photo-1593113565241-76856eb2c64b?auto=format&fit=crop&w=400&q=80" }];
-        let layananData = [
-            { id: 501, title: "Pembuatan KTP Baru", icon: "fa-id-card text-blue-500", reqs: ["Telah berusia 17 tahun.", "Surat Pengantar RT/RW.", "Fotokopi Kartu Keluarga (KK).", "Datang ke Kelurahan."] },
-            { id: 502, title: "Pembuatan SKCK", icon: "fa-fingerprint text-emerald-500", reqs: ["Surat Pengantar RT/RW.", "Fotokopi KTP dan KK.", "Pas foto 4x6 latar merah (4 lembar)."] }
-        ];
+    <!-- FIREBASE CLOUD FIRESTORE & AUTH MODULES -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let isAdminUnlocked = false;
-        let pendingNavElement = null;
-        let currentAdminCat = '';
-        let currentEditId = null;
-        let pendingDeleteId = null;
+        // Firebase Setup
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        function showToast(message) {
+        let currentUser = null;
+
+        // State Variabel Front-End
+        let statistics = { total: 0, rumah: 0, kk: 0, laki: 0, perempuan: 0 };
+        let informasiData = [];
+        let agendaData = [];
+        let pengurusData = [];
+        let galeriData = [];
+        let layananData = [];
+
+        // Inisialisasi Auth Firebase
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Auth Error:", e);
+                document.getElementById('loader-overlay').style.display = 'none';
+                showToast("Gagal terhubung ke database.");
+            }
+        };
+
+        // Memantau status login
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                setupFirestoreListeners();
+                checkAndSeedData(); // Cek jika DB kosong, beri data sampel
+            }
+        });
+
+        // Setup Listener Database Real-Time (Cloud Firestore)
+        function setupFirestoreListeners() {
+            if (!currentUser) return;
+            const loader = document.getElementById('loader-overlay');
+
+            // 1. Listen Statistik
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), (snapshot) => {
+                if (snapshot.exists()) {
+                    statistics = snapshot.data();
+                    updateStatsUI();
+                }
+                loader.style.display = 'none'; // Sembunyikan loading
+            }, (err) => console.error(err));
+
+            // 2. Listen Kabar (Info)
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'info'), (snapshot) => {
+                informasiData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                renderInfo();
+                if(window.currentAdminCat === 'info') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            // 3. Listen Agenda
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'agenda'), (snapshot) => {
+                agendaData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                renderAgenda();
+                if(window.currentAdminCat === 'agenda') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            // 4. Listen Layanan
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'), (snapshot) => {
+                layananData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                filterLayanan(document.getElementById('search-layanan')?.value || '');
+                if(window.currentAdminCat === 'layanan') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            // 5. Listen Pengurus
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'pengurus'), (snapshot) => {
+                pengurusData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                renderPengurus();
+                if(window.currentAdminCat === 'pengurus') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            // 6. Listen Galeri
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'galeri'), (snapshot) => {
+                galeriData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                renderGaleri();
+                if(window.currentAdminCat === 'galeri') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            // 7. Listen Settings (PIN)
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), (snapshot) => {
+                if (snapshot.exists() && snapshot.data().adminPin) {
+                    window.adminPin = snapshot.data().adminPin;
+                }
+            }, (err) => console.error(err));
+        }
+
+        // Seeding Data Dummy saat Database masih kosong (Pertama kali dijalankan)
+        async function checkAndSeedData() {
+            if (!currentUser) return;
+            try {
+                const statDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'));
+                if (!statDoc.exists()) {
+                    // Seed Data Stats
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), { total: 452, rumah: 128, kk: 145, laki: 230, perempuan: 222 });
+                    
+                    // Seed PIN Admin Default
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), { adminPin: "2504" });
+                    
+                    // Seed Info
+                    await setDoc(doc(collection(db, 'artifacts', appId, 'public', 'data', 'info')), { title: "Kerja Bakti Minggu Bersih", date: "Hari ini, 08:00 WIB", desc: "Diberitahukan kepada seluruh warga RT 004, besok pagi kita akan melaksanakan kegiatan kerja bakti rutin bulan ini.", icon: "fa-bullhorn", color: "bg-emerald-500", img: "", timestamp: Date.now() });
+                    
+                    // Seed Layanan Dasar
+                    const s1Ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'));
+                    await setDoc(s1Ref, { title: "Pembuatan KTP Baru", icon: "fa-id-card text-blue-500", reqs: ["Telah berusia 17 tahun.", "Surat Pengantar RT/RW.", "Fotokopi Kartu Keluarga (KK).", "Datang ke Kelurahan."], timestamp: Date.now() });
+                    
+                    const s2Ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'));
+                    await setDoc(s2Ref, { title: "Pembuatan SKCK", icon: "fa-fingerprint text-emerald-500", reqs: ["Surat Pengantar RT/RW.", "Fotokopi KTP dan KK.", "Pas foto 4x6 latar merah."], timestamp: Date.now() - 1000 });
+                }
+            } catch(e) { console.error("Gagal Seed Data:", e); }
+        }
+
+        initAuth(); // Jalankan login ke Firebase
+
+        // --- GLOBAL VARIABLES FOR UI & ADMIN CRUD ---
+        window.isAdminUnlocked = false;
+        window.pendingNavElement = null;
+        window.currentAdminCat = '';
+        window.currentEditId = null;
+        window.pendingDeleteId = null;
+        window.adminPin = "2504"; // Default PIN fallback
+        
+        // --- DATA LAYANAN PUBLIK ---
+        const cekLayananData = {
+            'pbb': {
+                title: 'Cek PBB',
+                desc: 'Masukkan Nomor Objek Pajak (NOP) Anda. Sistem akan otomatis menyalin NOP dan mengarahkan Anda ke portal Bapenda.',
+                label: 'Nomor Objek Pajak (NOP)',
+                placeholder: 'Contoh: 32.75.xxx.xxx',
+                url: 'https://bapenda.bekasikota.go.id/',
+                guide: ['Tekan lama di kolom NOP lalu pilih <b>Tempel / Paste</b>', 'Klik tombol <b>Cari</b> atau <b>Cek Tagihan</b>']
+            },
+            'kendaraan': {
+                title: 'Pajak Kendaraan',
+                desc: 'Cek pajak kendaraan bermotor (Motor/Mobil) Anda melalui portal Bapenda Jawa Barat (Sambara).',
+                label: 'Plat Nomor Kendaraan',
+                placeholder: 'Contoh: B 1234 XYZ',
+                url: 'https://bapenda.jabarprov.go.id/infopkb/',
+                guide: ['Tekan lama di kolom Plat lalu pilih <b>Tempel / Paste</b>', 'Pilih warna plat kendaraan', 'Klik tombol <b>Cari</b>']
+            },
+            'listrik': {
+                title: 'Cek Tagihan Listrik',
+                desc: 'Masukkan ID Pelanggan PLN Anda untuk mengecek tagihan listrik.',
+                label: 'ID Pelanggan PLN',
+                placeholder: 'Contoh: 51234567890',
+                url: 'https://layanan.pln.co.id/',
+                guide: ['Tekan lama di kolom ID lalu pilih <b>Tempel / Paste</b>', 'Pilih menu <b>Informasi Tagihan</b>']
+            },
+            'air': {
+                title: 'Cek Air (PDAM)',
+                desc: 'Cek tagihan air PDAM / Tirta Patriot Anda secara online.',
+                label: 'Nomor Pelanggan',
+                placeholder: 'Contoh: 0123456',
+                url: 'https://tirtapatriot.co.id/',
+                guide: ['Tekan lama di kolom Nomor lalu pilih <b>Tempel / Paste</b>', 'Klik tombol <b>Cek Tagihan</b>']
+            },
+            'bpjs': {
+                title: 'Cek BPJS Kesehatan',
+                desc: 'Mengecek status kepesertaan atau tagihan BPJS melalui portal resmi BPJS Kesehatan.',
+                label: 'NIK KTP / Nomor BPJS',
+                placeholder: 'Contoh: 3271xxxxxxxxxxxx',
+                url: 'https://bpjs-kesehatan.go.id/',
+                guide: ['Masuk ke layanan CHIKA atau portal', 'Tekan lama di kolom NIK lalu pilih <b>Tempel / Paste</b>', 'Ikuti instruksi di layar']
+            },
+            'bansos': {
+                title: 'Cek Status Bansos',
+                desc: 'Masukkan NIK KTP untuk melihat apakah Anda terdaftar sebagai penerima Bantuan Sosial dari Kemensos.',
+                label: 'NIK KTP',
+                placeholder: 'Contoh: 3271xxxxxxxxxxxx',
+                url: 'https://cekbansos.kemensos.go.id/',
+                guide: ['Pilih Provinsi, Kota, Kecamatan, & Kelurahan', 'Tekan lama di Nama/NIK lalu pilih <b>Tempel / Paste</b>', 'Ketik kode huruf (Captcha) lalu klik <b>Cari Data</b>']
+            }
+        };
+
+        let activeLayananId = null;
+
+        // --- UTILITIES ---
+        window.showToast = function(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast show';
@@ -609,69 +919,73 @@
             setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        const fileToBase64 = (file) => new Promise((resolve, reject) => {
+        // Image Compressor to Base64 (Untuk memastikan file aman di batas Firestore 1MB)
+        window.fileToBase64 = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800; // Kompres ukuran max lebar
+                    let scaleSize = 1;
+                    if(img.width > MAX_WIDTH) { scaleSize = MAX_WIDTH / img.width; }
+                    canvas.width = img.width * scaleSize;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.6)); // Kualitas 60%
+                };
+                img.src = event.target.result;
+            };
             reader.onerror = error => reject(error);
         });
 
-        function reRenderAppViews() {
-            updateStatsUI();
-            renderInfo();
-            renderAgenda();
-            renderPengurus();
-            renderGaleri();
-            filterLayanan(document.getElementById('search-layanan').value || '');
+        // --- UI RENDERERS (Bisa diakses dari luar) ---
+        window.updateStatsUI = function() {
+            document.getElementById('stat-total-warga').innerText = statistics.total || 0;
+            document.getElementById('stat-total-rumah').innerText = statistics.rumah || 0;
+            document.getElementById('stat-total-kk').innerText = statistics.kk || 0;
+            document.getElementById('stat-laki').innerText = statistics.laki || 0;
+            document.getElementById('stat-perempuan').innerText = statistics.perempuan || 0;
         }
 
-        function updateStatsUI() {
-            document.getElementById('stat-total-warga').innerText = statistics.total;
-            document.getElementById('stat-total-rumah').innerText = statistics.rumah;
-            document.getElementById('stat-total-kk').innerText = statistics.kk;
-            document.getElementById('stat-laki').innerText = statistics.laki;
-            document.getElementById('stat-perempuan').innerText = statistics.perempuan;
-        }
-
-        function renderInfo() {
+        window.renderInfo = function() {
             const html = informasiData.map(item => `
-                <div onclick="openKabarDetail(${item.id})" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-3 cursor-pointer hover-scale animate-item">
-                    ${item.img ? `<img src="${item.img}" class="w-10 h-10 rounded-xl object-cover">` : `<div class="w-10 h-10 rounded-xl flex items-center justify-center text-white ${item.color}"><i class="fa-solid ${item.icon} text-sm"></i></div>`}
+                <div onclick="openKabarDetail('${item.id}')" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-3 cursor-pointer hover-scale animate-item">
+                    ${item.img ? `<img src="${item.img}" class="w-10 h-10 rounded-xl object-cover">` : `<div class="w-10 h-10 rounded-xl flex items-center justify-center text-white ${item.color || 'bg-emerald-500'}"><i class="fa-solid ${item.icon || 'fa-bullhorn'} text-sm"></i></div>`}
                     <div class="flex-1"><h3 class="font-bold text-slate-800 text-xs mb-0.5">${item.title}</h3><p class="text-[10px] text-slate-600 line-clamp-2">${item.desc}</p></div>
                 </div>
             `).join('');
             document.getElementById('dashboard-info-list').innerHTML = html || '<p class="text-xs text-slate-400">Belum ada kabar.</p>';
             document.getElementById('full-info-list').innerHTML = html || '<p class="text-xs text-slate-400">Belum ada kabar.</p>';
         }
-        
-        function openKabarDetail(id) {
+
+        window.openKabarDetail = function(id) {
             const item = informasiData.find(x => x.id === id);
             if (!item) return;
-
             let mediaHtml = item.img 
                 ? `<img src="${item.img}" class="w-full h-48 object-cover rounded-2xl mb-5 shadow-sm">`
-                : `<div class="w-full h-32 rounded-2xl flex items-center justify-center text-white ${item.color} mb-5 shadow-sm"><i class="fa-solid ${item.icon} text-5xl"></i></div>`;
-
+                : `<div class="w-full h-32 rounded-2xl flex items-center justify-center text-white ${item.color || 'bg-emerald-500'} mb-5 shadow-sm"><i class="fa-solid ${item.icon || 'fa-bullhorn'} text-5xl"></i></div>`;
             document.getElementById('kabar-detail-content').innerHTML = `
                 ${mediaHtml}
-                <p class="text-[10px] text-slate-400 mb-1 flex items-center gap-1.5"><i class="fa-regular fa-clock"></i> Dipublikasikan: ${item.date}</p>
+                <p class="text-[10px] text-slate-400 mb-1 flex items-center gap-1.5"><i class="fa-regular fa-clock"></i> Dipublikasikan: ${item.date || 'Baru Saja'}</p>
                 <h2 class="text-2xl font-bold text-slate-800 mb-4 leading-tight">${item.title}</h2>
                 <div class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">${item.desc}</div>
             `;
-            
-            switchView('view-kabar-detail');
+            window.switchView('view-kabar-detail');
         }
 
-        function renderAgenda() { 
+        window.renderAgenda = function() { 
             document.getElementById('agenda-list').innerHTML = agendaData.map(item => `
                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                    <div class="bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-100"><span class="text-sm font-bold text-primary">${item.date.split(' ')[0]}</span></div>
+                    <div class="bg-slate-50 w-12 h-12 rounded-xl flex items-center justify-center border border-slate-100"><span class="text-sm font-bold text-primary">${(item.date || '').split(' ')[0]}</span></div>
                     <div class="flex-1"><h3 class="font-bold text-slate-800 text-xs mb-1">${item.title}</h3><div class="text-[9px] text-slate-500"><i class="fa-regular fa-clock"></i> ${item.time} | <i class="fa-solid fa-location-dot"></i> ${item.loc}</div></div>
                 </div>
             `).join('') || '<p class="text-xs text-slate-400">Tidak ada agenda terdekat.</p>'; 
         }
 
-        function renderPengurus() { 
+        window.renderPengurus = function() { 
             document.getElementById('pengurus-list').innerHTML = pengurusData.map(item => `
                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 text-center">
                     ${item.img ? `<img src="${item.img}" class="w-12 h-12 rounded-full mx-auto object-cover mb-2 border border-slate-200">` : `<div class="w-12 h-12 rounded-full mx-auto bg-slate-50 flex items-center justify-center text-slate-300 mb-2 border border-slate-200"><i class="fa-solid fa-user text-xl"></i></div>`}
@@ -679,33 +993,33 @@
                     <h3 class="font-bold text-slate-800 text-[11px] mb-2">${item.name}</h3>
                     <a href="https://wa.me/${item.phone}" target="_blank" class="block w-full py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-100 hover:bg-slate-100 transition">Hubungi</a>
                 </div>
-            `).join(''); 
+            `).join('') || '<p class="text-xs text-slate-400 col-span-2 text-center">Data belum ditambahkan.</p>'; 
         }
 
-        function renderGaleri() { 
+        window.renderGaleri = function() { 
             document.getElementById('galeri-list').innerHTML = galeriData.map(item => `
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <img src="${item.img}" class="h-28 w-full object-cover">
                     <div class="p-2.5"><h3 class="font-bold text-slate-800 text-[10px] truncate">${item.title}</h3><p class="text-[8px] text-slate-400">${item.date}</p></div>
                 </div>
-            `).join('') || '<p class="text-xs text-slate-400">Belum ada foto.</p>'; 
+            `).join('') || '<p class="text-xs text-slate-400 col-span-2 text-center">Belum ada foto.</p>'; 
         }
 
-        function filterLayanan(query) {
+        window.filterLayanan = function(query) {
             const filtered = layananData.filter(l => l.title.toLowerCase().includes(query.toLowerCase()));
             document.getElementById('layanan-list').innerHTML = filtered.map(item => `
                 <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
                     <h3 class="font-bold text-sm text-slate-800"><i class="fa-solid ${item.icon}"></i> ${item.title}</h3>
-                    <ul class="text-xs text-slate-600 list-disc ml-6 mt-2">${item.reqs.map(r => `<li>${r}</li>`).join('')}</ul>
+                    <ul class="text-xs text-slate-600 list-disc ml-6 mt-2">${(item.reqs || []).map(r => `<li>${r}</li>`).join('')}</ul>
                 </div>
             `).join('') || '<p class="text-xs text-slate-400 text-center mt-5">Layanan tidak ditemukan.</p>';
         }
 
-        function switchView(viewId, navElement = null) {
+        // --- NAVIGATION LOGIC ---
+        window.switchView = function(viewId, navElement = null) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             
-            // Sembunyikan bottom nav saat membuka AI chat atau Detail Kabar (Artikel)
             document.getElementById('bottom-nav').style.display = (viewId === 'view-ai' || viewId === 'view-kabar-detail') ? 'none' : 'flex';
             
             if (navElement) {
@@ -714,71 +1028,128 @@
             }
         }
 
-        // WhatsApp Pengaduan Logic
+        // --- CEK LAYANAN PUBLIK LOGIC ---
+        window.openLayananModal = function(id) {
+            activeLayananId = id;
+            const data = cekLayananData[id];
+            
+            document.getElementById('layanan-title').innerText = data.title;
+            document.getElementById('layanan-desc').innerText = data.desc;
+            document.getElementById('layanan-input-label').innerText = data.label;
+            
+            const input = document.getElementById('layanan-input');
+            input.placeholder = data.placeholder;
+            input.value = ''; // Reset
+            
+            const guideUl = document.getElementById('layanan-guide');
+            guideUl.innerHTML = data.guide.map(g => `<li>${g}</li>`).join('');
+            
+            const btn = document.getElementById('btn-cek-layanan');
+            btn.innerHTML = 'CEK SEKARANG';
+            btn.disabled = false;
+
+            const modal = document.getElementById('modal-layanan');
+            const content = document.getElementById('modal-layanan-content');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                content.classList.remove('translate-y-full', 'scale-95');
+            }, 10);
+        }
+
+        window.closeLayananModal = function() {
+            const modal = document.getElementById('modal-layanan');
+            const content = document.getElementById('modal-layanan-content');
+            modal.style.opacity = '0';
+            content.classList.add('translate-y-full', 'scale-95');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        window.prosesCekLayanan = function() {
+            const input = document.getElementById('layanan-input');
+            const val = input.value.trim();
+            if (!val) {
+                window.showToast("Data tidak boleh kosong!");
+                input.focus();
+                return;
+            }
+
+            // Menyalin data ke clipboard
+            input.select();
+            document.execCommand('copy');
+            
+            const btn = document.getElementById('btn-cek-layanan');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengarahkan ke web resmi...';
+            btn.disabled = true;
+
+            window.showToast("Data berhasil disalin! Bersiap dialihkan...");
+
+            // Jeda 2 detik agar warga bisa membaca panduan / notifikasi
+            setTimeout(() => {
+                window.open(cekLayananData[activeLayananId].url, '_blank');
+                window.closeLayananModal();
+            }, 2000);
+        }
+
+        // --- WHATSAPP PENGADUAN ---
         document.getElementById('form-pengaduan').addEventListener('submit', (e) => {
             e.preventDefault();
             const kategori = e.target.querySelector('select').value;
             const detail = e.target.querySelectorAll('textarea')[0].value;
-            
-            // Format URL WhatsApp untuk Pengurus
-            const nomorWAPengurus = "6281234567890"; // <- GANTI DENGAN NOMOR PENGURUS ASLI
+            const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR DI SINI
             const textWA = `*LAPORAN WARGA RT 004*%0A%0A*Kategori:* ${kategori}%0A*Detail:* ${detail}%0A%0AMohon segera ditindaklanjuti, terima kasih.`;
-            
             window.open(`https://wa.me/${nomorWAPengurus}?text=${textWA}`, '_blank');
-            
-            showToast('Laporan diteruskan ke WhatsApp!');
+            window.showToast('Membuka WhatsApp Pengurus...');
             e.target.reset();
-            setTimeout(() => switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1500);
+            setTimeout(() => window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1500);
         });
 
-        // --- PIN MODAL LOGIC ---
-        const pinModal = document.getElementById('pin-modal');
-        function showPinModal() { 
+        // --- ADMIN LOGIN / AUTH ---
+        window.showPinModal = function() { 
+            const pinModal = document.getElementById('pin-modal');
             pinModal.style.display = 'flex'; 
             setTimeout(() => pinModal.style.opacity = '1', 10); 
             setTimeout(() => document.getElementById('pin-input').focus(), 300); 
         }
-        function closePinModal() { 
+        window.closePinModal = function() { 
+            const pinModal = document.getElementById('pin-modal');
             pinModal.style.opacity = '0'; 
             setTimeout(() => pinModal.style.display = 'none', 300); 
         }
-
-        function triggerAdminAuth(navElement) {
-            if (isAdminUnlocked) {
-                switchView('view-admin', navElement);
+        window.triggerAdminAuth = function(navElement) {
+            if (window.isAdminUnlocked) {
+                window.switchView('view-admin', navElement);
                 document.getElementById('admin-home').classList.remove('hidden');
                 document.getElementById('admin-list').classList.add('hidden');
                 document.getElementById('admin-form').classList.add('hidden');
             } else {
-                pendingNavElement = navElement;
-                showPinModal();
+                window.pendingNavElement = navElement;
+                window.showPinModal();
             }
         }
-
-        function verifyPin() {
-            if (document.getElementById('pin-input').value === '2504') { 
-                closePinModal(); 
-                isAdminUnlocked = true;
+        window.verifyPin = function() {
+            if (document.getElementById('pin-input').value === window.adminPin) { 
+                window.closePinModal(); 
+                window.isAdminUnlocked = true;
                 setTimeout(() => {
-                    switchView('view-admin', pendingNavElement);
+                    window.switchView('view-admin', window.pendingNavElement);
                     document.getElementById('admin-home').classList.remove('hidden');
                     document.getElementById('admin-list').classList.add('hidden');
                     document.getElementById('admin-form').classList.add('hidden');
                 }, 300); 
             } else { 
-                showToast('PIN Salah!'); document.getElementById('pin-input').value = ''; 
+                window.showToast('PIN Salah!'); document.getElementById('pin-input').value = ''; 
             }
         }
-
-        function lockAdmin() {
-            isAdminUnlocked = false;
+        window.lockAdmin = function() {
+            window.isAdminUnlocked = false;
             document.getElementById('pin-input').value = '';
-            switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
-            showToast('Panel Admin Dikunci');
+            window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
+            window.showToast('Panel Admin Dikunci');
         }
 
-        // --- ADMIN PANEL CRUD LOGIC ---
-        function getCategoryArray(cat) {
+        // --- ADMIN CLOUD CRUD ---
+        window.getCategoryArray = function(cat) {
             switch(cat) {
                 case 'info': return informasiData;
                 case 'layanan': return layananData;
@@ -789,8 +1160,8 @@
             return [];
         }
 
-        function openAdminCategory(cat) {
-            currentAdminCat = cat;
+        window.openAdminCategory = function(cat) {
+            window.currentAdminCat = cat;
             document.getElementById('admin-home').classList.add('hidden');
             
             if (cat === 'stats') {
@@ -799,26 +1170,33 @@
                 document.querySelectorAll('.admin-form-el').forEach(el => el.classList.add('hidden'));
                 document.getElementById('form-stats').classList.remove('hidden');
                 
-                document.getElementById('input-stat-warga').value = statistics.total;
-                document.getElementById('input-stat-rumah').value = statistics.rumah;
-                document.getElementById('input-stat-kk').value = statistics.kk;
-                document.getElementById('input-stat-laki').value = statistics.laki;
-                document.getElementById('input-stat-perempuan').value = statistics.perempuan;
+                document.getElementById('input-stat-warga').value = statistics.total || 0;
+                document.getElementById('input-stat-rumah').value = statistics.rumah || 0;
+                document.getElementById('input-stat-kk').value = statistics.kk || 0;
+                document.getElementById('input-stat-laki').value = statistics.laki || 0;
+                document.getElementById('input-stat-perempuan').value = statistics.perempuan || 0;
+            } else if (cat === 'settings') {
+                document.getElementById('admin-form').classList.remove('hidden');
+                document.getElementById('admin-form-title').innerText = "Ubah PIN Akses Admin";
+                document.querySelectorAll('.admin-form-el').forEach(el => el.classList.add('hidden'));
+                document.getElementById('form-settings').classList.remove('hidden');
+                document.getElementById('input-pin-lama').value = '';
+                document.getElementById('input-pin-baru').value = '';
             } else {
                 document.getElementById('admin-list').classList.remove('hidden');
                 const titles = {info: "Kabar Lingkungan", layanan: "Info Layanan", agenda: "Agenda Kegiatan", pengurus: "Pengurus RT", galeri: "Galeri Foto"};
                 document.getElementById('admin-cat-title').innerText = titles[cat];
-                renderAdminList();
+                window.renderAdminList();
             }
         }
 
-        function closeAdminCategory() {
+        window.closeAdminCategory = function() {
             document.getElementById('admin-list').classList.add('hidden');
             document.getElementById('admin-home').classList.remove('hidden');
         }
 
-        function renderAdminList() {
-            const arr = getCategoryArray(currentAdminCat);
+        window.renderAdminList = function() {
+            const arr = window.getCategoryArray(window.currentAdminCat);
             let html = '';
             arr.forEach(item => {
                 let displayTitle = item.title || item.name || `Data: ${item.date}`;
@@ -826,160 +1204,190 @@
                     <div class="bg-white p-3.5 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
                         <div class="text-sm font-bold text-slate-700 truncate pr-3 flex-1">${displayTitle}</div>
                         <div class="flex gap-2 shrink-0">
-                            <button onclick="openAdminForm(${item.id})" class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg hover-scale"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button onclick="requestDelete(${item.id})" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg hover-scale"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            <button onclick="openAdminForm('${item.id}')" class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg hover-scale"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="requestDelete('${item.id}')" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg hover-scale"><i class="fa-solid fa-trash-can text-xs"></i></button>
                         </div>
                     </div>
                 `;
             });
-            document.getElementById('admin-item-container').innerHTML = html || '<div class="text-center text-slate-400 text-xs py-4">Data masih kosong.</div>';
+            document.getElementById('admin-item-container').innerHTML = html || '<div class="text-center text-slate-400 text-xs py-4">Data masih kosong di Cloud.</div>';
         }
 
-        function openAdminForm(id = null) {
-            currentEditId = id;
+        window.openAdminForm = function(id = null) {
+            window.currentEditId = id;
             document.getElementById('admin-list').classList.add('hidden');
             document.getElementById('admin-form').classList.remove('hidden');
             document.getElementById('admin-form-title').innerText = id ? "Edit Data" : "Tambah Data Baru";
             
             document.querySelectorAll('.admin-form-el').forEach(el => el.classList.add('hidden'));
-            const formEl = document.getElementById(`form-${currentAdminCat}`);
+            const formEl = document.getElementById(`form-${window.currentAdminCat}`);
             formEl.classList.remove('hidden');
             formEl.reset();
 
             document.querySelectorAll('.file-upload-label span').forEach(el => {
-                if(el.id) el.innerText = "Upload Gambar Baru";
+                if(el.id) el.innerText = "Pilih Gambar/Foto Baru";
             });
 
             if (id) {
-                const item = getCategoryArray(currentAdminCat).find(x => x.id === id);
-                if (currentAdminCat === 'info') {
+                const item = window.getCategoryArray(window.currentAdminCat).find(x => x.id === id);
+                if (!item) return;
+                
+                if (window.currentAdminCat === 'info') {
                     document.getElementById('admin-info-title').value = item.title;
                     document.getElementById('admin-info-desc').value = item.desc;
-                } else if (currentAdminCat === 'layanan') {
+                } else if (window.currentAdminCat === 'layanan') {
                     document.getElementById('admin-layanan-title').value = item.title;
                     document.getElementById('admin-layanan-icon').value = item.icon;
-                    document.getElementById('admin-layanan-reqs').value = item.reqs.join('\n');
-                } else if (currentAdminCat === 'agenda') {
+                    document.getElementById('admin-layanan-reqs').value = (item.reqs || []).join('\n');
+                } else if (window.currentAdminCat === 'agenda') {
                     document.getElementById('admin-agenda-title').value = item.title;
                     document.getElementById('admin-agenda-date').value = item.date;
                     document.getElementById('admin-agenda-time').value = item.time;
                     document.getElementById('admin-agenda-loc').value = item.loc;
-                } else if (currentAdminCat === 'pengurus') {
+                } else if (window.currentAdminCat === 'pengurus') {
                     document.getElementById('admin-pengurus-name').value = item.name;
                     document.getElementById('admin-pengurus-role').value = item.role;
                     document.getElementById('admin-pengurus-phone').value = item.phone;
-                } else if (currentAdminCat === 'galeri') {
+                } else if (window.currentAdminCat === 'galeri') {
                     document.getElementById('admin-galeri-title').value = item.title;
                     document.getElementById('admin-galeri-date').value = item.date;
                 }
             }
         }
 
-        function closeAdminForm() {
+        window.closeAdminForm = function() {
             document.getElementById('admin-form').classList.add('hidden');
-            if (currentAdminCat === 'stats') {
+            if (window.currentAdminCat === 'stats') {
                 document.getElementById('admin-home').classList.remove('hidden');
             } else {
                 document.getElementById('admin-list').classList.remove('hidden');
             }
         }
 
-        async function saveAdminData(e) {
+        // SAVE TO FIRESTORE CLOUD
+        window.saveAdminData = async function(e) {
             e.preventDefault();
+            if(!currentUser) { window.showToast("Gagal: Harus terhubung ke server Cloud."); return; }
             
-            if (currentAdminCat === 'stats') {
-                statistics.total = document.getElementById('input-stat-warga').value;
-                statistics.rumah = document.getElementById('input-stat-rumah').value;
-                statistics.kk = document.getElementById('input-stat-kk').value;
-                statistics.laki = document.getElementById('input-stat-laki').value;
-                statistics.perempuan = document.getElementById('input-stat-perempuan').value;
-                reRenderAppViews();
-                closeAdminForm();
-                showToast('Statistik Diperbarui!');
-                return;
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                if (window.currentAdminCat === 'settings') {
+                    const pinLama = document.getElementById('input-pin-lama').value;
+                    const pinBaru = document.getElementById('input-pin-baru').value;
+                    if (pinLama !== window.adminPin) throw new Error("PIN Lama salah!");
+                    if (pinBaru.length !== 4) throw new Error("PIN Baru harus 4 angka!");
+                    
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), { adminPin: pinBaru }, { merge: true });
+                    window.adminPin = pinBaru;
+                    window.closeAdminForm();
+                    window.showToast('PIN Berhasil Diubah!');
+                    return;
+                }
+
+                if (window.currentAdminCat === 'stats') {
+                    const newStats = {
+                        total: document.getElementById('input-stat-warga').value,
+                        rumah: document.getElementById('input-stat-rumah').value,
+                        kk: document.getElementById('input-stat-kk').value,
+                        laki: document.getElementById('input-stat-laki').value,
+                        perempuan: document.getElementById('input-stat-perempuan').value
+                    };
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), newStats);
+                    window.closeAdminForm();
+                    window.showToast('Statistik Cloud Diperbarui!');
+                    return;
+                }
+
+                let item = {};
+                if (window.currentAdminCat === 'info') {
+                    item.title = document.getElementById('admin-info-title').value;
+                    item.desc = document.getElementById('admin-info-desc').value;
+                    item.date = "Baru saja";
+                    const file = document.getElementById('admin-info-file').files[0];
+                    if (file) item.img = await window.fileToBase64(file);
+                } 
+                else if (window.currentAdminCat === 'layanan') {
+                    item.title = document.getElementById('admin-layanan-title').value;
+                    item.icon = document.getElementById('admin-layanan-icon').value;
+                    const reqs = document.getElementById('admin-layanan-reqs').value;
+                    item.reqs = reqs.split('\n').filter(r => r.trim() !== '');
+                } 
+                else if (window.currentAdminCat === 'agenda') {
+                    const rawDate = document.getElementById('admin-agenda-date').value;
+                    item.title = document.getElementById('admin-agenda-title').value;
+                    item.date = rawDate;
+                    item.time = document.getElementById('admin-agenda-time').value;
+                    item.loc = document.getElementById('admin-agenda-loc').value;
+                } 
+                else if (window.currentAdminCat === 'pengurus') {
+                    item.name = document.getElementById('admin-pengurus-name').value;
+                    item.role = document.getElementById('admin-pengurus-role').value;
+                    item.phone = document.getElementById('admin-pengurus-phone').value;
+                    const file = document.getElementById('admin-pengurus-file').files[0];
+                    if (file) item.img = await window.fileToBase64(file);
+                } 
+                else if (window.currentAdminCat === 'galeri') {
+                    item.title = document.getElementById('admin-galeri-title').value;
+                    item.date = document.getElementById('admin-galeri-date').value;
+                    const file = document.getElementById('admin-galeri-file').files[0];
+                    if (file) item.img = await window.fileToBase64(file);
+                    if(!window.currentEditId && !item.img) throw new Error("Foto Wajib Diupload!");
+                }
+
+                // Push to Firestore Database
+                const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', window.currentAdminCat);
+                const docRef = window.currentEditId ? doc(collectionRef, window.currentEditId) : doc(collectionRef);
+                
+                // Set Timestamp on New Documents for sorting
+                if(!window.currentEditId) item.timestamp = Date.now();
+                
+                await setDoc(docRef, item, { merge: true });
+                
+                window.closeAdminForm();
+                window.showToast('Data Cloud Berhasil Tersimpan!');
+            } catch (err) {
+                console.error(err);
+                window.showToast(err.message || 'Gagal menyimpan ke Cloud.');
+            } finally {
+                btn.innerHTML = originText;
+                btn.disabled = false;
             }
-
-            const arr = getCategoryArray(currentAdminCat);
-            let item = currentEditId ? arr.find(x => x.id === currentEditId) : { id: Date.now() };
-
-            if (currentAdminCat === 'info') {
-                item.title = document.getElementById('admin-info-title').value;
-                item.desc = document.getElementById('admin-info-desc').value;
-                item.date = currentEditId ? item.date : "Baru saja";
-                item.icon = item.icon || "fa-bullhorn";
-                item.color = item.color || "bg-emerald-500";
-                const file = document.getElementById('admin-info-file').files[0];
-                if (file) item.img = await fileToBase64(file);
-            } 
-            else if (currentAdminCat === 'layanan') {
-                item.title = document.getElementById('admin-layanan-title').value;
-                item.icon = document.getElementById('admin-layanan-icon').value;
-                const reqs = document.getElementById('admin-layanan-reqs').value;
-                item.reqs = reqs.split('\n').filter(r => r.trim() !== '');
-            } 
-            else if (currentAdminCat === 'agenda') {
-                const rawDate = document.getElementById('admin-agenda-date').value;
-                item.title = document.getElementById('admin-agenda-title').value;
-                item.date = rawDate;
-                item.month = rawDate.split(' ')[1] || 'Bln';
-                item.time = document.getElementById('admin-agenda-time').value;
-                item.loc = document.getElementById('admin-agenda-loc').value;
-            } 
-            else if (currentAdminCat === 'pengurus') {
-                item.name = document.getElementById('admin-pengurus-name').value;
-                item.role = document.getElementById('admin-pengurus-role').value;
-                item.phone = document.getElementById('admin-pengurus-phone').value;
-                const file = document.getElementById('admin-pengurus-file').files[0];
-                if (file) item.img = await fileToBase64(file);
-            } 
-            else if (currentAdminCat === 'galeri') {
-                item.title = document.getElementById('admin-galeri-title').value;
-                item.date = document.getElementById('admin-galeri-date').value;
-                const file = document.getElementById('admin-galeri-file').files[0];
-                if (file) item.img = await fileToBase64(file);
-                if(!currentEditId && !item.img) { showToast("Foto Wajib Diupload!"); return; }
-            }
-
-            if (!currentEditId) {
-                arr.unshift(item); 
-            }
-
-            reRenderAppViews();
-            renderAdminList();
-            closeAdminForm();
-            showToast('Data tersimpan!');
         }
 
-        function requestDelete(id) {
-            pendingDeleteId = id;
+        // DELETE FROM FIRESTORE CLOUD
+        window.requestDelete = function(id) {
+            window.pendingDeleteId = id;
             const modal = document.getElementById('confirm-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.style.opacity = '1', 10);
         }
 
-        function closeConfirmModal() {
+        window.closeConfirmModal = function() {
             const modal = document.getElementById('confirm-modal');
             modal.style.opacity = '0';
             setTimeout(() => modal.style.display = 'none', 300);
-            pendingDeleteId = null;
+            window.pendingDeleteId = null;
         }
 
-        document.getElementById('btn-confirm-delete').addEventListener('click', () => {
-            if (pendingDeleteId !== null) {
-                const arr = getCategoryArray(currentAdminCat);
-                const idx = arr.findIndex(x => x.id === pendingDeleteId);
-                if (idx > -1) {
-                    arr.splice(idx, 1);
-                    reRenderAppViews();
-                    renderAdminList();
-                    showToast('Data terhapus!');
+        document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+            if (window.pendingDeleteId !== null && currentUser) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', window.currentAdminCat, window.pendingDeleteId));
+                    window.showToast('Data di Cloud Terhapus!');
+                } catch(e) {
+                    console.error("Gagal Hapus", e);
+                    window.showToast('Gagal menghapus data.');
                 }
             }
-            closeConfirmModal();
+            window.closeConfirmModal();
         });
 
 
-        // --- PDF GENERATION & GOOGLE DRIVE LOGIC ---
+        // --- PDF GENERATION LOGIC ---
         const getBase64ImageFromUrl = async (imageUrl) => {
             const proxies = [
                 'https://api.codetabs.com/v1/proxy?quest=' + imageUrl,
@@ -1001,9 +1409,7 @@
                         reader.onerror = reject;
                         reader.readAsDataURL(blob);
                     });
-                } catch (e) {
-                    console.log("Mencoba jalur proxy lain...");
-                }
+                } catch (e) { console.log("Proxy gagal, mencoba opsi lain..."); }
             }
             throw new Error("Semua proxy gagal");
         };
@@ -1036,9 +1442,7 @@
                     const yPos = 12;
 
                     doc.addImage(logoBase64, 'PNG', xPos, yPos, targetW, targetH);
-                } catch(err) {
-                    console.log("Logo PDF gagal dimuat.");
-                }
+                } catch(err) { console.log("Logo PDF gagal dimuat."); }
 
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(14);
@@ -1110,49 +1514,47 @@
                 doc.text("( ROMADHON )", 155, y, {align: "center"});
 
                 const fileName = `Surat_Pengantar_RT004_${data[0].value.replace(/\s/g, '_')}.pdf`;
-                doc.save(fileName); // Proses Download PDF Lokal
+                doc.save(fileName); // Download PDF Lokal
+                window.showToast('PDF Berhasil Diunduh!');
                 
                 // ---- BLOK ARSIP GOOGLE DRIVE (SIMULASI API POST) ----
-                showToast('Mengarsipkan surat ke Server / Drive...');
+                window.showToast('Mengarsipkan surat ke Server / Drive...');
                 try {
                     const pdfBase64 = doc.output('datauristring').split(',')[1];
-                    
-                    /* CATATAN: KODE INI SIAP DIGUNAKAN!
-                       1. Buat script di Google Apps Script (GAS) Anda.
-                       2. Ganti 'URL_GOOGLE_SCRIPT_ANDA_DISINI' dengan link Web App Deploy GAS Anda.
-                    */
+                    /* CATATAN GOOGLE DRIVE: 
+                       1. Buat Web App di Google Apps Script (GAS).
+                       2. Ganti link di bawah dengan URL deployment GAS Anda. */
                     const scriptUrl = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
+                    // fetch(scriptUrl, { method: 'POST', body: JSON.stringify({ fileName: fileName, mimeType: 'application/pdf', data: pdfBase64 }) });
                     
-                    // fetch(scriptUrl, {
-                    //     method: 'POST',
-                    //     body: JSON.stringify({ fileName: fileName, mimeType: 'application/pdf', data: pdfBase64 })
-                    // });
-                    
-                    setTimeout(() => showToast('PDF Diunduh & Diarsipkan ke sistem!'), 1500);
-                } catch(e) {
-                    console.log('Gagal arsip drive: ', e);
-                }
-                // ---- END BLOK ARSIP DRIVE ----
+                    setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
+                } catch(e) { console.log('Gagal arsip drive: ', e); }
 
-                e.target.reset();
-                setTimeout(() => switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 2500);
+                // ---- BLOK KIRIM WHATSAPP ----
+                const namaWA = document.getElementById('pdf-nama').value.toUpperCase();
+                const keperluanWA = document.getElementById('pdf-keperluan').value;
+                const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
+                
+                const textWA = `*PERMOHONAN SURAT PENGANTAR RT 004*%0A%0A*Nama:* ${namaWA}%0A*Keperluan:* ${keperluanWA}%0A%0A_Catatan: File PDF surat telah diunduh dan diarsipkan otomatis ke sistem. (Bapak/Ibu Warga, silakan lampirkan file PDF ke dalam pesan ini)._`;
+                
+                setTimeout(() => {
+                    window.open(`https://wa.me/${nomorWAPengurus}?text=${textWA}`, '_blank');
+                    e.target.reset();
+                    window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
+                }, 2500); // Tunda sedikit agar toast arsip sempat terbaca
 
             } catch (error) {
                 console.error(error);
-                showToast('Gagal memproses PDF.');
+                window.showToast('Gagal memproses PDF.');
             } finally {
-                btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Download & Arsipkan PDF';
+                btn.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Download, Arsip & Kirim WA';
                 btn.disabled = false;
             }
         });
 
-
-        // --- GEMINI AI ---
-        const apiKey = "";
-        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. 
-        Tugasmu membantu warga dengan ramah, santun, dan komunikatif. 
-        Gunakan sapaan "Bapak/Ibu" atau "Warga". 
-        Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
+        // --- GEMINI AI CHAT ---
+        const apiKey = ""; // Aman, diproxy melalui internal server eksekusi
+        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. Tugasmu membantu warga dengan ramah, santun, dan komunikatif. Gunakan sapaan "Bapak/Ibu" atau "Warga". Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
 
         async function getGeminiResponse(userText) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
@@ -1183,9 +1585,6 @@
             chatMessages.innerHTML += `<div class="flex gap-2"><div class="w-6 h-6 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1"><i class="fa-solid fa-user-tie text-blue-500 text-[10px]"></i></div><div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs text-slate-700 leading-relaxed max-w-[85%]">${response}</div></div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
         });
-
-        // INIT
-        reRenderAppViews();
     </script>
 </body>
 </html>
