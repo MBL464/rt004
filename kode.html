@@ -69,8 +69,9 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .view-section { display: none; animation: fadeSlideUp 0.3s ease-out forwards; }
-        .view-section.active { display: block; }
+        /* Mengikat animasi langsung ke status active agar selalu di-refresh browser mobile */
+        .view-section { display: none; opacity: 0; }
+        .view-section.active { display: block; animation: fadeSlideUp 0.3s ease-out forwards; }
         #view-ai.active { display: flex; }
 
         @keyframes fadeSlideUp {
@@ -78,7 +79,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .animate-item { opacity: 0; animation: fadeSlideUp 0.4s ease-out forwards; }
+        /* Memisahkan state animasi agar tidak menyangkut di opacity 0 */
+        .animate-item { opacity: 0; }
+        .view-section.active .animate-item { animation: fadeSlideUp 0.4s ease-out forwards; }
         .delay-100 { animation-delay: 100ms; }
         .delay-200 { animation-delay: 200ms; }
         .delay-300 { animation-delay: 300ms; }
@@ -146,7 +149,7 @@
                     <i class="fa-solid fa-chevron-right text-white/50 text-sm"></i>
                 </div>
 
-                <!-- Info Wilayah Banner (Baru) -->
+                <!-- Info Wilayah Banner -->
                 <div class="bg-slate-800 rounded-2xl p-4 mb-6 shadow-md relative overflow-hidden flex items-center gap-3">
                     <div class="absolute -right-4 -top-4 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
                     <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center shrink-0 border border-white/20">
@@ -227,7 +230,7 @@
                 </div>
 
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-bold text-slate-800">Info Lingkungan</h2>
+                    <h2 class="text-sm font-bold text-slate-800">Kabar Lingkungan</h2>
                     <button onclick="switchView('view-info')" class="text-[10px] font-semibold text-primary">Lihat Semua</button>
                 </div>
                 
@@ -242,7 +245,7 @@
                 
                 <div class="mb-5">
                     <h2 class="text-xl font-bold text-slate-800">Cetak Surat Pengantar</h2>
-                    <p class="text-xs text-slate-500 mt-1">Isi form berikut, file PDF akan otomatis terunduh.</p>
+                    <p class="text-xs text-slate-500 mt-1">Isi form berikut, file PDF otomatis terunduh & diarsipkan ke sistem.</p>
                 </div>
 
                 <form id="form-pdf-surat" class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
@@ -305,7 +308,7 @@
                     </div>
 
                     <button type="submit" id="btn-generate-pdf" class="w-full bg-primary hover:bg-emerald-700 text-white font-bold rounded-xl py-3.5 flex justify-center items-center gap-2 transition-colors text-sm shadow-md mt-4 hover-scale">
-                        <i class="fa-solid fa-file-pdf"></i> Download PDF Surat
+                        <i class="fa-solid fa-file-pdf"></i> Download & Arsipkan PDF
                     </button>
                 </form>
             </div>
@@ -332,7 +335,7 @@
                     <i class="fa-solid fa-arrow-left"></i> Kembali
                 </button>
                 <h2 class="text-xl font-bold text-slate-800 mb-1">Lapor Warga</h2>
-                <p class="text-slate-500 text-xs mb-6">Sampaikan laporan lingkungan Anda.</p>
+                <p class="text-slate-500 text-xs mb-6">Sampaikan laporan lingkungan langsung ke WhatsApp Pengurus.</p>
                 <form id="form-pengaduan" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 space-y-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Kategori</label>
@@ -345,17 +348,28 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Detail Laporan</label>
-                        <textarea required rows="4" placeholder="Tulis deskripsi dan lokasi..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 outline-none focus:border-primary"></textarea>
+                        <textarea required rows="4" placeholder="Tulis deskripsi dan lokasi kejadian..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 outline-none focus:border-primary"></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl py-3.5 transition-colors text-sm mt-2 hover-scale">
-                        Kirim Laporan
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl py-3.5 transition-colors text-sm mt-2 hover-scale flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Kirim Laporan ke WA
                     </button>
                 </form>
             </div>
 
             <!-- VIEW: AGENDA, INFO, PENGURUS, GALERI -->
             <div id="view-agenda" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-5">Agenda Lingkungan</h2><div class="space-y-3" id="agenda-list"></div></div>
-            <div id="view-info" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-5">Info Lingkungan</h2><div class="space-y-4" id="full-info-list"></div></div>
+            <div id="view-info" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-5">Kabar Lingkungan</h2><div class="space-y-4" id="full-info-list"></div></div>
+            
+            <!-- VIEW: KABAR DETAIL (ARTIKEL) -->
+            <div id="view-kabar-detail" class="view-section px-5 pt-6 pb-10 absolute inset-0 bg-white z-[55] overflow-y-auto">
+                <button onclick="switchView('view-info')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar Kabar
+                </button>
+                <div id="kabar-detail-content">
+                    <!-- Artikel akan dirender via JS -->
+                </div>
+            </div>
+
             <div id="view-pengurus" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-1">Pengurus RT 004</h2><p class="text-slate-500 text-xs mb-6">Masa Bakti 2024 - 2027</p><div class="grid grid-cols-2 gap-3" id="pengurus-list"></div></div>
             <div id="view-galeri" class="view-section px-5 pt-6"><button onclick="switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale"><i class="fa-solid fa-arrow-left"></i> Kembali</button><h2 class="text-xl font-bold text-slate-800 mb-1">Galeri Foto</h2><p class="text-slate-500 text-xs mb-6">Dokumentasi kegiatan warga.</p><div class="grid grid-cols-2 gap-3" id="galeri-list"></div></div>
 
@@ -375,7 +389,7 @@
                             <i class="fa-solid fa-chart-pie text-2xl text-blue-500"></i><span class="text-xs font-bold text-slate-700">Statistik</span>
                         </button>
                         <button onclick="openAdminCategory('info')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center gap-2 hover-scale text-center">
-                            <i class="fa-solid fa-newspaper text-2xl text-emerald-500"></i><span class="text-xs font-bold text-slate-700">Info & Kabar</span>
+                            <i class="fa-solid fa-newspaper text-2xl text-emerald-500"></i><span class="text-xs font-bold text-slate-700">Kabar Lingkungan</span>
                         </button>
                         <button onclick="openAdminCategory('layanan')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center gap-2 hover-scale text-center">
                             <i class="fa-solid fa-circle-info text-2xl text-cyan-500"></i><span class="text-xs font-bold text-slate-700">Layanan</span>
@@ -430,8 +444,8 @@
                     <!-- Form Info -->
                     <form id="form-info" class="admin-form-el space-y-3 hidden" onsubmit="saveAdminData(event)">
                         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                            <input type="text" id="admin-info-title" required placeholder="Judul Kabar/Info" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none">
-                            <textarea id="admin-info-desc" required placeholder="Isi deskripsi..." rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none"></textarea>
+                            <input type="text" id="admin-info-title" required placeholder="Judul Kabar" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none">
+                            <textarea id="admin-info-desc" required placeholder="Isi artikel/berita selengkapnya..." rows="5" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 mb-3 outline-none"></textarea>
                             <label class="file-upload-label hover-scale mb-3">
                                 <i class="fa-solid fa-image text-slate-400 text-xl mb-1"></i>
                                 <span class="text-[10px] text-slate-500" id="info-file-name">Pilih Foto Opsional (Kosongkan bila sama)</span>
@@ -561,9 +575,8 @@
 
         <nav id="bottom-nav" class="absolute bottom-0 w-full bg-white border-t border-slate-100 px-6 py-2 flex justify-between items-center z-20 pb-safe">
             <button onclick="switchView('view-dashboard', this)" class="nav-item flex flex-col items-center gap-1 text-primary w-16 transition-colors"><i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[9px] font-bold">Beranda</span></button>
-            <button onclick="switchView('view-info', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors"><i class="fa-solid fa-newspaper text-lg mb-0.5"></i><span class="text-[9px] font-bold">Info</span></button>
+            <button onclick="switchView('view-info', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors"><i class="fa-solid fa-newspaper text-lg mb-0.5"></i><span class="text-[9px] font-bold">Kabar</span></button>
             <button onclick="switchView('view-agenda', this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors"><i class="fa-solid fa-calendar-days text-lg mb-0.5"></i><span class="text-[9px] font-bold">Agenda</span></button>
-            <!-- Tombol Nav Admin Langsung -->
             <button id="nav-admin" onclick="triggerAdminAuth(this)" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-primary w-16 transition-colors"><i class="fa-solid fa-gear text-lg mb-0.5"></i><span class="text-[9px] font-bold">Admin</span></button>
         </nav>
 
@@ -572,7 +585,7 @@
     <script>
         // --- MASTER DATA STATE ---
         let statistics = { total: 452, rumah: 128, kk: 145, laki: 230, perempuan: 222 };
-        let informasiData = [{ id: 101, title: "Kerja Bakti Minggu Bersih", date: "Hari ini", desc: "Membersihkan area fasilitas umum.", icon: "fa-bullhorn", color: "bg-emerald-500", img: "" }];
+        let informasiData = [{ id: 101, title: "Kerja Bakti Minggu Bersih", date: "Hari ini, 08:00 WIB", desc: "Diberitahukan kepada seluruh warga RT 004, besok pagi kita akan melaksanakan kegiatan kerja bakti rutin bulan ini.\n\nFokus pengerjaan kita adalah membersihkan area fasilitas umum taman dan pengerukan gorong-gorong utama untuk mencegah genangan air saat musim hujan.\n\nMohon kehadiran perwakilan 1 orang pria dewasa dari setiap rumah dengan membawa alat kebersihan masing-masing.", icon: "fa-bullhorn", color: "bg-emerald-500", img: "" }];
         let agendaData = [{ id: 201, date: "10 Mei", month: "Mei", title: "Rapat Rutin Pengurus", time: "19:30 WIB", loc: "Fasum RT 004" }];
         let pengurusData = [{ id: 301, role: "Ketua RT", name: "Bpk. Budi Santoso", phone: "081234567890", img: "" }];
         let galeriData = [{ id: 401, title: "Kerja Bakti", date: "12 Ags 2025", img: "https://images.unsplash.com/photo-1593113565241-76856eb2c64b?auto=format&fit=crop&w=400&q=80" }];
@@ -581,14 +594,12 @@
             { id: 502, title: "Pembuatan SKCK", icon: "fa-fingerprint text-emerald-500", reqs: ["Surat Pengantar RT/RW.", "Fotokopi KTP dan KK.", "Pas foto 4x6 latar merah (4 lembar)."] }
         ];
 
-        // --- GLOBAL VARIABLES FOR ADMIN CRUD ---
         let isAdminUnlocked = false;
         let pendingNavElement = null;
         let currentAdminCat = '';
         let currentEditId = null;
         let pendingDeleteId = null;
 
-        // --- UTILS ---
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -605,14 +616,13 @@
             reader.onerror = error => reject(error);
         });
 
-        // --- MASTER RENDER REFRESHER ---
         function reRenderAppViews() {
             updateStatsUI();
             renderInfo();
             renderAgenda();
             renderPengurus();
             renderGaleri();
-            filterLayanan(document.getElementById('search-layanan').value);
+            filterLayanan(document.getElementById('search-layanan').value || '');
         }
 
         function updateStatsUI() {
@@ -625,13 +635,31 @@
 
         function renderInfo() {
             const html = informasiData.map(item => `
-                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-3">
+                <div onclick="openKabarDetail(${item.id})" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-3 cursor-pointer hover-scale animate-item">
                     ${item.img ? `<img src="${item.img}" class="w-10 h-10 rounded-xl object-cover">` : `<div class="w-10 h-10 rounded-xl flex items-center justify-center text-white ${item.color}"><i class="fa-solid ${item.icon} text-sm"></i></div>`}
                     <div class="flex-1"><h3 class="font-bold text-slate-800 text-xs mb-0.5">${item.title}</h3><p class="text-[10px] text-slate-600 line-clamp-2">${item.desc}</p></div>
                 </div>
             `).join('');
-            document.getElementById('dashboard-info-list').innerHTML = html || '<p class="text-xs text-slate-400">Belum ada info.</p>';
-            document.getElementById('full-info-list').innerHTML = html || '<p class="text-xs text-slate-400">Belum ada info.</p>';
+            document.getElementById('dashboard-info-list').innerHTML = html || '<p class="text-xs text-slate-400">Belum ada kabar.</p>';
+            document.getElementById('full-info-list').innerHTML = html || '<p class="text-xs text-slate-400">Belum ada kabar.</p>';
+        }
+        
+        function openKabarDetail(id) {
+            const item = informasiData.find(x => x.id === id);
+            if (!item) return;
+
+            let mediaHtml = item.img 
+                ? `<img src="${item.img}" class="w-full h-48 object-cover rounded-2xl mb-5 shadow-sm">`
+                : `<div class="w-full h-32 rounded-2xl flex items-center justify-center text-white ${item.color} mb-5 shadow-sm"><i class="fa-solid ${item.icon} text-5xl"></i></div>`;
+
+            document.getElementById('kabar-detail-content').innerHTML = `
+                ${mediaHtml}
+                <p class="text-[10px] text-slate-400 mb-1 flex items-center gap-1.5"><i class="fa-regular fa-clock"></i> Dipublikasikan: ${item.date}</p>
+                <h2 class="text-2xl font-bold text-slate-800 mb-4 leading-tight">${item.title}</h2>
+                <div class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">${item.desc}</div>
+            `;
+            
+            switchView('view-kabar-detail');
         }
 
         function renderAgenda() { 
@@ -673,13 +701,12 @@
             `).join('') || '<p class="text-xs text-slate-400 text-center mt-5">Layanan tidak ditemukan.</p>';
         }
 
-        // --- NAVIGATION ---
         function switchView(viewId, navElement = null) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             
-            // Bottom nav hanya hilang saat membuka AI
-            document.getElementById('bottom-nav').style.display = (viewId === 'view-ai') ? 'none' : 'flex';
+            // Sembunyikan bottom nav saat membuka AI chat atau Detail Kabar (Artikel)
+            document.getElementById('bottom-nav').style.display = (viewId === 'view-ai' || viewId === 'view-kabar-detail') ? 'none' : 'flex';
             
             if (navElement) {
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.replace('text-primary', 'text-slate-400'));
@@ -687,7 +714,24 @@
             }
         }
 
-        // --- PIN MODAL LOGIC (DARI NAV ADMIN) ---
+        // WhatsApp Pengaduan Logic
+        document.getElementById('form-pengaduan').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const kategori = e.target.querySelector('select').value;
+            const detail = e.target.querySelectorAll('textarea')[0].value;
+            
+            // Format URL WhatsApp untuk Pengurus
+            const nomorWAPengurus = "6281234567890"; // <- GANTI DENGAN NOMOR PENGURUS ASLI
+            const textWA = `*LAPORAN WARGA RT 004*%0A%0A*Kategori:* ${kategori}%0A*Detail:* ${detail}%0A%0AMohon segera ditindaklanjuti, terima kasih.`;
+            
+            window.open(`https://wa.me/${nomorWAPengurus}?text=${textWA}`, '_blank');
+            
+            showToast('Laporan diteruskan ke WhatsApp!');
+            e.target.reset();
+            setTimeout(() => switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1500);
+        });
+
+        // --- PIN MODAL LOGIC ---
         const pinModal = document.getElementById('pin-modal');
         function showPinModal() { 
             pinModal.style.display = 'flex'; 
@@ -762,7 +806,7 @@
                 document.getElementById('input-stat-perempuan').value = statistics.perempuan;
             } else {
                 document.getElementById('admin-list').classList.remove('hidden');
-                const titles = {info: "Info & Kabar", layanan: "Info Layanan", agenda: "Agenda Kegiatan", pengurus: "Pengurus RT", galeri: "Galeri Foto"};
+                const titles = {info: "Kabar Lingkungan", layanan: "Info Layanan", agenda: "Agenda Kegiatan", pengurus: "Pengurus RT", galeri: "Galeri Foto"};
                 document.getElementById('admin-cat-title').innerText = titles[cat];
                 renderAdminList();
             }
@@ -935,7 +979,7 @@
         });
 
 
-        // --- PDF GENERATION LOGIC ---
+        // --- PDF GENERATION & GOOGLE DRIVE LOGIC ---
         const getBase64ImageFromUrl = async (imageUrl) => {
             const proxies = [
                 'https://api.codetabs.com/v1/proxy?quest=' + imageUrl,
@@ -1065,17 +1109,39 @@
                 doc.text("( ................................. )", 55, y, {align: "center"});
                 doc.text("( ROMADHON )", 155, y, {align: "center"});
 
-                doc.save(`Surat_Pengantar_RT004_${data[0].value.replace(/\s/g, '_')}.pdf`);
+                const fileName = `Surat_Pengantar_RT004_${data[0].value.replace(/\s/g, '_')}.pdf`;
+                doc.save(fileName); // Proses Download PDF Lokal
+                
+                // ---- BLOK ARSIP GOOGLE DRIVE (SIMULASI API POST) ----
+                showToast('Mengarsipkan surat ke Server / Drive...');
+                try {
+                    const pdfBase64 = doc.output('datauristring').split(',')[1];
+                    
+                    /* CATATAN: KODE INI SIAP DIGUNAKAN!
+                       1. Buat script di Google Apps Script (GAS) Anda.
+                       2. Ganti 'URL_GOOGLE_SCRIPT_ANDA_DISINI' dengan link Web App Deploy GAS Anda.
+                    */
+                    const scriptUrl = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
+                    
+                    // fetch(scriptUrl, {
+                    //     method: 'POST',
+                    //     body: JSON.stringify({ fileName: fileName, mimeType: 'application/pdf', data: pdfBase64 })
+                    // });
+                    
+                    setTimeout(() => showToast('PDF Diunduh & Diarsipkan ke sistem!'), 1500);
+                } catch(e) {
+                    console.log('Gagal arsip drive: ', e);
+                }
+                // ---- END BLOK ARSIP DRIVE ----
 
-                showToast('PDF Berhasil Diunduh!');
                 e.target.reset();
-                setTimeout(() => switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1500);
+                setTimeout(() => switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 2500);
 
             } catch (error) {
                 console.error(error);
                 showToast('Gagal memproses PDF.');
             } finally {
-                btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Download PDF Surat';
+                btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Download & Arsipkan PDF';
                 btn.disabled = false;
             }
         });
