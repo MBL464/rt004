@@ -30,13 +30,13 @@
             "background_color": "#ffffff",
             "theme_color": "#059669",
             "icons": [{
-                // Link logo langsung dari Github (RAW)
-                "src": "https://raw.githubusercontent.com/MBL464/rt004/9d978b386b64cccd51c9b8be03bcbe1783e323e3/IMG_1031.PNG",
+                // Link logo aplikasi terbaru
+                "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
                 "sizes": "192x192",
                 "type": "image/png",
                 "purpose": "any maskable"
             }, {
-                "src": "https://raw.githubusercontent.com/MBL464/rt004/9d978b386b64cccd51c9b8be03bcbe1783e323e3/IMG_1031.PNG",
+                "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
                 "sizes": "512x512",
                 "type": "image/png",
                 "purpose": "any maskable"
@@ -113,7 +113,10 @@
             70% { transform: scale(1.02); }
             100% { opacity: 1; transform: scale(1); }
         }
-        .pop-in { opacity: 0; animation: popIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
+        
+        /* Memisahkan state animasi agar di-refresh browser saat menu kembali dibuka */
+        .pop-in { opacity: 0; }
+        .view-section.active .pop-in, #loader-overlay .pop-in { animation: popIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
 
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -170,7 +173,7 @@
         <div id="view-login" class="view-section absolute inset-0 z-[150] bg-gradient-to-b from-emerald-500 to-emerald-700 flex-col justify-center items-center p-6">
             <!-- Logo Aplikasi di Halaman Login -->
             <div class="w-28 h-28 bg-white rounded-full p-1.5 shadow-2xl mb-6 pop-in overflow-hidden border-4 border-emerald-400">
-                <img src="https://raw.githubusercontent.com/MBL464/rt004/9d978b386b64cccd51c9b8be03bcbe1783e323e3/IMG_1031.PNG" class="w-full h-full object-cover rounded-full" alt="Logo RT">
+                <img src="https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png" class="w-full h-full object-cover rounded-full" alt="Logo RT" onerror="this.onerror=null; this.src='https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';">
             </div>
             
             <h1 class="text-3xl font-black text-white mb-2 pop-in delay-100 text-center tracking-tight drop-shadow-md">RT 004 Digital</h1>
@@ -200,8 +203,8 @@
         <header id="main-header" style="display: none;" class="bg-white px-5 pt-8 pb-3 shadow-[0_2px_10px_rgba(0,0,0,0.03)] z-10 shrink-0 border-b border-slate-100 flex justify-between items-center relative transition-all">
             <div class="flex items-center gap-3">
                 <!-- Ikon Kiri (Logo Aplikasi) -->
-                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 overflow-hidden border border-emerald-100">
-                    <img src="https://raw.githubusercontent.com/MBL464/rt004/9d978b386b64cccd51c9b8be03bcbe1783e323e3/IMG_1031.PNG" alt="Logo Aplikasi" class="w-full h-full object-cover">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 overflow-hidden border border-emerald-100 bg-white">
+                    <img src="https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png" alt="Logo Aplikasi" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';">
                 </div>
                 <div>
                     <h1 class="text-[16px] font-bold text-slate-800 leading-none tracking-tight">RT 004 Digital</h1>
@@ -1571,10 +1574,24 @@
                 doc.text("Yang bertanda tangan di bawah ini, menerangkan bahwa :", 20, y);
                 y += 10;
 
+                // Format Tanggal Lahir (Ubah angka YYYY-MM-DD menjadi format DD Bulan YYYY yang resmi)
+                const rawTgl = document.getElementById('pdf-tgl').value;
+                let formattedTgl = rawTgl;
+                if (rawTgl) {
+                    const monthsId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                    const parts = rawTgl.split('-');
+                    if (parts.length === 3) {
+                        const d = parts[2];
+                        const m = monthsId[parseInt(parts[1], 10) - 1];
+                        const yr = parts[0];
+                        formattedTgl = `${d} ${m} ${yr}`;
+                    }
+                }
+
                 // Ambil semua data yang diisi warga
                 const data = [
                     { label: "Nama Lengkap", value: document.getElementById('pdf-nama').value.toUpperCase() },
-                    { label: "Tempat/Tgl Lahir", value: document.getElementById('pdf-tempat').value + ", " + document.getElementById('pdf-tgl').value },
+                    { label: "Tempat/Tgl Lahir", value: document.getElementById('pdf-tempat').value + ", " + formattedTgl },
                     { label: "Jenis Kelamin", value: document.getElementById('pdf-jk').value },
                     { label: "Agama", value: document.getElementById('pdf-agama').value },
                     { label: "Pekerjaan", value: document.getElementById('pdf-pekerjaan').value },
