@@ -1664,11 +1664,11 @@
         });
 
         // --- GEMINI AI CHAT (Sistem Pemuda Pintar) ---
-        const apiKey = ""; 
+        const apiKey = "AIzaSyBao6CDzTolHrrg6SkA_sgRYnY06IxqV3A"; 
         const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. Tugasmu membantu warga dengan ramah, santun, dan komunikatif. Gunakan sapaan "Bapak/Ibu" atau "Warga". Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
 
         async function getGeminiResponse(userText) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) });
                 const result = await response.json();
