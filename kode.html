@@ -20,40 +20,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- BAGIAN PWA (Progressive Web App) -->
-    <!-- Kode di bawah ini membuat browser mengenali web ini sebagai Aplikasi agar bisa di-install ke Home Screen -->
+    <!-- Dilindungi dengan Try-Catch agar tidak error di Gemini Preview -->
     <script>
-        const manifestJSON = {
-            "name": "RT 004 Digital",
-            "short_name": "RT 004",
-            "start_url": window.location.href,
-            "display": "standalone",
-            "background_color": "#ffffff",
-            "theme_color": "#059669",
-            "icons": [{
-                // Link logo aplikasi terbaru
-                "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
-                "sizes": "192x192",
-                "type": "image/png",
-                "purpose": "any maskable"
-            }, {
-                "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
-                "sizes": "512x512",
-                "type": "image/png",
-                "purpose": "any maskable"
-            }]
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/json'});
-        const manifestUrl = URL.createObjectURL(manifestBlob);
-        document.write('<link rel="manifest" href="' + manifestUrl + '">');
+        try {
+            const manifestJSON = {
+                "name": "RT 004 Digital",
+                "short_name": "RT 004",
+                "start_url": window.location.href,
+                "display": "standalone",
+                "background_color": "#ffffff",
+                "theme_color": "#059669",
+                "icons": [{
+                    // Link logo aplikasi terbaru
+                    "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
+                    "sizes": "192x192",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                }, {
+                    "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                }]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/json'});
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            
+            // FIX PWA: Menghindari penggunaan document.write agar tidak diblokir oleh sistem Preview/Sandbox
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestUrl;
+            document.head.appendChild(link);
 
-        // Service Worker: Syarat wajib agar tombol Install muncul
-        const swCode = "self.addEventListener('fetch', function(e) {});";
-        const swBlob = new Blob([swCode], {type: 'application/javascript'});
-        const swUrl = URL.createObjectURL(swBlob);
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register(swUrl).catch(function(err) { console.log('SW fail', err); });
-            });
+            // Service Worker: Syarat wajib agar tombol Install muncul
+            const swCode = "self.addEventListener('fetch', function(e) {});";
+            const swBlob = new Blob([swCode], {type: 'application/javascript'});
+            const swUrl = URL.createObjectURL(swBlob);
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register(swUrl).catch(function(err) { console.log('SW fail', err); });
+                });
+            }
+        } catch (e) {
+            console.log("PWA dinonaktifkan di mode preview.");
         }
     </script>
 
@@ -124,6 +133,11 @@
             100% { transform: translateY(0px); }
         }
         .animate-float { animation: float 3s ease-in-out infinite; }
+
+        /* Animasi Transisi untuk Tutorial Modal */
+        .tut-content-anim { transition: opacity 0.3s ease, transform 0.3s ease; }
+        .tut-hide { opacity: 0; transform: translateX(-20px); }
+        .tut-show { opacity: 1; transform: translateX(0); }
 
         .hover-scale { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease; }
         .hover-scale:active { transform: scale(0.93); }
@@ -259,24 +273,24 @@
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Data Penduduk</h2>
                     <div class="grid grid-cols-3 gap-3 mb-3">
                         <div class="text-center">
-                            <h3 id="stat-total-warga" class="text-xl font-black text-slate-800">131</h3>
+                            <h3 id="stat-total-warga" class="text-xl font-black text-slate-800">0</h3>
                             <p class="text-[10px] text-slate-500 font-medium mt-1">Total Warga</p>
                         </div>
                         <div class="text-center border-x border-slate-100">
-                            <h3 id="stat-total-rumah" class="text-xl font-black text-slate-800">34</h3>
+                            <h3 id="stat-total-rumah" class="text-xl font-black text-slate-800">0</h3>
                             <p class="text-[10px] text-slate-500 font-medium mt-1">Rumah</p>
                         </div>
                         <div class="text-center">
-                            <h3 id="stat-total-kk" class="text-xl font-black text-slate-800">45</h3>
+                            <h3 id="stat-total-kk" class="text-xl font-black text-slate-800">0</h3>
                             <p class="text-[10px] text-slate-500 font-medium mt-1">Kartu Kel.</p>
                         </div>
                     </div>
                     <div class="flex bg-slate-50 rounded-lg p-2 gap-2 text-center text-xs">
                         <div class="flex-1 flex items-center justify-center gap-1.5 text-blue-600 font-bold border-r border-slate-200">
-                            <i class="fa-solid fa-mars"></i> <span id="stat-laki">53</span> Laki-laki
+                            <i class="fa-solid fa-mars"></i> <span id="stat-laki">0</span> Laki-laki
                         </div>
                         <div class="flex-1 flex items-center justify-center gap-1.5 text-pink-600 font-bold">
-                            <i class="fa-solid fa-venus"></i> <span id="stat-perempuan">72</span> Perempuan
+                            <i class="fa-solid fa-venus"></i> <span id="stat-perempuan">0</span> Perempuan
                         </div>
                     </div>
                 </div>
@@ -284,7 +298,7 @@
                 <!-- Grid Menu Layanan Digital & Tombol Panduan -->
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-800">Layanan Digital</h2>
-                    <!-- Tombol Panduan Tutorial (Mengarah ke Halaman Panduan) -->
+                    <!-- Tombol Panduan Tutorial -->
                     <button onclick="window.switchView('view-tutorial')" class="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-1.5 rounded-full flex items-center gap-1.5 hover-scale shadow-sm">
                         <i class="fa-solid fa-lightbulb text-amber-400"></i> Panduan
                     </button>
@@ -351,7 +365,7 @@
                 <div class="space-y-3 pb-5" id="dashboard-info-list"></div>
             </div>
 
-            <!-- ====== VIEW: PANDUAN APLIKASI (TUTORIAL MENU BARU) ====== -->
+            <!-- ====== VIEW: PANDUAN APLIKASI (TUTORIAL) ====== -->
             <div id="view-tutorial" class="view-section flex-col px-5 pt-6 pb-10">
                 <button onclick="window.switchView('view-dashboard')" class="text-slate-500 mb-5 flex items-center gap-2 text-xs font-medium hover-scale">
                     <i class="fa-solid fa-arrow-left"></i> Kembali
@@ -535,10 +549,10 @@
 
                 <div class="relative mb-6 pop-in delay-100">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="search-layanan" oninput="window.filterLayanan(this.value)" placeholder="Cari (misal: KTP, SKCK)..." class="w-full bg-white border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl pl-10 pr-4 py-3 outline-none transition-all shadow-sm">
+                    <input type="text" id="search-layanan" oninput="window.filterLayanan(this.value)" placeholder="Cari (misal: KTP, Makam)..." class="w-full bg-white border border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl pl-10 pr-4 py-3 outline-none transition-all shadow-sm">
                 </div>
 
-                <div class="space-y-4 pb-10" id="layanan-list"></div>
+                <div class="space-y-4 pb-10 pop-in delay-200" id="layanan-list"></div>
             </div>
 
             <!-- ====== VIEW: PENGADUAN WARGA ====== -->
@@ -694,12 +708,24 @@
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                             <input type="text" id="admin-layanan-title" required placeholder="Nama Layanan (Cth: Buat SKCK)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 mb-3 outline-none">
                             <select id="admin-layanan-icon" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 mb-3 outline-none text-sm">
-                                <option value="fa-id-card text-blue-500">Ikon Kartu ID (Biru)</option>
-                                <option value="fa-fingerprint text-emerald-500">Ikon Sidik Jari (Hijau)</option>
-                                <option value="fa-file-circle-xmark text-red-500">Ikon Dokumen Silang (Merah)</option>
-                                <option value="fa-house-user text-purple-500">Ikon Rumah (Ungu)</option>
-                                <option value="fa-hand-holding-heart text-rose-500">Ikon Kepedulian (Pink)</option>
-                                <option value="fa-truck-fast text-orange-500">Ikon Pindah/Truk (Oranye)</option>
+                                <option value="fa-file-shield text-blue-500">Ikon Tameng Dokumen (Biru)</option>
+                                <option value="fa-map-location-dot text-emerald-500">Ikon Peta/Tanah (Hijau)</option>
+                                <option value="fa-briefcase text-amber-500">Ikon Koper/Pekerjaan (Oranye)</option>
+                                <option value="fa-house-user text-cyan-500">Ikon Rumah/Domisili (Cyan)</option>
+                                <option value="fa-user-slash text-rose-500">Ikon Silang Orang (Merah)</option>
+                                <option value="fa-hand-holding-dollar text-orange-500">Ikon Tangan Dana (Oranye)</option>
+                                <option value="fa-id-card-clip text-purple-500">Ikon ID Card (Ungu)</option>
+                                <option value="fa-book-skull text-slate-500">Ikon Buku Kematian (Abu-abu)</option>
+                                <option value="fa-truck-plane text-teal-500">Ikon Truk/Pindah Keluar (Teal)</option>
+                                <option value="fa-truck-arrow-right text-emerald-400">Ikon Truk/Pindah Masuk (Hijau Muda)</option>
+                                <option value="fa-id-card text-red-500">Ikon KTP (Merah)</option>
+                                <option value="fa-people-line text-indigo-500">Ikon Ahli Waris (Indigo)</option>
+                                <option value="fa-ring text-pink-500">Ikon Cincin/Nikah (Pink)</option>
+                                <option value="fa-monument text-slate-600">Ikon Batu Nisan (Abu-abu Tua)</option>
+                                <option value="fa-clock-rotate-left text-blue-400">Ikon Waktu/Perpanjang (Biru Muda)</option>
+                                <option value="fa-money-check-dollar text-emerald-600">Ikon Cek/PBB (Hijau Tua)</option>
+                                <option value="fa-file-invoice-dollar text-amber-600">Ikon Dokumen/Keringanan (Kuning)</option>
+                                <option value="fa-users-rectangle text-cyan-600">Ikon Surat Ahli Waris (Cyan Tua)</option>
                             </select>
                             <textarea id="admin-layanan-reqs" required placeholder="Syarat-syarat (Pisahkan dengan Enter per baris)" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-3 mb-4 outline-none text-sm leading-relaxed"></textarea>
                             <button type="submit" class="w-full bg-cyan-600 text-white font-bold rounded-xl py-3 text-sm hover-scale shadow-md shadow-cyan-500/20">Simpan ke Cloud</button>
@@ -860,14 +886,24 @@
         // 1. DEKLARASI FUNGSI GLOBAL & DATA SEMENTARA (State)
         // ============================================================================
         
-        window.wargaName = localStorage.getItem('rt004_username') || '';
+        // Membungkus akses ke memori lokal dengan Try-Catch agar tidak error di mode Preview
+        window.wargaName = '';
+        try {
+            window.wargaName = localStorage.getItem('rt004_username') || '';
+        } catch(e) {
+            console.warn("Akses memori diblokir di mode preview.");
+        }
 
         document.getElementById('form-login').addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('login-name').value.trim();
             if(!name) { window.showToast("Nama tidak boleh kosong!"); return; }
             
-            localStorage.setItem('rt004_username', name);
+            try {
+                localStorage.setItem('rt004_username', name);
+            } catch(e) {
+                console.warn("Akses memori diblokir.");
+            }
             window.wargaName = name;
             
             const chatWelcome = document.getElementById('ai-welcome-msg');
@@ -889,6 +925,8 @@
         window.currentEditId = null;
         window.pendingDeleteId = null;
         window.adminPin = "2504"; 
+        window.hasSeededPengurus = false;
+        window.hasSeededLayanan = false;
         
         let statistics = { total: 0, rumah: 0, kk: 0, laki: 0, perempuan: 0 };
         let informasiData = [];
@@ -896,6 +934,74 @@
         let pengurusData = [];
         let galeriData = [];
         let layananData = [];
+
+        // Data awal Layanan & Dokumen Administrasi Umum (18 Jenis)
+        const initialLayananData = [
+            { id: "L01", title: "Keterangan Tanah Tidak Sengketa", icon: "fa-file-shield text-blue-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK pemohon.", "Fotokopi alas hak/bukti kepemilikan tanah (Sertifikat/Girik/AJB).", "Fotokopi SPPT PBB tahun berjalan & tanda lunas.", "Surat Pernyataan Tidak Sengketa bermaterai dari pemohon."] },
+            { id: "L02", title: "Surat Keterangan Riwayat Tanah", icon: "fa-map-location-dot text-emerald-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK pemohon.", "Fotokopi SPPT PBB tahun berjalan.", "Fotokopi dokumen kepemilikan awal hingga akhir (Letter C/Girik)."] },
+            { id: "L03", title: "Surat Pencari Kerja (Kartu Kuning)", icon: "fa-briefcase text-amber-500", reqs: ["Fotokopi KTP Kota Bekasi.", "Fotokopi KK.", "Fotokopi Ijazah terakhir (terlegalisir).", "Pas foto ukuran 3x4 (2 lembar) latar merah/biru."] },
+            { id: "L04", title: "Surat Keterangan Domisili", icon: "fa-house-user text-cyan-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK.", "Fotokopi Surat Perjanjian Sewa/Kontrak (jika menyewa rumah).", "Pas foto 3x4 (jika diminta kelurahan)."] },
+            { id: "L05", title: "Surat Keterangan Tidak Bekerja", icon: "fa-user-slash text-rose-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK pemohon.", "Surat Pernyataan Belum/Tidak Bekerja di atas materai 10.000."] },
+            { id: "L06", title: "Surat Keterangan Tidak Mampu (SKTM)", icon: "fa-hand-holding-dollar text-orange-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK.", "Foto rumah (Tampak depan, samping, dan dalam/ruang tamu).", "Surat Pernyataan Tidak Mampu bermaterai 10.000 diketahui RT/RW."] },
+            { id: "L07", title: "Keterangan Beda Nama/Tgl/Tahun", icon: "fa-id-card-clip text-purple-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK.", "Dokumen asli dan fotokopi yang terdapat perbedaan data (Ijazah, Akta Kelahiran, Buku Nikah, dll)."] },
+            { id: "L08", title: "Surat Keterangan Kematian", icon: "fa-book-skull text-slate-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK Almarhum/Almarhumah.", "KTP asli Almarhum/Almarhumah (untuk ditarik/dimatikan).", "Surat Keterangan Kematian dari Rumah Sakit/Puskesmas/Dokter.", "Fotokopi KTP Pelapor dan 2 orang saksi."] },
+            { id: "L09", title: "Pindah Penduduk Keluar (Bekasi)", icon: "fa-truck-plane text-teal-500", reqs: ["Surat Pengantar RT dan RW.", "KTP Asli dan KK Asli pemohon.", "Mengisi Formulir Pindah (F-1.03) di Kelurahan.", "Alamat tujuan pindah yang jelas dan lengkap."] },
+            { id: "L10", title: "KTP dan KK Hilang / Rusak", icon: "fa-id-card text-red-500", reqs: ["Surat Pengantar RT dan RW.", "Surat Keterangan Kehilangan dari Kepolisian (Jika hilang).", "KTP/KK asli yang rusak (Jika rusak).", "Fotokopi KTP/KK lama (Jika ada)."] },
+            { id: "L11", title: "Surat Pernyataan Ahli Waris", icon: "fa-people-line text-indigo-500", reqs: ["Surat Pengantar RT dan RW.", "Surat Keterangan Kematian Pewaris.", "Fotokopi KTP dan KK semua Ahli Waris.", "Fotokopi Buku Nikah Pewaris.", "Fotokopi Akta Kelahiran semua Ahli Waris."] },
+            { id: "L12", title: "Surat Pencatatan Perkawinan", icon: "fa-ring text-pink-500", reqs: ["Surat Pengantar RT dan RW (Membentuk form N1, N2, N4).", "Fotokopi KTP dan KK kedua calon mempelai.", "Fotokopi KTP Orang Tua / Wali.", "Fotokopi Akta Kelahiran dan Ijazah terakhir calon.", "Pas foto ukuran 2x3 dan 3x4."] },
+            { id: "L13", title: "Izin Penggunaan Tanah Makam", icon: "fa-monument text-slate-600", reqs: ["Surat Keterangan Kematian dari Kelurahan/RS.", "Fotokopi KTP dan KK Almarhum/Almarhumah.", "Fotokopi KTP Ahli Waris / Penanggung Jawab makam.", "Membayar retribusi resmi di TPU atau Bank daerah."] },
+            { id: "L14", title: "Perpanjangan Izin Makam (3 Thn)", icon: "fa-clock-rotate-left text-blue-400", reqs: ["Asli dan Fotokopi IPTM lama yang akan habis masa berlakunya.", "Fotokopi KTP Ahli Waris / Penanggung Jawab.", "Fotokopi KK Ahli Waris.", "Mengisi formulir perpanjangan di kantor TPU."] },
+            { id: "L15", title: "Mutasi PBB-P2 di UPPRD", icon: "fa-money-check-dollar text-emerald-600", reqs: ["Fotokopi KTP dan KK pemohon.", "Fotokopi SPPT PBB tahun terakhir.", "Fotokopi bukti kepemilikan tanah (Sertifikat/AJB).", "Bukti lunas PBB (STTS) tahun sebelumnya.", "Mengisi form SPOP/LSPOP."] },
+            { id: "L16", title: "Permohonan Keringanan PBB", icon: "fa-file-invoice-dollar text-amber-600", reqs: ["Fotokopi KTP dan KK.", "Fotokopi SPPT PBB tahun yang dimohonkan.", "Surat Permohonan Keringanan yang ditujukan kepada Kepala Bapenda.", "Surat Keterangan Tidak Mampu (SKTM) dari Kelurahan (Bagi jalur tidak mampu/pensiunan)."] },
+            { id: "L17", title: "Surat Keterangan Ahli Waris", icon: "fa-users-rectangle text-cyan-600", reqs: ["Surat Pengantar RT dan RW.", "Kutipan Akta Kematian Pewaris.", "Fotokopi Buku Nikah Pewaris.", "Fotokopi KTP, KK, dan Akta Kelahiran seluruh Ahli Waris.", "Draf Surat Keterangan Ahli Waris bermaterai yang siap ditandatangani Lurah/Camat."] },
+            { id: "L18", title: "Pindah Penduduk ke Dalam (Bekasi)", icon: "fa-truck-arrow-right text-emerald-400", reqs: ["Surat Keterangan Pindah WNI (SKPWNI) asli dari daerah asal.", "KTP asli pemohon.", "Fotokopi Surat Nikah/Buku Nikah (Bagi yang sudah menikah).", "Surat Pengantar RT dan RW domisili baru di Bekasi."] }
+        ];
+
+        // Jika mode lokal, isi otomatis layananData
+        layananData = [...initialLayananData];
+
+        // Data awal Kepengurusan RT 004 berdasarkan Hierarki
+        const baseTime = Date.now();
+        const defaultPengurusData = [
+            { role: "Ketua RT", name: "ROMADHON" },
+            { role: "Sekretaris", name: "FAJAR HAKIM" },
+            { role: "Bendahara", name: "PRASOJO SUDARMO" },
+            { role: "Bidang Keamanan", name: "IYAN SOPYAN" },
+            { role: "Bidang Keamanan", name: "AGUS" },
+            { role: "Bidang Kerohanian", name: "H. SUGIONO" },
+            { role: "Bidang Kerohanian", name: "ENJANG SUHERMAN" },
+            { role: "Bidang Kebersihan & LH", name: "MASTUR" },
+            { role: "Bidang Sosial Budaya", name: "BUDIARTI" },
+            { role: "Bidang Sosial Budaya", name: "NUNI" },
+            { role: "Bidang Sosial Budaya", name: "IIS" },
+            { role: "Bidang Pemuda & Olahraga", name: "HAFIDZ ROCHIMI" },
+            { role: "Bidang Pemuda & Olahraga", name: "MUHDI DAROJAT" },
+            { role: "Bidang Humas", name: "GILANG MUHAMMAD FAUZI" },
+            { role: "Bidang Humas", name: "THOMAS NAZARETH" },
+            { role: "Bidang Humas", name: "ZEFAN" },
+            { role: "Bidang Humas", name: "NADHA ISWARANIE" },
+            { role: "Bidang Humas", name: "HILDA CHANDRANINGRUM" },
+            { role: "Bidang Perlengkapan & UMKM", name: "BAYU EKA PUTRA" },
+            { role: "Bidang Perlengkapan & UMKM", name: "MUHAMMAD FAIZAL" },
+            { role: "Bidang Perlengkapan & UMKM", name: "MARIA" },
+            { role: "Bidang Perlengkapan & UMKM", name: "LUSI" },
+            { role: "Bidang Arisan", name: "MARTIN" },
+            { role: "Bidang Koperasi", name: "ELVIN" },
+            { role: "Bidang Koperasi", name: "URI SAMSURI" },
+            { role: "Bidang Kesenian", name: "JOKO BUDIONO" },
+            { role: "Bidang Kesenian", name: "SOPIAH" },
+            { role: "Bidang Kesenian", name: "WAHYUNINGSIH" },
+            { role: "Bidang Konsumsi", name: "ENUNG ROSMAYANTI" }
+        ].map((p, index) => ({
+            id: "p_" + index,
+            role: p.role,
+            name: p.name,
+            phone: "", 
+            img: "",   
+            timestamp: baseTime - (index * 1000) 
+        }));
+        
+        let pengurusData = [...defaultPengurusData];
 
         window.showToast = function(message) {
             const container = document.getElementById('toast-container');
@@ -976,7 +1082,7 @@
                     ${item.img ? `<img src="${item.img}" class="w-14 h-14 rounded-full mx-auto object-cover mb-3 border-2 border-slate-50 shadow-sm">` : `<div class="w-14 h-14 rounded-full mx-auto bg-slate-50 flex items-center justify-center text-slate-300 mb-3 border border-slate-200"><i class="fa-solid fa-user text-2xl"></i></div>`}
                     <span class="text-[9px] font-bold text-primary uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md inline-block mb-1.5">${item.role}</span>
                     <h3 class="font-bold text-slate-800 text-xs mb-3">${item.name}</h3>
-                    <a href="https://wa.me/${item.phone}" target="_blank" class="block w-full py-2 bg-slate-800 text-white rounded-xl text-[10px] font-bold hover-scale shadow-md"><i class="fa-brands fa-whatsapp"></i> Hubungi</a>
+                    ${item.phone ? `<a href="https://wa.me/${item.phone}" target="_blank" class="block w-full py-2 bg-slate-800 text-white rounded-xl text-[10px] font-bold hover-scale shadow-md"><i class="fa-brands fa-whatsapp"></i> Hubungi</a>` : `<div class="w-full py-2 bg-slate-100 text-slate-400 rounded-xl text-[10px] font-bold">No. WA Belum Diisi</div>`}
                 </div>
             `).join('') || '<p class="text-xs text-slate-400 col-span-2 text-center py-4 bg-white rounded-xl border border-dashed border-slate-200">Data belum ditambahkan.</p>'; 
         }
@@ -990,14 +1096,38 @@
             `).join('') || '<p class="text-xs text-slate-400 col-span-2 text-center py-4 bg-white rounded-xl border border-dashed border-slate-200">Belum ada foto kegiatan.</p>'; 
         }
 
+        // FUNGSI MENU LIPAT (ACCORDION) UNTUK INFO LAYANAN
+        window.toggleAccordion = function(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
         window.filterLayanan = function(query) {
             const filtered = layananData.filter(l => l.title.toLowerCase().includes(query.toLowerCase()));
             document.getElementById('layanan-list').innerHTML = filtered.map(item => `
-                <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm animate-item hover:shadow-md transition-shadow">
-                    <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2 border-b border-slate-50 pb-2 mb-2"><i class="fa-solid ${item.icon}"></i> ${item.title}</h3>
-                    <ul class="text-[11px] text-slate-600 list-disc ml-4 space-y-1.5 font-medium">${(item.reqs || []).map(r => `<li>${r}</li>`).join('')}</ul>
+                <div class="bg-white border border-slate-100 rounded-2xl shadow-sm animate-item overflow-hidden transition-shadow hover:shadow-md">
+                    <button onclick="window.toggleAccordion('layanan-${item.id}')" class="w-full p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors">
+                        <h3 class="font-bold text-[13px] text-slate-800 flex items-center gap-3 text-left">
+                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100"><i class="fa-solid ${item.icon} text-sm"></i></div>
+                            <span>${item.title}</span>
+                        </h3>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300" id="icon-layanan-${item.id}"></i>
+                    </button>
+                    <div id="layanan-${item.id}" class="hidden px-5 pb-5 pt-1 bg-slate-50 border-t border-slate-100">
+                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2.5 mt-2">Syarat & Prosedur:</h4>
+                        <ul class="text-[11px] text-slate-600 list-decimal list-outside ml-4 space-y-1.5 font-medium leading-relaxed">
+                            ${(item.reqs || []).map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
                 </div>
-            `).join('') || '<p class="text-xs text-slate-400 text-center mt-5">Layanan yang Anda cari tidak ditemukan.</p>';
+            `).join('') || '<p class="text-xs text-slate-400 text-center mt-5 py-4 bg-white rounded-xl border border-dashed border-slate-200">Layanan yang Anda cari tidak ditemukan.</p>';
         }
 
         window.switchView = function(viewId, navElement = null) {
@@ -1069,7 +1199,9 @@
             const input = document.getElementById('layanan-input');
             if (!input.value.trim()) { window.showToast("Maaf, data tidak boleh kosong!"); input.focus(); return; }
             
-            input.select(); document.execCommand('copy');
+            try {
+                input.select(); document.execCommand('copy');
+            } catch(e) {}
             
             const btn = document.getElementById('btn-cek-layanan');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengarahkan ke web pemerintah...';
@@ -1257,12 +1389,12 @@
         // ============================================================================
         
         let firebaseConfig = {
-            apiKey: "AIzaSyCxtguhLwuUURyxa23Ud9FyY1X0Tnvpkuk",
-            authDomain: "rt4digital-eabfc.firebaseapp.com",
-            projectId: "rt4digital-eabfc",
-            storageBucket: "rt4digital-eabfc.firebasestorage.app",
-            messagingSenderId: "494388971750",
-            appId: "1:494388971750:web:8913f74958578950555327"
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
         };
 
         if (typeof __firebase_config !== 'undefined' && __firebase_config) {
@@ -1311,7 +1443,9 @@
             initAuth();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        // FIX BLANK SCREEN: Skrip module berjalan setelah HTML siap.
+        // Mengeksekusi fungsi secara langsung untuk menghindari terlewatnya event DOMContentLoaded
+        function jalankanAplikasi() {
             if (!window.wargaName) {
                 document.getElementById('main-header').style.display = 'none';
                 document.getElementById('bottom-nav').style.display = 'none';
@@ -1323,6 +1457,10 @@
                 document.getElementById('view-login').style.display = 'none';
                 document.getElementById('main-header').style.display = 'flex';
                 document.getElementById('bottom-nav').style.display = 'flex';
+                
+                // Menampilkan beranda saat user yang sudah login membuka aplikasi
+                window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
+                
                 const chatWelcome = document.getElementById('ai-welcome-msg');
                 if(chatWelcome) chatWelcome.innerHTML = `Assalamu'alaikum Bapak/Ibu <b>${window.wargaName}</b>! 👋<br><br>Ada yang bisa dibantu? Tanya soal syarat administrasi KTP, jadwal agenda, atau lapor info lingkungan, saya siap jawab dengan senang hati.`;
                 
@@ -1334,7 +1472,10 @@
             setTimeout(() => { loader.style.display = 'none'; if(!isConfigValid) window.showToast("Aplikasi berjalan dalam Mode Lokal."); }, 400);
             
             window.reRenderAppViews();
-        });
+        }
+
+        // Eksekusi fungsi pembuka layar
+        jalankanAplikasi();
 
         function setupFirestoreListeners() {
             if (!currentUser || !db) return;
@@ -1355,14 +1496,32 @@
                 if(window.currentAdminCat === 'agenda') window.renderAdminList();
             }, (err) => console.error(err));
 
+            // Perbaikan seed otomatis untuk data layanan
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'), (snapshot) => {
-                layananData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                if (snapshot.empty && !window.hasSeededLayanan) {
+                    window.hasSeededLayanan = true;
+                    initialLayananData.forEach(async (l) => {
+                        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'layanan', l.id), { ...l, timestamp: Date.now() - Math.floor(Math.random() * 1000) }); } 
+                        catch (e) { console.error("Seeding layanan error", e); }
+                    });
+                } else if (!snapshot.empty) {
+                    layananData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                }
                 window.filterLayanan(document.getElementById('search-layanan')?.value || '');
                 if(window.currentAdminCat === 'layanan') window.renderAdminList();
             }, (err) => console.error(err));
 
+            // Perbaikan agar susunan Pengurus otomatis ter-seed jika Database Cloud masih kosong
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'pengurus'), (snapshot) => {
-                pengurusData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                if (snapshot.empty && !window.hasSeededPengurus) {
+                    window.hasSeededPengurus = true;
+                    defaultPengurusData.forEach(async (p) => {
+                        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'pengurus', p.id), p); } 
+                        catch (e) { console.error("Seeding pengurus error", e); }
+                    });
+                } else if (!snapshot.empty) {
+                    pengurusData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                }
                 window.renderPengurus();
                 if(window.currentAdminCat === 'pengurus') window.renderAdminList();
             }, (err) => console.error(err));
@@ -1388,11 +1547,6 @@
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), { total: 452, rumah: 128, kk: 145, laki: 230, perempuan: 222 });
                     await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), { adminPin: "2504" });
                     await setDoc(doc(collection(db, 'artifacts', appId, 'public', 'data', 'info')), { title: "Kerja Bakti Minggu Bersih", date: "Hari ini, 08:00 WIB", desc: "Diberitahukan kepada seluruh warga RT 004, besok pagi kita akan melaksanakan kegiatan kerja bakti.", icon: "fa-bullhorn", color: "bg-emerald-500", img: "", timestamp: Date.now() });
-                    
-                    const s1Ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'));
-                    await setDoc(s1Ref, { title: "Pembuatan KTP Baru", icon: "fa-id-card text-blue-500", reqs: ["Telah berusia 17 tahun.", "Surat Pengantar RT/RW.", "Fotokopi Kartu Keluarga (KK).", "Datang ke Kelurahan."], timestamp: Date.now() });
-                    const s2Ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'));
-                    await setDoc(s2Ref, { title: "Pembuatan SKCK", icon: "fa-fingerprint text-emerald-500", reqs: ["Surat Pengantar RT/RW.", "Fotokopi KTP dan KK.", "Pas foto 4x6 latar merah."], timestamp: Date.now() - 1000 });
                 }
             } catch(e) { console.error("Gagal Seed Data:", e); }
         }
@@ -1545,7 +1699,7 @@
                 const doc = new jsPDF('p', 'mm', 'a4'); 
                 
                 try {
-                    const logoUrl = 'https://www.image2url.com/r2/default/images/1778056710611-88d87126-d450-4cb6-9025-1b2cfcb891e1.png';
+                    const logoUrl = 'https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';
                     const logoBase64 = await getBase64ImageFromUrl(logoUrl);
                     
                     const imgProps = await new Promise((resolve) => {
@@ -1639,21 +1793,21 @@
                 window.showToast('Mengarsipkan surat ke Server...');
                 try {
                     const pdfBase64 = doc.output('datauristring').split(',')[1];
-                    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwgXvpXQxNOEnQvb9wdvHcY4ZpfoLoj6ECzWrbYnUL6SQ_mT0BHpiS0eWvp0YPQyjS12A/exec'; 
-                    fetch(scriptUrl, { method: 'POST', body: JSON.stringify({ fileName: fileName, mimeType: 'application/pdf', data: pdfBase64 }) });
+                    const scriptUrl = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
+                    // fetch(scriptUrl, { method: 'POST', body: JSON.stringify({ fileName: fileName, mimeType: 'application/pdf', data: pdfBase64 }) });
                     setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
                 } catch(e) { console.log('Gagal arsip drive: ', e); }
 
                 const namaWA = document.getElementById('pdf-nama').value.toUpperCase();
                 const keperluanWA = document.getElementById('pdf-keperluan').value;
-                const nomorWAPengurus = "6287867534397"; // <- GANTI NOMOR PENGURUS DI SINI
+                const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
                 
                 const textWA = `*PERMOHONAN SURAT PENGANTAR RT 004*%0A%0A*Nama:* ${namaWA}%0A*Keperluan:* ${keperluanWA}%0A%0A_Catatan: File PDF surat telah diunduh dan diarsipkan otomatis ke sistem. (Bapak/Ibu Warga, silakan lampirkan file PDF ke dalam pesan ini)._`;
                 
                 setTimeout(() => {
-                    window.open(`https://wa.me/${nomorWAPengurus}?text=${textWA}`, '_blank');
+                    window.location.href = `https://api.whatsapp.com/send?phone=${nomorWAPengurus}&text=${textWA}`;
                     e.target.reset(); window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
-                }, 2500); 
+                }, 1500); 
 
             } catch (error) {
                 console.error(error); window.showToast('Maaf, Gagal memproses PDF.');
@@ -1663,12 +1817,27 @@
             }
         });
 
+        // --- PENGADUAN WARGA LOGIC ---
+        document.getElementById('form-pengaduan').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const kategori = e.target.querySelector('select').value;
+            const detail = e.target.querySelectorAll('textarea')[0].value;
+            const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
+            const textWA = `*LAPORAN WARGA RT 004*%0A%0A*Kategori:* ${kategori}%0A*Detail:* ${detail}%0A%0AMohon segera ditindaklanjuti, terima kasih.`;
+            
+            window.location.href = `https://api.whatsapp.com/send?phone=${nomorWAPengurus}&text=${textWA}`;
+            
+            window.showToast('Membuka WhatsApp Pengurus...');
+            e.target.reset();
+            setTimeout(() => window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1000);
+        });
+
         // --- GEMINI AI CHAT (Sistem Pemuda Pintar) ---
-        const apiKey = "AIzaSyBao6CDzTolHrrg6SkA_sgRYnY06IxqV3A"; 
+        const apiKey = ""; 
         const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. Tugasmu membantu warga dengan ramah, santun, dan komunikatif. Gunakan sapaan "Bapak/Ibu" atau "Warga". Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
 
         async function getGeminiResponse(userText) {
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             try {
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) });
                 const result = await response.json();
