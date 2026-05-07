@@ -1718,4 +1718,30 @@
             }, (err) => console.error(err));
 
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'galeri'), (snapshot) => {
-                window.galeriData = snapshot.docs.map(d =>
+                window.galeriData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                window.renderGaleri();
+                if(window.currentAdminCat === 'galeri') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), (snapshot) => {
+                if (snapshot.exists() && snapshot.data().adminPin) {
+                    window.adminPin = snapshot.data().adminPin;
+                }
+            }, (err) => console.error(err));
+        }
+
+        async function checkAndSeedData() {
+            if (!currentUser || !db) return;
+            try {
+                const statDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'));
+                if (!statDoc.exists()) {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), { total: 452, rumah: 128, kk: 145, laki: 230, perempuan: 222 });
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), { adminPin: "2504" });
+                    await setDoc(doc(collection(db, 'artifacts', appId, 'public', 'data', 'info')), { title: "Kerja Bakti Minggu Bersih", date: "Hari ini, 08:00 WIB", desc: "Diberitahukan kepada seluruh warga RT 004, besok pagi kita akan melaksanakan kegiatan kerja bakti.", icon: "fa-bullhorn", color: "bg-emerald-500", img: "", timestamp: Date.now() });
+                }
+            } catch(e) { console.error("Gagal Seed Data:", e); }
+        }
+
+    </script>
+</body>
+</html>
