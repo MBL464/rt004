@@ -10,13 +10,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>RT 004 Digital</title>
     
-    <!-- Memanggil Tailwind CSS (Alat untuk mempercantik tampilan dengan cepat tanpa ngetik CSS panjang-panjang) -->
+    <!-- Memanggil Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Memanggil FontAwesome (Ini untuk memunculkan ikon-ikon seperti gambar rumah, lonceng, dsb) -->
+    <!-- Memanggil FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Memanggil Font tulisan 'Inter' dari Google agar teksnya elegan -->
+    <!-- Memanggil Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Memanggil jsPDF (Alat/Library ajaib untuk membuat file PDF langsung di browser) -->
+    <!-- Memanggil jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- BAGIAN PWA (Progressive Web App) -->
@@ -31,7 +31,6 @@
                 "background_color": "#ffffff",
                 "theme_color": "#059669",
                 "icons": [{
-                    // Link logo aplikasi terbaru
                     "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
                     "sizes": "192x192",
                     "type": "image/png",
@@ -46,13 +45,11 @@
             const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/json'});
             const manifestUrl = URL.createObjectURL(manifestBlob);
             
-            // FIX PWA: Menghindari penggunaan document.write agar tidak diblokir oleh sistem Preview/Sandbox
             const link = document.createElement('link');
             link.rel = 'manifest';
             link.href = manifestUrl;
             document.head.appendChild(link);
 
-            // Service Worker: Syarat wajib agar tombol Install muncul
             const swCode = "self.addEventListener('fetch', function(e) {});";
             const swBlob = new Blob([swCode], {type: 'application/javascript'});
             const swUrl = URL.createObjectURL(swBlob);
@@ -66,7 +63,6 @@
         }
     </script>
 
-    <!-- Pengaturan Warna Khusus untuk Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -78,9 +74,7 @@
         }
     </script>
 
-    <!-- KODE CSS KHUSUS (Custom Style & Animasi) -->
     <style>
-        /* Pengaturan Dasar untuk Body (Bungkus terluar) */
         body {
             background-color: #e2e8f0; 
             display: flex; justify-content: center; align-items: center;
@@ -90,7 +84,6 @@
             -webkit-text-size-adjust: 100%;
         }
         
-        /* Pengaturan Bingkai Aplikasi (Menyerupai layar HP) */
         #app-container {
             width: 100%; max-width: 414px; height: 100vh; max-height: 896px;
             background-color: #ffffff; position: relative; overflow: hidden;
@@ -102,12 +95,9 @@
             #app-container { height: 90vh; border-radius: 2rem; border: 6px solid #0f172a; }
         }
         
-        /* Sembunyikan garis Scrollbar tapi tetap bisa di-scroll */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* --- KUMPULAN ANIMASI --- */
-
         .view-section { display: none; opacity: 0; }
         .view-section.active { display: flex; animation: fadeSlideUp 0.4s ease-out forwards; }
         #view-ai.active { display: flex; }
@@ -123,7 +113,6 @@
             100% { opacity: 1; transform: scale(1); }
         }
         
-        /* Memisahkan state animasi agar di-refresh browser saat menu kembali dibuka */
         .pop-in { opacity: 0; }
         .view-section.active .pop-in, #loader-overlay .pop-in, #view-login.active .pop-in { animation: popIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; }
 
@@ -134,7 +123,6 @@
         }
         .animate-float { animation: float 3s ease-in-out infinite; }
 
-        /* Animasi Transisi untuk Tutorial Modal */
         .tut-content-anim { transition: opacity 0.3s ease, transform 0.3s ease; }
         .tut-hide { opacity: 0; transform: translateX(-20px); }
         .tut-show { opacity: 1; transform: translateX(0); }
@@ -154,7 +142,6 @@
         .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        /* Gaya Pop-up Notifikasi (Toast) */
         #toast-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; pointer-events: none; }
         .toast { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(5px); color: #ffffff; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; text-align: center; font-size: 0.8rem; font-weight: 500; opacity: 0; transition: opacity 0.3s, transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); transform: translateY(-20px) scale(0.9); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .toast.show { opacity: 1; transform: translateY(0) scale(1); }
@@ -176,10 +163,10 @@
 
     <div id="app-container">
         
-        <!-- App Loader (Layar Putih Loading) -->
+        <!-- App Loader -->
         <div id="loader-overlay">
             <i class="fa-solid fa-circle-notch fa-spin text-4xl text-primary"></i>
-            <p class="text-slate-600 font-medium text-sm pop-in">Menghubungkan ke Server...</p>
+            <p class="text-slate-600 font-medium text-sm pop-in">Menyiapkan Aplikasi...</p>
         </div>
 
         <!-- Toast Container -->
@@ -187,7 +174,6 @@
 
         <!-- ====== VIEW: LOGIN WARGA ====== -->
         <div id="view-login" class="view-section absolute inset-0 z-[150] bg-gradient-to-b from-emerald-500 to-emerald-700 flex-col justify-center items-center p-6">
-            <!-- Logo Aplikasi di Halaman Login -->
             <div class="w-28 h-28 bg-white rounded-full p-1.5 shadow-2xl mb-6 pop-in overflow-hidden border-4 border-emerald-400">
                 <img src="https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png" class="w-full h-full object-cover rounded-full" alt="Logo RT" onerror="this.onerror=null; this.src='https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';">
             </div>
@@ -215,10 +201,9 @@
             <p class="text-[10px] text-emerald-200 mt-8 pop-in delay-400 font-medium">© 2026 Pengurus RT 004 Perum. Taman Wismaasri 2</p>
         </div>
 
-        <!-- HEADER APLIKASI UTAMA (Disembunyikan saat login) -->
+        <!-- HEADER APLIKASI UTAMA -->
         <header id="main-header" style="display: none;" class="bg-white px-5 pt-8 pb-3 shadow-[0_2px_10px_rgba(0,0,0,0.03)] z-10 shrink-0 border-b border-slate-100 flex justify-between items-center relative transition-all">
             <div class="flex items-center gap-3">
-                <!-- Ikon Kiri (Logo Aplikasi) -->
                 <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 overflow-hidden border border-emerald-100 bg-white">
                     <img src="https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png" alt="Logo Aplikasi" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';">
                 </div>
@@ -228,20 +213,18 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <!-- Tombol Install PWA -->
                 <button id="btn-install-app" class="hidden bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-[10px] font-bold items-center gap-1.5 hover-scale border border-emerald-100">
                     <i class="fa-solid fa-download"></i> Install
                 </button>
             </div>
         </header>
 
-        <!-- KONTEN UTAMA (Yang bisa di-scroll) -->
+        <!-- KONTEN UTAMA -->
         <main class="flex-1 overflow-y-auto hide-scrollbar pb-24 bg-bgSoft relative">
             
             <!-- ====== VIEW: HALAMAN BERANDA ====== -->
             <div id="view-dashboard" class="view-section flex-col px-5 pt-5">
                 
-                <!-- Banner AI -->
                 <div onclick="window.switchView('view-ai')" class="pop-in bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 mb-4 shadow-lg shadow-blue-500/25 cursor-pointer flex items-center gap-3 active:scale-[0.98] transition-transform hover-scale">
                     <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0 shadow-inner relative backdrop-blur-md border border-white/30">
                         <i class="fa-solid fa-user-tie text-white text-lg animate-float"></i>
@@ -256,7 +239,6 @@
                     </div>
                 </div>
 
-                <!-- Info Wilayah Banner -->
                 <div class="pop-in delay-100 bg-slate-800 rounded-2xl p-4 mb-6 shadow-md relative overflow-hidden flex items-center gap-3">
                     <div class="absolute -right-4 -top-4 w-20 h-20 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
                     <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center shrink-0 border border-white/20">
@@ -268,7 +250,6 @@
                     </div>
                 </div>
 
-                <!-- Statistik Data Penduduk -->
                 <div class="pop-in delay-200 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm mb-6 transition-all hover:shadow-md">
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Data Penduduk</h2>
                     <div class="grid grid-cols-3 gap-3 mb-3">
@@ -295,10 +276,8 @@
                     </div>
                 </div>
 
-                <!-- Grid Menu Layanan Digital & Tombol Panduan -->
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-slate-800">Layanan Digital</h2>
-                    <!-- Tombol Panduan Tutorial -->
                     <button onclick="window.switchView('view-tutorial')" class="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-1.5 rounded-full flex items-center gap-1.5 hover-scale shadow-sm">
                         <i class="fa-solid fa-lightbulb text-amber-400"></i> Panduan
                     </button>
@@ -341,7 +320,6 @@
                         </div>
                         <span class="text-[10px] font-bold text-slate-600 text-center leading-tight">Galeri<br>Foto</span>
                     </button>
-                    <!-- Tombol Cek Layanan Publik -->
                     <button onclick="window.switchView('view-layanan-publik')" class="pop-in delay-400 col-span-3 flex flex-row items-center gap-4 bg-gradient-to-r from-teal-50 to-cyan-50 p-4 rounded-2xl border border-teal-100 shadow-sm hover-scale cursor-pointer hover:shadow-md">
                         <div class="w-12 h-12 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-full flex items-center justify-center text-white shrink-0 shadow-md">
                             <i class="fa-solid fa-magnifying-glass-dollar text-xl animate-float"></i>
@@ -356,7 +334,6 @@
                     </button>
                 </div>
 
-                <!-- Bagian Kabar Lingkungan Terkini -->
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-bold text-slate-800">Kabar Lingkungan</h2>
                     <button onclick="window.switchView('view-info')" class="text-[10px] font-bold text-primary bg-emerald-50 px-2.5 py-1 rounded-full">Lihat Semua</button>
@@ -377,7 +354,6 @@
                 </div>
 
                 <div class="space-y-4">
-                    <!-- Kartu Panduan: AI Pemuda Pintar -->
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-100 hover:shadow-md transition-shadow">
                         <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-user-tie"></i></div>
                         <div>
@@ -385,8 +361,6 @@
                             <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Asisten virtual pintar milik warga. Anda bisa mengajaknya mengobrol, bertanya syarat membuat dokumen, atau mencari tahu agenda RT secara cepat. Cukup ketik pertanyaan Anda!</p>
                         </div>
                     </div>
-
-                    <!-- Kartu Panduan: Buat Surat -->
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-100 hover:shadow-md transition-shadow">
                         <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-file-signature"></i></div>
                         <div>
@@ -394,8 +368,6 @@
                             <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Membuat Surat Pengantar RT tidak pernah semudah ini. Isi formulir dengan lengkap, lalu tekan tombol kirim. Aplikasi akan otomatis membuatkan file PDF dan membukakan WhatsApp Pengurus untuk Anda kirimkan.</p>
                         </div>
                     </div>
-
-                    <!-- Kartu Panduan: Cek Layanan Publik -->
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-200 hover:shadow-md transition-shadow">
                         <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-magnifying-glass-dollar"></i></div>
                         <div>
@@ -403,8 +375,6 @@
                             <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Pintasan praktis untuk mengecek tagihan PBB, Pajak Kendaraan, PLN, PDAM, atau status Bansos. Masukkan nomor Anda di sini, sistem akan menyalin data dan menuntun Anda ke website resmi Pemerintah.</p>
                         </div>
                     </div>
-
-                    <!-- Kartu Panduan: Lapor Warga -->
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-200 hover:shadow-md transition-shadow">
                         <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-bullhorn"></i></div>
                         <div>
@@ -412,8 +382,6 @@
                             <p class="text-[11px] text-slate-600 leading-relaxed font-medium">Temukan lampu jalan mati? Ada tumpukan sampah? Gunakan menu ini untuk melaporkan kondisi lingkungan. Laporan akan diformat rapi dan langsung diteruskan ke WhatsApp Pengurus.</p>
                         </div>
                     </div>
-
-                    <!-- Kartu Panduan: Panel Admin -->
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 pop-in delay-300 hover:shadow-md transition-shadow">
                         <div class="w-12 h-12 bg-slate-800 text-white rounded-xl flex items-center justify-center text-xl shrink-0"><i class="fa-solid fa-gear"></i></div>
                         <div>
@@ -675,7 +643,6 @@
                         <h2 id="admin-form-title" class="text-lg font-bold text-slate-800">Form</h2>
                     </div>
 
-                    <!-- Masing-masing form disembunyikan pakai .hidden, akan dibuka via JavaScript -->
                     <form id="form-stats" class="admin-form-el space-y-3 hidden" onsubmit="window.saveAdminData(event)">
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                             <div class="grid grid-cols-3 gap-2 mb-3">
@@ -861,7 +828,7 @@
                 <p class="text-xs text-slate-500 mb-6">Data yang dihapus dari Database Cloud tidak bisa dikembalikan.</p>
                 <div class="flex gap-2">
                     <button onclick="window.closeConfirmModal()" class="flex-1 bg-slate-100 text-slate-600 font-bold text-sm rounded-xl py-2.5 hover-scale">Batal</button>
-                    <button id="btn-confirm-delete" class="flex-1 bg-red-500 text-white font-bold text-sm rounded-xl py-2.5 shadow-md shadow-red-500/20 hover-scale">Ya, Hapus</button>
+                    <button id="btn-confirm-delete" onclick="window.eksekusiHapusData()" class="flex-1 bg-red-500 text-white font-bold text-sm rounded-xl py-2.5 shadow-md shadow-red-500/20 hover-scale">Ya, Hapus</button>
                 </div>
             </div>
         </div>
@@ -876,48 +843,14 @@
 
     </div>
 
-    <!-- KUMPULAN SCRIPT JAVASCRIPT APLIKASI -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <!-- KUMPULAN SCRIPT JAVASCRIPT APLIKASI (NON-MODULE / UI UTAMA) -->
+    <script>
         // ============================================================================
         // 1. DEKLARASI FUNGSI GLOBAL & DATA SEMENTARA (State)
         // ============================================================================
         
-        // Membungkus akses ke memori lokal dengan Try-Catch agar tidak error di mode Preview
         window.wargaName = '';
-        try {
-            window.wargaName = localStorage.getItem('rt004_username') || '';
-        } catch(e) {
-            console.warn("Akses memori diblokir di mode preview.");
-        }
-
-        document.getElementById('form-login').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('login-name').value.trim();
-            if(!name) { window.showToast("Nama tidak boleh kosong!"); return; }
-            
-            try {
-                localStorage.setItem('rt004_username', name);
-            } catch(e) {
-                console.warn("Akses memori diblokir.");
-            }
-            window.wargaName = name;
-            
-            const chatWelcome = document.getElementById('ai-welcome-msg');
-            if(chatWelcome) chatWelcome.innerHTML = `Assalamu'alaikum Bapak/Ibu <b>${name}</b>! 👋<br><br>Ada yang bisa dibantu? Tanya soal syarat administrasi KTP, jadwal agenda, atau lapor info lingkungan, saya siap jawab dengan senang hati.`;
-            
-            const formPdfNama = document.getElementById('pdf-nama');
-            if(formPdfNama) formPdfNama.value = name;
-
-            document.getElementById('view-login').style.display = 'none';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('bottom-nav').style.display = 'flex';
-            window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
-            window.showToast(`Selamat datang di aplikasi, ${name}!`);
-        });
+        try { window.wargaName = localStorage.getItem('rt004_username') || ''; } catch(e) {}
 
         window.isAdminUnlocked = false;
         window.pendingNavElement = null;
@@ -928,15 +861,12 @@
         window.hasSeededPengurus = false;
         window.hasSeededLayanan = false;
         
-        let statistics = { total: 0, rumah: 0, kk: 0, laki: 0, perempuan: 0 };
-        let informasiData = [];
-        let agendaData = [];
-        let pengurusData = [];
-        let galeriData = [];
-        let layananData = [];
+        window.statistics = { total: 0, rumah: 0, kk: 0, laki: 0, perempuan: 0 };
+        window.informasiData = [];
+        window.agendaData = [];
+        window.galeriData = [];
 
-        // Data awal Layanan & Dokumen Administrasi Umum (18 Jenis)
-        const initialLayananData = [
+        window.initialLayananData = [
             { id: "L01", title: "Keterangan Tanah Tidak Sengketa", icon: "fa-file-shield text-blue-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK pemohon.", "Fotokopi alas hak/bukti kepemilikan tanah (Sertifikat/Girik/AJB).", "Fotokopi SPPT PBB tahun berjalan & tanda lunas.", "Surat Pernyataan Tidak Sengketa bermaterai dari pemohon."] },
             { id: "L02", title: "Surat Keterangan Riwayat Tanah", icon: "fa-map-location-dot text-emerald-500", reqs: ["Surat Pengantar RT dan RW.", "Fotokopi KTP dan KK pemohon.", "Fotokopi SPPT PBB tahun berjalan.", "Fotokopi dokumen kepemilikan awal hingga akhir (Letter C/Girik)."] },
             { id: "L03", title: "Surat Pencari Kerja (Kartu Kuning)", icon: "fa-briefcase text-amber-500", reqs: ["Fotokopi KTP Kota Bekasi.", "Fotokopi KK.", "Fotokopi Ijazah terakhir (terlegalisir).", "Pas foto ukuran 3x4 (2 lembar) latar merah/biru."] },
@@ -956,52 +886,26 @@
             { id: "L17", title: "Surat Keterangan Ahli Waris", icon: "fa-users-rectangle text-cyan-600", reqs: ["Surat Pengantar RT dan RW.", "Kutipan Akta Kematian Pewaris.", "Fotokopi Buku Nikah Pewaris.", "Fotokopi KTP, KK, dan Akta Kelahiran seluruh Ahli Waris.", "Draf Surat Keterangan Ahli Waris bermaterai yang siap ditandatangani Lurah/Camat."] },
             { id: "L18", title: "Pindah Penduduk ke Dalam (Bekasi)", icon: "fa-truck-arrow-right text-emerald-400", reqs: ["Surat Keterangan Pindah WNI (SKPWNI) asli dari daerah asal.", "KTP asli pemohon.", "Fotokopi Surat Nikah/Buku Nikah (Bagi yang sudah menikah).", "Surat Pengantar RT dan RW domisili baru di Bekasi."] }
         ];
+        window.layananData = [...window.initialLayananData];
 
-        // Jika mode lokal, isi otomatis layananData
-        layananData = [...initialLayananData];
-
-        // Data awal Kepengurusan RT 004 berdasarkan Hierarki
         const baseTime = Date.now();
-        const defaultPengurusData = [
-            { role: "Ketua RT", name: "ROMADHON" },
-            { role: "Sekretaris", name: "FAJAR HAKIM" },
-            { role: "Bendahara", name: "PRASOJO SUDARMO" },
-            { role: "Bidang Keamanan", name: "IYAN SOPYAN" },
-            { role: "Bidang Keamanan", name: "AGUS" },
-            { role: "Bidang Kerohanian", name: "H. SUGIONO" },
-            { role: "Bidang Kerohanian", name: "ENJANG SUHERMAN" },
-            { role: "Bidang Kebersihan & LH", name: "MASTUR" },
-            { role: "Bidang Sosial Budaya", name: "BUDIARTI" },
-            { role: "Bidang Sosial Budaya", name: "NUNI" },
-            { role: "Bidang Sosial Budaya", name: "IIS" },
-            { role: "Bidang Pemuda & Olahraga", name: "HAFIDZ ROCHIMI" },
-            { role: "Bidang Pemuda & Olahraga", name: "MUHDI DAROJAT" },
-            { role: "Bidang Humas", name: "GILANG MUHAMMAD FAUZI" },
-            { role: "Bidang Humas", name: "THOMAS NAZARETH" },
-            { role: "Bidang Humas", name: "ZEFAN" },
-            { role: "Bidang Humas", name: "NADHA ISWARANIE" },
-            { role: "Bidang Humas", name: "HILDA CHANDRANINGRUM" },
-            { role: "Bidang Perlengkapan & UMKM", name: "BAYU EKA PUTRA" },
-            { role: "Bidang Perlengkapan & UMKM", name: "MUHAMMAD FAIZAL" },
-            { role: "Bidang Perlengkapan & UMKM", name: "MARIA" },
-            { role: "Bidang Perlengkapan & UMKM", name: "LUSI" },
-            { role: "Bidang Arisan", name: "MARTIN" },
-            { role: "Bidang Koperasi", name: "ELVIN" },
-            { role: "Bidang Koperasi", name: "URI SAMSURI" },
-            { role: "Bidang Kesenian", name: "JOKO BUDIONO" },
-            { role: "Bidang Kesenian", name: "SOPIAH" },
-            { role: "Bidang Kesenian", name: "WAHYUNINGSIH" },
-            { role: "Bidang Konsumsi", name: "ENUNG ROSMAYANTI" }
-        ].map((p, index) => ({
-            id: "p_" + index,
-            role: p.role,
-            name: p.name,
-            phone: "", 
-            img: "",   
-            timestamp: baseTime - (index * 1000) 
-        }));
-        
-        let pengurusData = [...defaultPengurusData];
+        window.defaultPengurusData = [
+            { role: "Ketua RT", name: "ROMADHON" }, { role: "Sekretaris", name: "FAJAR HAKIM" }, { role: "Bendahara", name: "PRASOJO SUDARMO" },
+            { role: "Bidang Keamanan", name: "IYAN SOPYAN" }, { role: "Bidang Keamanan", name: "AGUS" },
+            { role: "Bidang Kerohanian", name: "H. SUGIONO" }, { role: "Bidang Kerohanian", name: "ENJANG SUHERMAN" },
+            { role: "Bidang Kebersihan & LH", name: "MASTUR" }, { role: "Bidang Sosial Budaya", name: "BUDIARTI" },
+            { role: "Bidang Sosial Budaya", name: "NUNI" }, { role: "Bidang Sosial Budaya", name: "IIS" },
+            { role: "Bidang Pemuda & Olahraga", name: "HAFIDZ ROCHIMI" }, { role: "Bidang Pemuda & Olahraga", name: "MUHDI DAROJAT" },
+            { role: "Bidang Humas", name: "GILANG MUHAMMAD FAUZI" }, { role: "Bidang Humas", name: "THOMAS NAZARETH" },
+            { role: "Bidang Humas", name: "ZEFAN" }, { role: "Bidang Humas", name: "NADHA ISWARANIE" },
+            { role: "Bidang Humas", name: "HILDA CHANDRANINGRUM" }, { role: "Bidang Perlengkapan & UMKM", name: "BAYU EKA PUTRA" },
+            { role: "Bidang Perlengkapan & UMKM", name: "MUHAMMAD FAIZAL" }, { role: "Bidang Perlengkapan & UMKM", name: "MARIA" },
+            { role: "Bidang Perlengkapan & UMKM", name: "LUSI" }, { role: "Bidang Arisan", name: "MARTIN" },
+            { role: "Bidang Koperasi", name: "ELVIN" }, { role: "Bidang Koperasi", name: "URI SAMSURI" },
+            { role: "Bidang Kesenian", name: "JOKO BUDIONO" }, { role: "Bidang Kesenian", name: "SOPIAH" },
+            { role: "Bidang Kesenian", name: "WAHYUNINGSIH" }, { role: "Bidang Konsumsi", name: "ENUNG ROSMAYANTI" }
+        ].map((p, index) => ({ id: "p_" + index, role: p.role, name: p.name, phone: "", img: "", timestamp: baseTime - (index * 1000) }));
+        window.pengurusData = [...window.defaultPengurusData];
 
         window.showToast = function(message) {
             const container = document.getElementById('toast-container');
@@ -1019,11 +923,9 @@
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; 
-                    let scaleSize = 1;
+                    const MAX_WIDTH = 800; let scaleSize = 1;
                     if(img.width > MAX_WIDTH) { scaleSize = MAX_WIDTH / img.width; }
-                    canvas.width = img.width * scaleSize;
-                    canvas.height = img.height * scaleSize;
+                    canvas.width = img.width * scaleSize; canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve(canvas.toDataURL('image/jpeg', 0.6)); 
@@ -1034,15 +936,15 @@
         });
 
         window.updateStatsUI = function() {
-            document.getElementById('stat-total-warga').innerText = statistics.total || 0;
-            document.getElementById('stat-total-rumah').innerText = statistics.rumah || 0;
-            document.getElementById('stat-total-kk').innerText = statistics.kk || 0;
-            document.getElementById('stat-laki').innerText = statistics.laki || 0;
-            document.getElementById('stat-perempuan').innerText = statistics.perempuan || 0;
+            document.getElementById('stat-total-warga').innerText = window.statistics.total || 0;
+            document.getElementById('stat-total-rumah').innerText = window.statistics.rumah || 0;
+            document.getElementById('stat-total-kk').innerText = window.statistics.kk || 0;
+            document.getElementById('stat-laki').innerText = window.statistics.laki || 0;
+            document.getElementById('stat-perempuan').innerText = window.statistics.perempuan || 0;
         }
 
         window.renderInfo = function() {
-            const html = informasiData.map(item => `
+            const html = window.informasiData.map(item => `
                 <div onclick="window.openKabarDetail('${item.id}')" class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex gap-3 cursor-pointer hover-scale animate-item hover:shadow-md transition-shadow">
                     ${item.img ? `<img src="${item.img}" class="w-10 h-10 rounded-xl object-cover">` : `<div class="w-10 h-10 rounded-xl flex items-center justify-center text-white ${item.color || 'bg-emerald-500'}"><i class="fa-solid ${item.icon || 'fa-bullhorn'} text-sm"></i></div>`}
                     <div class="flex-1"><h3 class="font-bold text-slate-800 text-xs mb-0.5">${item.title}</h3><p class="text-[10px] text-slate-600 line-clamp-2">${item.desc}</p></div>
@@ -1053,7 +955,7 @@
         }
 
         window.openKabarDetail = function(id) {
-            const item = informasiData.find(x => x.id === id);
+            const item = window.informasiData.find(x => x.id === id);
             if (!item) return;
             let mediaHtml = item.img 
                 ? `<img src="${item.img}" class="w-full h-56 object-cover rounded-2xl mb-5 shadow-md">`
@@ -1068,7 +970,7 @@
         }
 
         window.renderAgenda = function() { 
-            document.getElementById('agenda-list').innerHTML = agendaData.map(item => `
+            document.getElementById('agenda-list').innerHTML = window.agendaData.map(item => `
                 <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4 animate-item hover:shadow-md transition-shadow">
                     <div class="bg-indigo-50 w-12 h-12 rounded-xl flex items-center justify-center border border-indigo-100"><span class="text-sm font-bold text-indigo-600">${(item.date || '').split(' ')[0]}</span></div>
                     <div class="flex-1"><h3 class="font-bold text-slate-800 text-sm mb-1">${item.title}</h3><div class="text-[10px] font-medium text-slate-500 flex flex-wrap gap-x-3 gap-y-1"><span class="flex items-center gap-1"><i class="fa-regular fa-clock text-slate-400"></i> ${item.time}</span> <span class="flex items-center gap-1"><i class="fa-solid fa-location-dot text-slate-400"></i> ${item.loc}</span></div></div>
@@ -1077,7 +979,7 @@
         }
 
         window.renderPengurus = function() { 
-            document.getElementById('pengurus-list').innerHTML = pengurusData.map(item => `
+            document.getElementById('pengurus-list').innerHTML = window.pengurusData.map(item => `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center animate-item hover:shadow-md transition-shadow">
                     ${item.img ? `<img src="${item.img}" class="w-14 h-14 rounded-full mx-auto object-cover mb-3 border-2 border-slate-50 shadow-sm">` : `<div class="w-14 h-14 rounded-full mx-auto bg-slate-50 flex items-center justify-center text-slate-300 mb-3 border border-slate-200"><i class="fa-solid fa-user text-2xl"></i></div>`}
                     <span class="text-[9px] font-bold text-primary uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md inline-block mb-1.5">${item.role}</span>
@@ -1088,7 +990,7 @@
         }
 
         window.renderGaleri = function() { 
-            document.getElementById('galeri-list').innerHTML = galeriData.map(item => `
+            document.getElementById('galeri-list').innerHTML = window.galeriData.map(item => `
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden animate-item hover-scale cursor-pointer group">
                     <div class="overflow-hidden h-32 w-full"><img src="${item.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"></div>
                     <div class="p-3 bg-white relative z-10"><h3 class="font-bold text-slate-800 text-[11px] truncate">${item.title}</h3><p class="text-[9px] text-slate-400 font-medium mt-0.5">${item.date}</p></div>
@@ -1096,21 +998,18 @@
             `).join('') || '<p class="text-xs text-slate-400 col-span-2 text-center py-4 bg-white rounded-xl border border-dashed border-slate-200">Belum ada foto kegiatan.</p>'; 
         }
 
-        // FUNGSI MENU LIPAT (ACCORDION) UNTUK INFO LAYANAN
         window.toggleAccordion = function(id) {
             const content = document.getElementById(id);
             const icon = document.getElementById('icon-' + id);
             if (content.classList.contains('hidden')) {
-                content.classList.remove('hidden');
-                icon.classList.add('rotate-180');
+                content.classList.remove('hidden'); icon.classList.add('rotate-180');
             } else {
-                content.classList.add('hidden');
-                icon.classList.remove('rotate-180');
+                content.classList.add('hidden'); icon.classList.remove('rotate-180');
             }
         }
 
         window.filterLayanan = function(query) {
-            const filtered = layananData.filter(l => l.title.toLowerCase().includes(query.toLowerCase()));
+            const filtered = window.layananData.filter(l => l.title.toLowerCase().includes(query.toLowerCase()));
             document.getElementById('layanan-list').innerHTML = filtered.map(item => `
                 <div class="bg-white border border-slate-100 rounded-2xl shadow-sm animate-item overflow-hidden transition-shadow hover:shadow-md">
                     <button onclick="window.toggleAccordion('layanan-${item.id}')" class="w-full p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors">
@@ -1138,8 +1037,7 @@
             const bottomNav = document.getElementById('bottom-nav');
 
             if (viewId === 'view-login') {
-                header.style.display = 'none';
-                bottomNav.style.display = 'none';
+                header.style.display = 'none'; bottomNav.style.display = 'none';
             } else {
                 header.style.display = 'flex';
                 bottomNav.style.display = (viewId === 'view-ai' || viewId === 'view-kabar-detail' || viewId === 'view-tutorial') ? 'none' : 'flex';
@@ -1181,17 +1079,13 @@
             const modal = document.getElementById('modal-layanan');
             const content = document.getElementById('modal-layanan-content');
             modal.style.display = 'flex';
-            setTimeout(() => { 
-                modal.style.opacity = '1'; 
-                content.classList.remove('translate-y-full', 'scale-95'); 
-            }, 10);
+            setTimeout(() => { modal.style.opacity = '1'; content.classList.remove('translate-y-full', 'scale-95'); }, 10);
         }
 
         window.closeLayananModal = function() {
             const modal = document.getElementById('modal-layanan');
             const content = document.getElementById('modal-layanan-content');
-            modal.style.opacity = '0';
-            content.classList.add('translate-y-full', 'scale-95');
+            modal.style.opacity = '0'; content.classList.add('translate-y-full', 'scale-95');
             setTimeout(() => modal.style.display = 'none', 300);
         }
 
@@ -1199,29 +1093,23 @@
             const input = document.getElementById('layanan-input');
             if (!input.value.trim()) { window.showToast("Maaf, data tidak boleh kosong!"); input.focus(); return; }
             
-            try {
-                input.select(); document.execCommand('copy');
-            } catch(e) {}
+            try { input.select(); document.execCommand('copy'); } catch(e) {}
             
             const btn = document.getElementById('btn-cek-layanan');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengarahkan ke web pemerintah...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengalihkan...';
             btn.disabled = true;
             window.showToast("Data berhasil disalin! Bersiap dialihkan...");
 
-            setTimeout(() => {
-                window.open(cekLayananData[activeLayananId].url, '_blank');
-                window.closeLayananModal();
-            }, 2000);
+            setTimeout(() => { window.open(cekLayananData[activeLayananId].url, '_blank'); window.closeLayananModal(); }, 1500);
         }
 
         // ============================================================================
-        // LOGIKA KEAMANAN ADMIN (PIN)
+        // LOGIKA ADMIN & CRUD FALLBACK (OFFLINE)
         // ============================================================================
         window.showPinModal = function() { 
             const m = document.getElementById('pin-modal');
             const content = document.getElementById('pin-modal-content');
-            m.style.display = 'flex'; 
-            setTimeout(() => { m.style.opacity = '1'; content.classList.remove('scale-95'); }, 10); 
+            m.style.display = 'flex'; setTimeout(() => { m.style.opacity = '1'; content.classList.remove('scale-95'); }, 10); 
             setTimeout(() => document.getElementById('pin-input').focus(), 300); 
         }
         window.closePinModal = function() { 
@@ -1237,23 +1125,19 @@
                 document.getElementById('admin-list').classList.add('hidden');
                 document.getElementById('admin-form').classList.add('hidden');
             } else {
-                window.pendingNavElement = navElement;
-                window.showPinModal();
+                window.pendingNavElement = navElement; window.showPinModal();
             }
         }
         window.verifyPin = function() {
             if (btoa(document.getElementById('pin-input').value) === btoa(window.adminPin)) { 
-                window.closePinModal(); 
-                window.isAdminUnlocked = true;
+                window.closePinModal(); window.isAdminUnlocked = true;
                 setTimeout(() => {
                     window.switchView('view-admin', window.pendingNavElement);
                     document.getElementById('admin-home').classList.remove('hidden');
                     document.getElementById('admin-list').classList.add('hidden');
                     document.getElementById('admin-form').classList.add('hidden');
                 }, 300); 
-            } else { 
-                window.showToast('Maaf, PIN yang Anda masukkan Salah!'); document.getElementById('pin-input').value = ''; 
-            }
+            } else { window.showToast('Maaf, PIN yang Anda masukkan Salah!'); document.getElementById('pin-input').value = ''; }
         }
         window.lockAdmin = function() {
             window.isAdminUnlocked = false; document.getElementById('pin-input').value = '';
@@ -1263,11 +1147,11 @@
 
         window.getCategoryArray = function(cat) {
             switch(cat) {
-                case 'info': return informasiData;
-                case 'layanan': return layananData;
-                case 'agenda': return agendaData;
-                case 'pengurus': return pengurusData;
-                case 'galeri': return galeriData;
+                case 'info': return window.informasiData;
+                case 'layanan': return window.layananData;
+                case 'agenda': return window.agendaData;
+                case 'pengurus': return window.pengurusData;
+                case 'galeri': return window.galeriData;
             } return [];
         }
 
@@ -1281,11 +1165,11 @@
                 document.querySelectorAll('.admin-form-el').forEach(el => el.classList.add('hidden'));
                 document.getElementById('form-stats').classList.remove('hidden');
                 
-                document.getElementById('input-stat-warga').value = statistics.total || 0;
-                document.getElementById('input-stat-rumah').value = statistics.rumah || 0;
-                document.getElementById('input-stat-kk').value = statistics.kk || 0;
-                document.getElementById('input-stat-laki').value = statistics.laki || 0;
-                document.getElementById('input-stat-perempuan').value = statistics.perempuan || 0;
+                document.getElementById('input-stat-warga').value = window.statistics.total || 0;
+                document.getElementById('input-stat-rumah').value = window.statistics.rumah || 0;
+                document.getElementById('input-stat-kk').value = window.statistics.kk || 0;
+                document.getElementById('input-stat-laki').value = window.statistics.laki || 0;
+                document.getElementById('input-stat-perempuan').value = window.statistics.perempuan || 0;
             } else if (cat === 'settings') {
                 document.getElementById('admin-form').classList.remove('hidden');
                 document.getElementById('admin-form-title').innerText = "Ubah PIN Akses Admin";
@@ -1368,8 +1252,7 @@
             window.pendingDeleteId = id;
             const modal = document.getElementById('confirm-modal');
             const content = document.getElementById('confirm-modal-content');
-            modal.style.display = 'flex'; 
-            setTimeout(() => { modal.style.opacity = '1'; content.classList.remove('scale-95'); }, 10);
+            modal.style.display = 'flex'; setTimeout(() => { modal.style.opacity = '1'; content.classList.remove('scale-95'); }, 10);
         }
 
         window.closeConfirmModal = function() {
@@ -1384,17 +1267,290 @@
             window.updateStatsUI(); window.renderInfo(); window.renderAgenda(); window.renderPengurus(); window.renderGaleri(); window.filterLayanan(document.getElementById('search-layanan')?.value || '');
         }
 
+        // FUNGSI ADMIN FALLBACK JIKA FIREBASE DIBLOKIR/GAGAL
+        window.saveAdminData = async function(e) {
+            e.preventDefault();
+            window.showToast("Mode Offline: Perubahan hanya sementara.");
+            window.closeAdminForm(); window.reRenderAppViews();
+        };
+
+        window.eksekusiHapusData = async function() {
+            window.showToast("Mode Offline: Simulasi data dihapus.");
+            window.closeConfirmModal(); window.reRenderAppViews();
+        };
+
+        document.getElementById('form-login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('login-name').value.trim();
+            if(!name) { window.showToast("Nama tidak boleh kosong!"); return; }
+            try { localStorage.setItem('rt004_username', name); } catch(err) {}
+            window.wargaName = name;
+            
+            const chatWelcome = document.getElementById('ai-welcome-msg');
+            if(chatWelcome) chatWelcome.innerHTML = `Assalamu'alaikum Bapak/Ibu <b>${name}</b>! 👋<br><br>Ada yang bisa dibantu? Tanya soal syarat administrasi KTP, jadwal agenda, atau lapor info lingkungan, saya siap jawab dengan senang hati.`;
+            const formPdfNama = document.getElementById('pdf-nama');
+            if(formPdfNama) formPdfNama.value = name;
+
+            document.getElementById('view-login').style.display = 'none';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('bottom-nav').style.display = 'flex';
+            window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
+            window.showToast(`Selamat datang di aplikasi, ${name}!`);
+        });
+
         // ============================================================================
-        // 2. FIREBASE INITIALIZATION (Koneksi ke Database Cloud Google)
+        // LOGIKA TOMBOL FORM, PDF & AI CHATBOT
         // ============================================================================
-        
+
+        const getBase64ImageFromUrl = async (imageUrl) => {
+            const proxies = [
+                imageUrl, 
+                'https://api.allorigins.win/raw?url=' + encodeURIComponent(imageUrl),
+                'https://api.codetabs.com/v1/proxy?quest=' + imageUrl,
+                'https://corsproxy.io/?' + encodeURIComponent(imageUrl)
+            ];
+            for (let proxyUrl of proxies) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000); 
+                    const res = await fetch(proxyUrl, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    if (!res.ok) throw new Error("Fetch failed");
+                    const blob = await res.blob();
+                    if (!blob.type.startsWith('image/')) throw new Error("Bukan file gambar");
+                    return await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject; 
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (e) { console.log("Jalur gagal: " + proxyUrl); }
+            }
+            throw new Error("Semua jalur proxy gagal");
+        };
+
+        document.getElementById('form-pdf-surat').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-generate-pdf');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses Kertas PDF...';
+            btn.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4'); 
+                
+                try {
+                    const logoUrl = 'https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';
+                    const logoBase64 = await getBase64ImageFromUrl(logoUrl);
+                    
+                    const imgProps = await new Promise((resolve) => {
+                        const img = new Image(); img.onload = () => resolve({ w: img.width, h: img.height }); img.src = logoBase64;
+                    });
+                    
+                    const ratio = imgProps.w / imgProps.h;
+                    let targetW = 40; let targetH = 40; 
+                    if (ratio > 1) { targetH = targetW / ratio; } else { targetW = targetH * ratio; }
+                    
+                    const xPos = 15 + (40 - targetW) / 2; const yPos = 12;
+                    doc.addImage(logoBase64, 'PNG', xPos, yPos, targetW, targetH);
+                } catch(err) { console.log("Logo PDF gagal dimuat ke dalam kertas."); }
+
+                doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+                doc.text("RUKUN TETANGGA 004", 115, 20, {align: "center"});
+                doc.text("RUKUN WARGA 025", 115, 26, {align: "center"});
+                doc.setFontSize(12);
+                doc.text("KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA,", 115, 32, {align: "center"});
+                doc.text("KOTA BEKASI", 115, 38, {align: "center"});
+                doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+                doc.text("Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121", 115, 46, {align: "center"});
+                
+                doc.setLineWidth(0.8); doc.line(15, 52, 195, 52);
+                doc.setLineWidth(0.3); doc.line(15, 53.5, 195, 53.5);
+
+                doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+                doc.text("SURAT PENGANTAR", 105, 63, {align: "center"});
+                doc.setLineWidth(0.4); doc.line(78, 64, 132, 64); 
+                doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+                doc.text("NOMOR : ....... / ....... / ....... / RT 004 / RW 025 / ....... / 20....", 105, 70, {align: "center"});
+
+                let y = 86;
+                doc.text("Yang bertanda tangan di bawah ini, menerangkan bahwa :", 20, y);
+                y += 10;
+
+                const rawTgl = document.getElementById('pdf-tgl').value;
+                let formattedTgl = rawTgl;
+                if (rawTgl) {
+                    const monthsId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                    const parts = rawTgl.split('-');
+                    if (parts.length === 3) {
+                        const d = parts[2]; const m = monthsId[parseInt(parts[1], 10) - 1]; const yr = parts[0];
+                        formattedTgl = `${d} ${m} ${yr}`;
+                    }
+                }
+
+                const data = [
+                    { label: "Nama Lengkap", value: document.getElementById('pdf-nama').value.toUpperCase() },
+                    { label: "Tempat/Tgl Lahir", value: document.getElementById('pdf-tempat').value + ", " + formattedTgl },
+                    { label: "Jenis Kelamin", value: document.getElementById('pdf-jk').value },
+                    { label: "Agama", value: document.getElementById('pdf-agama').value },
+                    { label: "Pekerjaan", value: document.getElementById('pdf-pekerjaan').value },
+                    { label: "NIK", value: document.getElementById('pdf-nik').value },
+                    { label: "Alamat", value: document.getElementById('pdf-alamat').value },
+                    { label: "Keperluan", value: document.getElementById('pdf-keperluan').value }
+                ];
+
+                doc.setFontSize(11);
+                data.forEach(item => {
+                    doc.text(item.label, 25, y); doc.text(":", 65, y);
+                    let splitVal = doc.splitTextToSize(item.value, 115); 
+                    doc.text(splitVal, 68, y); y += (splitVal.length * 6) + 2;
+                });
+
+                y += 6;
+                let closingText = "Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan yang berkepentingan untuk menjadi maklum.";
+                let splitClosing = doc.splitTextToSize(closingText, 170); doc.text(splitClosing, 20, y);
+                
+                y += (splitClosing.length * 6) + 15;
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                let today = new Date(); let tglSurat = today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
+
+                doc.text("Bekasi, " + tglSurat, 155, y, {align: "center"});
+                y += 6;
+                doc.text("KETUA RW 025", 55, y, {align: "center"});
+                doc.text("KETUA RT 004 / RW 025", 155, y, {align: "center"});
+                
+                y += 28; doc.setFont("helvetica", "bold");
+                doc.text("( ................................. )", 55, y, {align: "center"});
+                doc.text("( ROMADHON )", 155, y, {align: "center"});
+
+                const fileName = `Surat_Pengantar_RT004_${data[0].value.replace(/\s/g, '_')}.pdf`;
+                doc.save(fileName); 
+                window.showToast('PDF Berhasil Diunduh!');
+                
+                window.showToast('Mengarsipkan surat ke Server...');
+                try {
+                    const pdfBase64 = doc.output('datauristring').split(',')[1];
+                    const scriptUrl = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
+                    setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
+                } catch(e) { console.log('Gagal arsip drive: ', e); }
+
+                const namaWA = document.getElementById('pdf-nama').value.toUpperCase();
+                const keperluanWA = document.getElementById('pdf-keperluan').value;
+                const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
+                
+                const textWA = `*PERMOHONAN SURAT PENGANTAR RT 004*%0A%0A*Nama:* ${namaWA}%0A*Keperluan:* ${keperluanWA}%0A%0A_Catatan: File PDF surat telah diunduh dan diarsipkan otomatis ke sistem. (Bapak/Ibu Warga, silakan lampirkan file PDF ke dalam pesan ini)._`;
+                
+                setTimeout(() => {
+                    window.location.href = `https://api.whatsapp.com/send?phone=${nomorWAPengurus}&text=${textWA}`;
+                    e.target.reset(); window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
+                }, 1500); 
+
+            } catch (error) {
+                console.error(error); window.showToast('Maaf, Gagal memproses PDF.');
+            } finally {
+                btn.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Download, Arsip & Kirim WA';
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('form-pengaduan').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const kategori = e.target.querySelector('select').value;
+            const detail = e.target.querySelectorAll('textarea')[0].value;
+            const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
+            const textWA = `*LAPORAN WARGA RT 004*%0A%0A*Kategori:* ${kategori}%0A*Detail:* ${detail}%0A%0AMohon segera ditindaklanjuti, terima kasih.`;
+            
+            window.location.href = `https://api.whatsapp.com/send?phone=${nomorWAPengurus}&text=${textWA}`;
+            
+            window.showToast('Membuka WhatsApp Pengurus...');
+            e.target.reset();
+            setTimeout(() => window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1000);
+        });
+
+        // --- GEMINI AI CHAT (Sistem Pemuda Pintar) ---
+        const apiKey = ""; 
+        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. Tugasmu membantu warga dengan ramah, santun, dan komunikatif. Gunakan sapaan "Bapak/Ibu" atau "Warga". Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
+
+        async function getGeminiResponse(userText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) });
+                const result = await response.json();
+                let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, sistem sedang sibuk.";
+                return text.replace(/\*/g, '').replace(/#/g, '').replace(/\n/g, '<br>');
+            } catch (e) { return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏"; }
+        }
+
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            
+            const chatMessages = document.getElementById('chat-messages');
+            
+            chatMessages.innerHTML += `<div class="flex justify-end gap-2 pop-in"><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none text-[13px] max-w-[85%] shadow-md">${text}</div></div>`;
+            
+            const typingId = 'typing-' + Date.now();
+            chatMessages.innerHTML += `<div id="${typingId}" class="flex gap-2"><div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs typing-indicator flex items-center h-[34px] shadow-sm"><span></span><span></span><span></span></div></div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const response = await getGeminiResponse(text);
+            document.getElementById(typingId).remove();
+            chatMessages.innerHTML += `<div class="flex gap-2 pop-in"><div class="w-8 h-8 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1 border border-blue-100 shadow-inner"><i class="fa-solid fa-user-tie text-blue-500 text-xs"></i></div><div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl rounded-tl-none text-[13px] text-slate-700 leading-relaxed max-w-[85%] shadow-sm">${response}</div></div>`;
+            chatMessages.scrollTop = chatMessages.scrollHeight; 
+        });
+
+        // ============================================================================
+        // JALANKAN UI SEGERA (Mengatasi Blank Screen)
+        // ============================================================================
+        window.jalankanAplikasi = function() {
+            const loader = document.getElementById('loader-overlay');
+            if (!window.wargaName) {
+                document.getElementById('main-header').style.display = 'none';
+                document.getElementById('bottom-nav').style.display = 'none';
+                document.getElementById('view-dashboard').classList.remove('active');
+                
+                document.getElementById('view-login').style.display = 'flex';
+                document.getElementById('view-login').classList.add('active');
+            } else {
+                document.getElementById('view-login').style.display = 'none';
+                document.getElementById('main-header').style.display = 'flex';
+                document.getElementById('bottom-nav').style.display = 'flex';
+                
+                window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
+                
+                const chatWelcome = document.getElementById('ai-welcome-msg');
+                if(chatWelcome) chatWelcome.innerHTML = `Assalamu'alaikum Bapak/Ibu <b>${window.wargaName}</b>! 👋<br><br>Ada yang bisa dibantu? Tanya soal syarat administrasi KTP, jadwal agenda, atau lapor info lingkungan, saya siap jawab dengan senang hati.`;
+                
+                const formPdfNama = document.getElementById('pdf-nama');
+                if(formPdfNama) formPdfNama.value = window.wargaName;
+            }
+            
+            loader.style.opacity = '0';
+            setTimeout(() => { loader.style.display = 'none'; }, 400);
+            
+            window.reRenderAppViews();
+        };
+
+        window.jalankanAplikasi();
+
+    </script>
+    
+    <!-- SCRIPT FIREBASE TERPISAH (Agar tidak memblokir UI jika gagal dimuat) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         let firebaseConfig = {
-            apiKey: "AIzaSyCxtguhLwuUURyxa23Ud9FyY1X0Tnvpkuk",
-            authDomain: "rt4digital-eabfc.firebaseapp.com",
-            projectId: "rt4digital-eabfc",
-            storageBucket: "rt4digital-eabfc.firebasestorage.app",
-            messagingSenderId: "494388971750",
-            appId: "1:494388971750:web:8913f74958578950555327"
+            apiKey: "",
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
         };
 
         if (typeof __firebase_config !== 'undefined' && __firebase_config) {
@@ -1402,7 +1558,6 @@
         }
 
         let app, auth, db;
-        const loader = document.getElementById('loader-overlay');
         const isConfigValid = firebaseConfig.apiKey && firebaseConfig.apiKey !== "";
 
         if (isConfigValid) {
@@ -1426,11 +1581,8 @@
                 }
             } catch (e) {
                 console.error("Auth Error:", e);
-                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 400);
                 if (e.code === 'auth/operation-not-allowed') {
                     window.showToast("Error: Anda belum mengaktifkan Anonymous Auth di Firebase Console Anda!");
-                } else {
-                    window.showToast("Koneksi Internet Lemah / Gagal terhubung ke Database Cloud.");
                 }
             }
         };
@@ -1443,117 +1595,11 @@
             initAuth();
         }
 
-        // FIX BLANK SCREEN: Skrip module berjalan setelah HTML siap.
-        // Mengeksekusi fungsi secara langsung untuk menghindari terlewatnya event DOMContentLoaded
-        function jalankanAplikasi() {
-            if (!window.wargaName) {
-                document.getElementById('main-header').style.display = 'none';
-                document.getElementById('bottom-nav').style.display = 'none';
-                document.getElementById('view-dashboard').classList.remove('active');
-                
-                document.getElementById('view-login').style.display = 'flex';
-                document.getElementById('view-login').classList.add('active');
-            } else {
-                document.getElementById('view-login').style.display = 'none';
-                document.getElementById('main-header').style.display = 'flex';
-                document.getElementById('bottom-nav').style.display = 'flex';
-                
-                // Menampilkan beranda saat user yang sudah login membuka aplikasi
-                window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
-                
-                const chatWelcome = document.getElementById('ai-welcome-msg');
-                if(chatWelcome) chatWelcome.innerHTML = `Assalamu'alaikum Bapak/Ibu <b>${window.wargaName}</b>! 👋<br><br>Ada yang bisa dibantu? Tanya soal syarat administrasi KTP, jadwal agenda, atau lapor info lingkungan, saya siap jawab dengan senang hati.`;
-                
-                const formPdfNama = document.getElementById('pdf-nama');
-                if(formPdfNama) formPdfNama.value = window.wargaName;
-            }
-            
-            loader.style.opacity = '0';
-            setTimeout(() => { loader.style.display = 'none'; if(!isConfigValid) window.showToast("Aplikasi berjalan dalam Mode Lokal."); }, 400);
-            
-            window.reRenderAppViews();
+        if(!isConfigValid) {
+            setTimeout(() => window.showToast("Aplikasi berjalan dalam Mode Lokal (Offline)."), 1500);
         }
 
-        // Eksekusi fungsi pembuka layar
-        jalankanAplikasi();
-
-        function setupFirestoreListeners() {
-            if (!currentUser || !db) return;
-
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), (snapshot) => {
-                if (snapshot.exists()) { statistics = snapshot.data(); window.updateStatsUI(); }
-            }, (err) => { console.error(err); });
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'info'), (snapshot) => {
-                informasiData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
-                window.renderInfo();
-                if(window.currentAdminCat === 'info') window.renderAdminList();
-            }, (err) => console.error(err));
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'agenda'), (snapshot) => {
-                agendaData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
-                window.renderAgenda();
-                if(window.currentAdminCat === 'agenda') window.renderAdminList();
-            }, (err) => console.error(err));
-
-            // Perbaikan seed otomatis untuk data layanan
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'), (snapshot) => {
-                if (snapshot.empty && !window.hasSeededLayanan) {
-                    window.hasSeededLayanan = true;
-                    initialLayananData.forEach(async (l) => {
-                        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'layanan', l.id), { ...l, timestamp: Date.now() - Math.floor(Math.random() * 1000) }); } 
-                        catch (e) { console.error("Seeding layanan error", e); }
-                    });
-                } else if (!snapshot.empty) {
-                    layananData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
-                }
-                window.filterLayanan(document.getElementById('search-layanan')?.value || '');
-                if(window.currentAdminCat === 'layanan') window.renderAdminList();
-            }, (err) => console.error(err));
-
-            // Perbaikan agar susunan Pengurus otomatis ter-seed jika Database Cloud masih kosong
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'pengurus'), (snapshot) => {
-                if (snapshot.empty && !window.hasSeededPengurus) {
-                    window.hasSeededPengurus = true;
-                    defaultPengurusData.forEach(async (p) => {
-                        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'pengurus', p.id), p); } 
-                        catch (e) { console.error("Seeding pengurus error", e); }
-                    });
-                } else if (!snapshot.empty) {
-                    pengurusData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
-                }
-                window.renderPengurus();
-                if(window.currentAdminCat === 'pengurus') window.renderAdminList();
-            }, (err) => console.error(err));
-
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'galeri'), (snapshot) => {
-                galeriData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
-                window.renderGaleri();
-                if(window.currentAdminCat === 'galeri') window.renderAdminList();
-            }, (err) => console.error(err));
-
-            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), (snapshot) => {
-                if (snapshot.exists() && snapshot.data().adminPin) {
-                    window.adminPin = snapshot.data().adminPin;
-                }
-            }, (err) => console.error(err));
-        }
-
-        async function checkAndSeedData() {
-            if (!currentUser || !db) return;
-            try {
-                const statDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'));
-                if (!statDoc.exists()) {
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), { total: 452, rumah: 128, kk: 145, laki: 230, perempuan: 222 });
-                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main'), { adminPin: "2504" });
-                    await setDoc(doc(collection(db, 'artifacts', appId, 'public', 'data', 'info')), { title: "Kerja Bakti Minggu Bersih", date: "Hari ini, 08:00 WIB", desc: "Diberitahukan kepada seluruh warga RT 004, besok pagi kita akan melaksanakan kegiatan kerja bakti.", icon: "fa-bullhorn", color: "bg-emerald-500", img: "", timestamp: Date.now() });
-                }
-            } catch(e) { console.error("Gagal Seed Data:", e); }
-        }
-
-        // ============================================================================
-        // 3. FUNGSI UNTUK MENYIMPAN DAN MENGHAPUS DATA DARI CLOUD (KHUSUS ADMIN)
-        // ============================================================================
+        // --- OVERWRITE FUNGSI ADMIN DENGAN VERSI FIREBASE ---
         window.saveAdminData = async function(e) {
             e.preventDefault();
             if(!currentUser || !db) { window.showToast("Mode Lokal: Perubahan tidak tersimpan ke Server."); window.closeAdminForm(); window.reRenderAppViews(); return; }
@@ -1610,262 +1656,66 @@
             } finally {
                 btn.innerHTML = originText; btn.disabled = false;
             }
-        }
+        };
 
-        document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+        window.eksekusiHapusData = async function() {
             if (window.pendingDeleteId !== null && currentUser && db) {
                 try {
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', window.currentAdminCat, window.pendingDeleteId));
                     window.showToast('Data di Cloud Terhapus!');
                 } catch(e) { window.showToast('Gagal menghapus data.'); }
             } else if (window.pendingDeleteId !== null) {
-                window.showToast('Mode Lokal: Hapus Dibatalkan.');
+                window.showToast('Mode Lokal: Simulasi data dihapus.');
             }
             window.closeConfirmModal();
-        });
-
-        // ============================================================================
-        // 4. LOGIKA TOMBOL INSTALL APLIKASI, BUAT PDF & AI CHATBOT
-        // ============================================================================
-
-        // --- PWA INSTALL LOGIC (Sistem Tombol Download) ---
-        let deferredPrompt;
-        const installBtn = document.getElementById('btn-install-app');
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-        if (!isStandalone) {
-            installBtn.classList.remove('hidden');
-            installBtn.classList.add('flex');
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') { installBtn.style.display = 'none'; }
-                deferredPrompt = null;
-            } else {
-                window.showToast('Untuk install di iPhone: Ketuk Share/Bagikan di browser, lalu pilih "Add to Home Screen"');
-            }
-        });
-
-        // --- PDF GENERATOR LOGIC ---
-        const getBase64ImageFromUrl = async (imageUrl) => {
-            const proxies = [
-                imageUrl, 
-                'https://api.allorigins.win/raw?url=' + encodeURIComponent(imageUrl),
-                'https://api.codetabs.com/v1/proxy?quest=' + imageUrl,
-                'https://corsproxy.io/?' + encodeURIComponent(imageUrl)
-            ];
-
-            for (let proxyUrl of proxies) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000); 
-                    const res = await fetch(proxyUrl, { signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    
-                    if (!res.ok) throw new Error("Fetch failed");
-                    
-                    const blob = await res.blob();
-                    
-                    if (!blob.type.startsWith('image/')) throw new Error("Bukan file gambar");
-
-                    return await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.onerror = reject; 
-                        reader.readAsDataURL(blob);
-                    });
-                } catch (e) { 
-                    console.log("Jalur gagal: " + proxyUrl); 
-                }
-            }
-            throw new Error("Semua jalur proxy gagal");
         };
 
-        document.getElementById('form-pdf-surat').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-generate-pdf');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses Kertas PDF...';
-            btn.disabled = true;
+        function setupFirestoreListeners() {
+            if (!currentUser || !db) return;
 
-            try {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF('p', 'mm', 'a4'); 
-                
-                try {
-                    const logoUrl = 'https://bekasikota.go.id/uploads/pages/20250926134426-2025-09-26pages134424_thumb.png';
-                    const logoBase64 = await getBase64ImageFromUrl(logoUrl);
-                    
-                    const imgProps = await new Promise((resolve) => {
-                        const img = new Image();
-                        img.onload = () => resolve({ w: img.width, h: img.height });
-                        img.src = logoBase64;
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'statistics', 'main'), (snapshot) => {
+                if (snapshot.exists()) { window.statistics = snapshot.data(); window.updateStatsUI(); }
+            }, (err) => { console.error(err); });
+
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'info'), (snapshot) => {
+                window.informasiData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                window.renderInfo();
+                if(window.currentAdminCat === 'info') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'agenda'), (snapshot) => {
+                window.agendaData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                window.renderAgenda();
+                if(window.currentAdminCat === 'agenda') window.renderAdminList();
+            }, (err) => console.error(err));
+
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'layanan'), (snapshot) => {
+                if (snapshot.empty && !window.hasSeededLayanan) {
+                    window.hasSeededLayanan = true;
+                    window.initialLayananData.forEach(async (l) => {
+                        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'layanan', l.id), { ...l, timestamp: Date.now() - Math.floor(Math.random() * 1000) }); } 
+                        catch (e) { console.error("Seeding layanan error", e); }
                     });
-                    
-                    const ratio = imgProps.w / imgProps.h;
-                    let targetW = 40; let targetH = 40; 
-                    if (ratio > 1) { targetH = targetW / ratio; } else { targetW = targetH * ratio; }
-                    
-                    const xPos = 15 + (40 - targetW) / 2; const yPos = 12;
-                    doc.addImage(logoBase64, 'PNG', xPos, yPos, targetW, targetH);
-                } catch(err) { console.log("Logo PDF gagal dimuat ke dalam kertas."); }
-
-                doc.setFont("helvetica", "bold"); doc.setFontSize(14);
-                doc.text("RUKUN TETANGGA 004", 115, 20, {align: "center"});
-                doc.text("RUKUN WARGA 025", 115, 26, {align: "center"});
-                doc.setFontSize(12);
-                doc.text("KELURAHAN TELUK PUCUNG, KECAMATAN BEKASI UTARA,", 115, 32, {align: "center"});
-                doc.text("KOTA BEKASI", 115, 38, {align: "center"});
-                doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-                doc.text("Sekretariat : Perum Taman Wisma Asri II, Blok AA32, Kode Pos 17121", 115, 46, {align: "center"});
-                
-                doc.setLineWidth(0.8); doc.line(15, 52, 195, 52);
-                doc.setLineWidth(0.3); doc.line(15, 53.5, 195, 53.5);
-
-                doc.setFont("helvetica", "bold"); doc.setFontSize(14);
-                doc.text("SURAT PENGANTAR", 105, 63, {align: "center"});
-                doc.setLineWidth(0.4); doc.line(78, 64, 132, 64); 
-                doc.setFont("helvetica", "normal"); doc.setFontSize(11);
-                doc.text("NOMOR : ....... / ....... / ....... / RT 004 / RW 025 / ....... / 20....", 105, 70, {align: "center"});
-
-                let y = 86;
-                doc.text("Yang bertanda tangan di bawah ini, menerangkan bahwa :", 20, y);
-                y += 10;
-
-                const rawTgl = document.getElementById('pdf-tgl').value;
-                let formattedTgl = rawTgl;
-                if (rawTgl) {
-                    const monthsId = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                    const parts = rawTgl.split('-');
-                    if (parts.length === 3) {
-                        const d = parts[2];
-                        const m = monthsId[parseInt(parts[1], 10) - 1];
-                        const yr = parts[0];
-                        formattedTgl = `${d} ${m} ${yr}`;
-                    }
+                } else if (!snapshot.empty) {
+                    window.layananData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
                 }
+                window.filterLayanan(document.getElementById('search-layanan')?.value || '');
+                if(window.currentAdminCat === 'layanan') window.renderAdminList();
+            }, (err) => console.error(err));
 
-                const data = [
-                    { label: "Nama Lengkap", value: document.getElementById('pdf-nama').value.toUpperCase() },
-                    { label: "Tempat/Tgl Lahir", value: document.getElementById('pdf-tempat').value + ", " + formattedTgl },
-                    { label: "Jenis Kelamin", value: document.getElementById('pdf-jk').value },
-                    { label: "Agama", value: document.getElementById('pdf-agama').value },
-                    { label: "Pekerjaan", value: document.getElementById('pdf-pekerjaan').value },
-                    { label: "NIK", value: document.getElementById('pdf-nik').value },
-                    { label: "Alamat", value: document.getElementById('pdf-alamat').value },
-                    { label: "Keperluan", value: document.getElementById('pdf-keperluan').value }
-                ];
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'pengurus'), (snapshot) => {
+                if (snapshot.empty && !window.hasSeededPengurus) {
+                    window.hasSeededPengurus = true;
+                    window.defaultPengurusData.forEach(async (p) => {
+                        try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'pengurus', p.id), p); } 
+                        catch (e) { console.error("Seeding pengurus error", e); }
+                    });
+                } else if (!snapshot.empty) {
+                    window.pengurusData = snapshot.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.timestamp - a.timestamp);
+                }
+                window.renderPengurus();
+                if(window.currentAdminCat === 'pengurus') window.renderAdminList();
+            }, (err) => console.error(err));
 
-                doc.setFontSize(11);
-                data.forEach(item => {
-                    doc.text(item.label, 25, y); doc.text(":", 65, y);
-                    let splitVal = doc.splitTextToSize(item.value, 115); 
-                    doc.text(splitVal, 68, y); y += (splitVal.length * 6) + 2;
-                });
-
-                y += 6;
-                let closingText = "Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan yang berkepentingan untuk menjadi maklum.";
-                let splitClosing = doc.splitTextToSize(closingText, 170); doc.text(splitClosing, 20, y);
-                
-                y += (splitClosing.length * 6) + 15;
-                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                let today = new Date(); let tglSurat = today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
-
-                doc.text("Bekasi, " + tglSurat, 155, y, {align: "center"});
-                y += 6;
-                doc.text("KETUA RW 025", 55, y, {align: "center"});
-                doc.text("KETUA RT 004 / RW 025", 155, y, {align: "center"});
-                
-                y += 28; doc.setFont("helvetica", "bold");
-                doc.text("( ................................. )", 55, y, {align: "center"});
-                doc.text("( ROMADHON )", 155, y, {align: "center"});
-
-                const fileName = `Surat_Pengantar_RT004_${data[0].value.replace(/\s/g, '_')}.pdf`;
-                doc.save(fileName); 
-                window.showToast('PDF Berhasil Diunduh!');
-                
-                window.showToast('Mengarsipkan surat ke Server...');
-                try {
-                    const pdfBase64 = doc.output('datauristring').split(',')[1];
-                    const scriptUrl = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
-                    // fetch(scriptUrl, { method: 'POST', body: JSON.stringify({ fileName: fileName, mimeType: 'application/pdf', data: pdfBase64 }) });
-                    setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
-                } catch(e) { console.log('Gagal arsip drive: ', e); }
-
-                const namaWA = document.getElementById('pdf-nama').value.toUpperCase();
-                const keperluanWA = document.getElementById('pdf-keperluan').value;
-                const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
-                
-                const textWA = `*PERMOHONAN SURAT PENGANTAR RT 004*%0A%0A*Nama:* ${namaWA}%0A*Keperluan:* ${keperluanWA}%0A%0A_Catatan: File PDF surat telah diunduh dan diarsipkan otomatis ke sistem. (Bapak/Ibu Warga, silakan lampirkan file PDF ke dalam pesan ini)._`;
-                
-                setTimeout(() => {
-                    window.location.href = `https://api.whatsapp.com/send?phone=${nomorWAPengurus}&text=${textWA}`;
-                    e.target.reset(); window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]);
-                }, 1500); 
-
-            } catch (error) {
-                console.error(error); window.showToast('Maaf, Gagal memproses PDF.');
-            } finally {
-                btn.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Download, Arsip & Kirim WA';
-                btn.disabled = false;
-            }
-        });
-
-        // --- PENGADUAN WARGA LOGIC ---
-        document.getElementById('form-pengaduan').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const kategori = e.target.querySelector('select').value;
-            const detail = e.target.querySelectorAll('textarea')[0].value;
-            const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
-            const textWA = `*LAPORAN WARGA RT 004*%0A%0A*Kategori:* ${kategori}%0A*Detail:* ${detail}%0A%0AMohon segera ditindaklanjuti, terima kasih.`;
-            
-            window.location.href = `https://api.whatsapp.com/send?phone=${nomorWAPengurus}&text=${textWA}`;
-            
-            window.showToast('Membuka WhatsApp Pengurus...');
-            e.target.reset();
-            setTimeout(() => window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1000);
-        });
-
-        // --- GEMINI AI CHAT (Sistem Pemuda Pintar) ---
-        const apiKey = ""; 
-        const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual resmi RT 004. Tugasmu membantu warga dengan ramah, santun, dan komunikatif. Gunakan sapaan "Bapak/Ibu" atau "Warga". Jawablah tanpa menggunakan format markdown seperti bintang (*) atau tagar (#).`;
-
-        async function getGeminiResponse(userText) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            try {
-                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: userText }] }], systemInstruction: { parts: [{ text: systemPrompt }] } }) });
-                const result = await response.json();
-                let text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, sistem sedang sibuk.";
-                return text.replace(/\*/g, '').replace(/#/g, '').replace(/\n/g, '<br>');
-            } catch (e) { return "Mohon maaf, AI sedang luring. Coba lagi nanti 🙏"; }
-        }
-
-        document.getElementById('chat-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = '';
-            
-            const chatMessages = document.getElementById('chat-messages');
-            
-            chatMessages.innerHTML += `<div class="flex justify-end gap-2 pop-in"><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none text-[13px] max-w-[85%] shadow-md">${text}</div></div>`;
-            
-            const typingId = 'typing-' + Date.now();
-            chatMessages.innerHTML += `<div id="${typingId}" class="flex gap-2"><div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs typing-indicator flex items-center h-[34px] shadow-sm"><span></span><span></span><span></span></div></div>`;
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            const response = await getGeminiResponse(text);
-            document.getElementById(typingId).remove();
-            chatMessages.innerHTML += `<div class="flex gap-2 pop-in"><div class="w-8 h-8 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1 border border-blue-100 shadow-inner"><i class="fa-solid fa-user-tie text-blue-500 text-xs"></i></div><div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl rounded-tl-none text-[13px] text-slate-700 leading-relaxed max-w-[85%] shadow-sm">${response}</div></div>`;
-            chatMessages.scrollTop = chatMessages.scrollHeight; 
-        });
-    </script>
-</body>
-</html>
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'galeri'), (snapshot) => {
+                window.galeriData = snapshot.docs.map(d =>
