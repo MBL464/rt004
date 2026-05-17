@@ -1428,11 +1428,17 @@
                 window.showToast('PDF Berhasil Diunduh!');
                 
                 window.showToast('Mengarsipkan surat ke Server...');
-                try {
-                    const pdfBase64 = doc.output('datauristring').split(',')[1];
-                    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzPBpJ7fDbpCwo6Q8ZSJZRxJpsxcKOarQZF0pxYPYklagUIZTl3Wo2HoIsJHm7dxOy7/exec'; 
-                    setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
-                } catch(e) { console.log('Gagal arsip drive: ', e); }
+try {
+    const pdfBase64 = doc.output('datauristring').split(',')[1];
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzPBpJ7fDbpCwo6Q8ZSJZRxJpsxcKOarQZF0pxYPYklagUIZTl3Wo2HoIsJHm7dxOy7/exec'; 
+    
+    // Baris di bawah ini wajib ada untuk mengirim file ke Google Drive
+    fetch(scriptUrl, { method: 'POST', body: JSON.stringify({ fileName: fileName, mimeType: 'application/pdf', data: pdfBase64 }) });
+    
+    setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
+} catch(e) { 
+    console.log('Gagal arsip drive: ', e); 
+}
 
                 const namaWA = document.getElementById('pdf-nama').value.toUpperCase();
                 const keperluanWA = document.getElementById('pdf-keperluan').value;
