@@ -1484,7 +1484,7 @@ Penting: Selalu sapa warga dengan namanya jika sudah tahu. Gunakan susunan parag
 
         window.chatHistory = []; // Memori percakapan
 
-        async function getVercelAIResponse(userText) {
+async function getVercelAIResponse(userText) {
             window.chatHistory.push({ role: "user", parts: [{ text: userText }] });
 
             try {
@@ -1496,21 +1496,25 @@ Penting: Selalu sapa warga dengan namanya jika sudah tahu. Gunakan susunan parag
                         systemPrompt: systemPrompt 
                     }) 
                 });
-                
+
                 if (!response.ok) throw new Error("API Backend belum terhubung");
-                
+
                 const result = await response.json();
                 let aiText = result.text || "Maaf, Pemuda Pintar sedang blank nih.";
-                
-                // Simpan jawaban asli AI ke memori agar ingatannya akurat
+
                 window.chatHistory.push({ role: "model", parts: [{ text: aiText }] });
-                
-                // PERBAIKAN UTAMA: Mengubah teks markdown dari AI menjadi HTML yang rapi & terstruktur
-                return marked.parse(aiText);
-                
+
+                // --- PERBAIKAN: Cek dulu apakah "marked" berhasil dimuat ---
+                if (typeof marked !== 'undefined') {
+                    return marked.parse(aiText); // Jika berhasil, rapikan teks
+                } else {
+                    // Jika script marked.js gagal dimuat internet, tetap tampilkan jawaban (jangan error)
+                    return aiText.replace(/\n/g, '<br>'); 
+                }
+
             } catch (e) { 
-                window.chatHistory.pop(); // Hapus pesan user dari memori jika gagal terkirim
-                console.error(e);
+                window.chatHistory.pop();
+                console.error("Error Detail:", e); // Membantu melihat error asli di inspect element
                 return "Waduh, koneksi ke otak (Server Vercel) terputus nih. Pastikan API Vercel sudah di-deploy ya! 🙏"; 
             }
         }
