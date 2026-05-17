@@ -1457,7 +1457,7 @@
             e.preventDefault();
             const kategori = e.target.querySelector('select').value;
             const detail = e.target.querySelectorAll('textarea')[0].value;
-            const nomorWAPengurus = "6281234567890"; // <- GANTI NOMOR PENGURUS DI SINI
+            const nomorWAPengurus = "6287867534397"; // <- GANTI NOMOR PENGURUS DI SINI
             const textWA = `*LAPORAN WARGA RT 004*%0A%0A*Kategori:* ${kategori}%0A*Detail:* ${detail}%0A%0AMohon segera ditindaklanjuti, terima kasih.`;
             
             window.location.href = `https://api.whatsapp.com/send?phone=${nomorWAPengurus}&text=${textWA}`;
