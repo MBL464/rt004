@@ -18,7 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Memanggil jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- BAGIAN PWA (Progressive Web App) -->
     <!-- Dilindungi dengan Try-Catch agar tidak error di Gemini Preview -->
     <script>
@@ -1473,14 +1473,14 @@ try {
             setTimeout(() => window.switchView('view-dashboard', document.querySelectorAll('.nav-item')[0]), 1000);
         });
 
-        // --- GEMINI AI CHAT (Sistem Pemuda Pintar terintegrasi Vercel & Memory) ---
-        // URL Backend Vercel Anda (Jika API ada di domain yang sama cukup '/api/chat', jika terpisah masukkan full URL)
+// --- GEMINI AI CHAT (Sistem Pemuda Pintar terintegrasi Vercel & Memory) ---
         const backendApiUrl = '/api/chat'; 
         
+        // PERBAIKAN PROMPT: Mengizinkan AI menyusun poin/paragraf, namun tetap ramah & tidak kaku
         const systemPrompt = `Kamu adalah "Pemuda Pintar", asisten virtual sekaligus teman ngobrol warga RT 004 Perum. Taman Wismaasri 2. 
 Karaktermu: Sangat ramah, asyik, berempati tinggi, hidup seperti manusia, humoris tapi tetap sopan. 
-Tugasmu: Menjawab pertanyaan seputar RT, birokrasi, atau bahkan sekadar menjadi pendengar yang baik jika warga ingin curhat.
-Penting: Kamu memiliki ingatan tentang percakapan sebelumnya. Selalu sapa warga dengan namanya jika sudah tahu. Jangan kaku. Jawab tanpa format markdown tebal/bintang.`;
+Tugasmu: Menjawab pertanyaan seputar RT, birokrasi, atau sekadar menjadi pendengar jika warga ingin curhat.
+Penting: Selalu sapa warga dengan namanya jika sudah tahu. Gunakan susunan paragraf pendek atau poin-poin (1, 2, 3) yang rapi agar mudah dibaca di HP.`;
 
         window.chatHistory = []; // Memori percakapan
 
@@ -1488,7 +1488,6 @@ Penting: Kamu memiliki ingatan tentang percakapan sebelumnya. Selalu sapa warga 
             window.chatHistory.push({ role: "user", parts: [{ text: userText }] });
 
             try {
-                // Memanggil server Vercel alih-alih memanggil Gemini secara langsung
                 const response = await fetch(backendApiUrl, { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
@@ -1503,10 +1502,12 @@ Penting: Kamu memiliki ingatan tentang percakapan sebelumnya. Selalu sapa warga 
                 const result = await response.json();
                 let aiText = result.text || "Maaf, Pemuda Pintar sedang blank nih.";
                 
-                // Simpan jawaban AI ke memori
+                // Simpan jawaban asli AI ke memori agar ingatannya akurat
                 window.chatHistory.push({ role: "model", parts: [{ text: aiText }] });
                 
-                return aiText.replace(/\*/g, '').replace(/#/g, '').replace(/\n/g, '<br>');
+                // PERBAIKAN UTAMA: Mengubah teks markdown dari AI menjadi HTML yang rapi & terstruktur
+                return marked.parse(aiText);
+                
             } catch (e) { 
                 window.chatHistory.pop(); // Hapus pesan user dari memori jika gagal terkirim
                 console.error(e);
@@ -1529,14 +1530,24 @@ Penting: Kamu memiliki ingatan tentang percakapan sebelumnya. Selalu sapa warga 
             chatMessages.innerHTML += `<div id="${typingId}" class="flex gap-2"><div class="bg-slate-50 border border-slate-100 p-2.5 rounded-2xl rounded-tl-none text-xs typing-indicator flex items-center h-[34px] shadow-sm"><span></span><span></span><span></span></div></div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // Menggunakan API Vercel
-            const response = await getVercelAIResponse(text);
+            // Mengambil respons yang sudah dikonversi menjadi HTML rapi
+            const responseHTML = await getVercelAIResponse(text);
             
             document.getElementById(typingId).remove();
-            chatMessages.innerHTML += `<div class="flex gap-2 pop-in"><div class="w-8 h-8 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1 border border-blue-100 shadow-inner"><i class="fa-solid fa-user-tie text-blue-500 text-xs"></i></div><div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl rounded-tl-none text-[13px] text-slate-700 leading-relaxed max-w-[85%] shadow-sm">${response}</div></div>`;
+            
+            // PERBAIKAN: Menggunakan class "prose" opsional atau biarkan style CSS bawaan merender HTML hasil marked.parse
+            chatMessages.innerHTML += `
+                <div class="flex gap-2 pop-in">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center mt-1 border border-blue-100 shadow-inner">
+                        <i class="fa-solid fa-user-tie text-blue-500 text-xs"></i>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-3 rounded-2xl rounded-tl-none text-[13px] text-slate-700 leading-relaxed max-w-[85%] shadow-sm chat-ai-content">
+                        ${responseHTML}
+                    </div>
+                </div>`;
+                
             chatMessages.scrollTop = chatMessages.scrollHeight; 
         });
-
         // ============================================================================
         // JALANKAN UI SEGERA (Mengatasi Blank Screen)
         // ============================================================================
