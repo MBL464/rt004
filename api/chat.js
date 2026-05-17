@@ -8,8 +8,9 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'API Key Vercel belum diisi' });
     }
 
-    // PERBAIKAN: Menggunakan nama model gemini-1.5-flash-latest yang dijamin terbaca oleh Google
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    // KITA KEMBALI MENGGUNAKAN VERSI 2.5 FLASH YANG STABIL
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    
     const payload = { 
         systemInstruction: { parts: [{ text: systemPrompt }] }, 
         contents: history 
@@ -24,18 +25,23 @@ export default async function handler(req, res) {
         
         const data = await geminiRes.json();
 
-        // Cek jika Google masih menolak
+        // SISTEM KEAMANAN 1: Cek jika Google menolak (misal: API key salah/kuota habis)
         if (!geminiRes.ok || data.error) {
             console.error("Ditolak oleh Google:", data.error);
-            return res.status(500).json({ error: `Ditolak Google: ${data.error?.message || 'Error tidak diketahui'}` });
+            return res.status(500).json({ error: `Ditolak Google: ${data.error?.message || 'Penyebab tidak diketahui'}` });
         }
 
-        // Jika sukses, ambil jawaban AI
-        const text = data.candidates[0].content.parts[0].text;
-        res.status(200).json({ text: text });
+        // SISTEM KEAMANAN 2: Pastikan Google benar-benar mengirim teks jawaban
+        if (data.candidates && data.candidates.length > 0) {
+            const text = data.candidates[0].content.parts[0].text;
+            res.status(200).json({ text: text });
+        } else {
+            console.error("Google tidak membalas dengan teks:", data);
+            res.status(500).json({ error: 'AI memproses, tapi tidak ada teks jawaban.' });
+        }
 
     } catch (error) {
         console.error("Vercel Gagal Terhubung:", error); 
-        res.status(500).json({ error: 'Server Vercel gagal memproses data' });
+        res.status(500).json({ error: 'Server Vercel gagal mengirim data ke Google' });
     }
 }
