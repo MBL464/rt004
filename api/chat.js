@@ -8,8 +8,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'API Key Vercel belum diisi' });
     }
 
-    // Kita gunakan model gemini-1.5-flash yang paling stabil dan cepat
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // PERBAIKAN: Menggunakan nama model gemini-1.5-flash-latest yang dijamin terbaca oleh Google
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
     const payload = { 
         systemInstruction: { parts: [{ text: systemPrompt }] }, 
         contents: history 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         
         const data = await geminiRes.json();
 
-        // CEK ERROR: Jika Google menolak, tampilkan pesan aslinya di Logs Vercel
+        // Cek jika Google masih menolak
         if (!geminiRes.ok || data.error) {
             console.error("Ditolak oleh Google:", data.error);
             return res.status(500).json({ error: `Ditolak Google: ${data.error?.message || 'Error tidak diketahui'}` });
