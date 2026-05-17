@@ -1430,7 +1430,7 @@
                 window.showToast('Mengarsipkan surat ke Server...');
                 try {
                     const pdfBase64 = doc.output('datauristring').split(',')[1];
-                    const scriptUrl = 'URL_GOOGLE_SCRIPT_ANDA_DISINI'; 
+                    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzPBpJ7fDbpCwo6Q8ZSJZRxJpsxcKOarQZF0pxYPYklagUIZTl3Wo2HoIsJHm7dxOy7/exec'; 
                     setTimeout(() => window.showToast('Surat diarsipkan ke sistem!'), 1000);
                 } catch(e) { console.log('Gagal arsip drive: ', e); }
 
