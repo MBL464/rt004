@@ -9,6 +9,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>RT 004 Digital</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#059669">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icon-192.png">
     
     <!-- Memanggil Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,50 +23,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Memanggil jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- BAGIAN PWA (Progressive Web App) -->
-    <!-- Dilindungi dengan Try-Catch agar tidak error di Gemini Preview -->
-    <script>
-        try {
-            const manifestJSON = {
-                "name": "RT 004 Digital",
-                "short_name": "RT 004",
-                "start_url": window.location.href,
-                "display": "standalone",
-                "background_color": "#ffffff",
-                "theme_color": "#059669",
-                "icons": [{
-                    "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
-                    "sizes": "192x192",
-                    "type": "image/png",
-                    "purpose": "any maskable"
-                }, {
-                    "src": "https://www.image2url.com/r2/default/images/1778052352511-e28abdb9-b765-45a2-9a84-36baff932534.png",
-                    "sizes": "512x512",
-                    "type": "image/png",
-                    "purpose": "any maskable"
-                }]
-            };
-            const manifestBlob = new Blob([JSON.stringify(manifestJSON)], {type: 'application/json'});
-            const manifestUrl = URL.createObjectURL(manifestBlob);
-            
-            const link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = manifestUrl;
-            document.head.appendChild(link);
-
-            const swCode = "self.addEventListener('fetch', function(e) {});";
-            const swBlob = new Blob([swCode], {type: 'application/javascript'});
-            const swUrl = URL.createObjectURL(swBlob);
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                    navigator.serviceWorker.register(swUrl).catch(function(err) { console.log('SW fail', err); });
-                });
-            }
-        } catch (e) {
-            console.log("PWA dinonaktifkan di mode preview.");
-        }
-    </script>
 
     <script>
         tailwind.config = {
@@ -1792,6 +1753,16 @@ async function getVercelAIResponse(userText) {
             } catch(e) { console.error("Gagal Seed Data:", e); }
         }
 
+    </script>
+    <script>
+        // Mendaftarkan Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker sukses:', reg.scope))
+                    .catch(err => console.log('Service Worker gagal:', err));
+            });
+        }
     </script>
 </body>
 </html>
